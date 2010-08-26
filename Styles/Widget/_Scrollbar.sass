@@ -1,0 +1,34 @@
+scrollbar
+  :height 16px
+  :width 16px
+  :cursor pointer
+  :stroke-color hsb(0, 0, 0, 0.3)
+  :stroke-width 0
+  :corner-radius 3
+  :glyph-color hsb(82, 0, 100, 0.5)
+
+  &:horizontal 
+    track
+      :height 14px
+      :margin-left 16px
+
+
+  &:vertical 
+    track
+      :width 14px
+      :margin-top 16px
+
+  
+  track
+    thumb
+      :width 12px
+      :height 12px
+      :stroke-width 1
+      :stroke-color hsb(0, 0, 100, 0.7)
+      :corner-radius 5
+      :background-color gradient(hsb(0, 0, 0, 0.2), hsb(0, 0, 0, 0.24))
+      :fill-color gradient(hsb(44, 0, 100, 0.15), hsb(31, 0, 50, 0))
+      
+      &:active
+        :reflection-color gradient(hsb(44, 0, 100, 0.3), hsb(31, 0, 50, 0))
+        :background-color gradient(hsb(0, 0, 0, 0.4), hsb(0, 0, 0, 0.5))

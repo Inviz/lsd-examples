@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>ART Demo</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	
+	<script src="../Specs/Assets/Scripts/mootools.js"></script>
+	<script src="../Specs/Assets/Scripts/mootools-color.js"></script>
+	<script src="../Specs/Assets/Scripts/slickparser.js"></script>
+	<script src="../Specs/Assets/Scripts/touch.js"></script>
+	<script src="../Demos/Assets/Scripts/cssparser.js"></script>
+	
+	<script src="../Source/Extras/Class.Extras.Ext.js"></script>
+	<script src="../Source/Extras/Class.Refactor.js"></script>
+	<script src="../Source/Extras/Element.Ext.js"></script>
+	<script src="../Source/Extras/Widget.js"></script>
+	<script src="../Source/Extras/QFocuser.js"></script>
+	<script src="../Source/Extras/Event.Ext.js"></script>
+	<script src="../Source/Extras/Element.Event.Ext.js"></script>
+	
+	
+	
+	<script src="../ART/Source/ART.js"></script>
+	<script src="../ART/Source/ART.SVG.js"></script>
+	<script src="../ART/Source/ART.VML.js"></script>
+	<script src="../ART/Source/ART.Base.js"></script>
+	<script src="../ART/Source/ART.Path.js"></script>
+	<script src="../ART/Source/ART.Font.js"></script>
+	
+	<script src="../Source/ART/ART.js"></script>
+	<script src="../Source/ART/Sheet.js"></script>
+	<script src="../Source/Widget/Widget.js"></script>
+	<script src="../Source/ART/Layout.js"></script>
+	<script src="../Source/ART/Glyphs.js"></script>
+	<script src="../Source/ART/Container.js"></script>
+	
+	
+	<script src="../Source/ART/Layer.js"></script>
+	<script src="../Source/ART/Layer/Fill.js"></script>
+	<script src="../Source/ART/Layer/Shadow.js"></script>
+	<script src="../Source/ART/Layer/InnerShadow.js"></script>
+	<script src="../Source/ART/Layer/Stroke.js"></script>
+	
+	
+	<script src="../Source/ART/Shape.js"></script>
+	<script src="../Source/ART/Shape/Ellipse.js"></script>
+	<script src="../Source/ART/Shape/Rectangle.js"></script>
+	
+
+	
+	<!-- these are autoincluded to all widgets -->
+  <script src="../Source/Widget/Module/Events.js"></script>
+  <script src="../Source/Widget/Module/Expression.js"></script>
+  <script src="../Source/Widget/Module/Shape.js"></script>
+  <script src="../Source/Widget/Module/Layers.js"></script>
+  <script src="../Source/Widget/Module/Layout.js"></script>
+  <script src="../Source/Widget/Module/LayoutEvents.js"></script>
+  <script src="../Source/Widget/Module/Position.js"></script>
+  <script src="../Source/Widget/Module/Value.js"></script>
+  <script src="../Source/Widget/Module/Focus.js"></script>
+  <script src="../Source/Widget/Module/Dimensions.js"></script>
+  <script src="../Source/Widget/Module/Styles.js"></script>
+  <script src="../Source/Widget/Module/Cache.js"></script>
+  <script src="../Source/Widget/Module/Container.js"></script>
+  
+	<!-- these are used on widgets basis -->
+  <script src="../Source/Widget/Trait/Aware.js"></script>
+	<script src="../Source/Widget/Trait/Draggable.js"></script>
+	<script src="../Source/Widget/Trait/Input.js"></script>
+	<script src="../Source/Widget/Trait/Slider.js"></script>
+	<script src="../Source/Widget/Trait/Hoverable.js"></script>
+	<script src="../Source/Widget/Trait/OuterClick.js"></script>
+	<script src="../Source/Widget/Trait/Observed.js"></script>
+	<script src="../Source/Widget/Trait/Resizable.js"></script>
+	<script src="../Source/Widget/Trait/ResizableContainer.js"></script>
+	<script src="../Source/Widget/Trait/Shy.js"></script>
+	<script src="../Source/Widget/Trait/Touchable.js"></script>
+	<script src="../Source/Widget/Trait/Menu.js"></script>
+	<script src="../Source/Widget/Trait/Accessibility.js"></script>
+	<script src="../Source/Widget/Trait/Dimensions.js"></script>
+  <script src="../Source/Widget/Trait/Chooser.js"></script>
+  <script src="../Source/Widget/Trait/Scrollable.js"></script>
+  <script src="../Source/Widget/Trait/Fitting.js"></script>
+	<script src="../Source/Widget/Trait/List.js"></script>
+	
+	<script src="../Source/Widget/Base.js"></script>
+	<script src="../Source/Widget/Element.js"></script>
+  <script src="../Source/Widget/Paint.js"></script>
+	<script src="../Source/Widget/Button.js"></script>
+	
+	
+	<link rel="art stylesheet" href="./Assets/Styles/Widgets.css">
+	<script>
+	  window.addEvent('domready', function() {
+  		var a = ART.Widget
+  		ART.Sheet.decompile('art', function() {
+  		  console.profile('button');
+  		  $z = (new a.Button)
+  		  $z.inject(document.body)
+    		  console.profileEnd('button');
+		  });
+  		
+	  });
+	</script>
+</head>
+<body>
+</body>
+</html>

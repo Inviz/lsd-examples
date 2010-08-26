@@ -1,0 +1,196 @@
+window.fancy
+  :corner-radius-bottom-left 5
+  :corner-radius-bottom-right 5
+  :corner-radius-top-left 5
+  :corner-radius-top-right 5
+  :stroke-width 5
+  :stroke-cap square
+  :stroke-color hsb(0, 0, 10, 0.5)
+
+  #buttons
+    &:hover button
+      :glyph-color hsb(0, 0, 20, 0.7)
+    #close
+      :fill-color gradient("radial", "{0: hsb(0, 95, 80), 0.9: hsb(0, 97, 73), 1: hsb(359, 65, 22)}, {cy: '55%', r: '42%', fy: '55%'}")
+      :stroke-color gradient(hsb(359, 71, 60), hsb(359, 24, 75))
+      &:active
+        :fill-color gradient("radial", "{0: hsb(0, 95, 70), 0.8: hsb(0, 97, 63), 1: hsb(359, 65, 32)}, {cy: '55%', r: '42%', fy: '55%'}")
+    #minimize
+      :fill-color gradient("radial", "{0: hsb(58, 95, 80), 0.8: hsb(28, 66, 85), 1: hsb(2, 64, 58)}, {cy: '55%', r: '44%', fy: '55%'}")
+      :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
+      &:active
+        :fill-color gradient("radial", "{0: hsb(58, 95, 70), 0.8: hsb(28, 66, 75), 1: hsb(2, 64, 48)}, {cy: '55%', r: '44%', fy: '55%'}")
+    #maximize
+      :fill-color gradient("radial", "{0: hsb(100, 76, 76), 0.8: hsb(95, 46, 73), 1: hsb(103, 53, 43)}, {cy: '55%', r: '44%', fy: '55%'}")
+      :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
+      &:active
+        :fill-color gradient("radial", "{0: hsb(100, 76, 66), 0.8: hsb(95, 46, 63), 1: hsb(103, 53, 33)}, {cy: '55%', r: '44%', fy: '55%'}")
+    #close, #minimize, #maximize
+      &:disabled
+        :fill-color false
+        :opacity 0.5
+    
+  &:dragged    
+    :cursor move
+    :stroke-color hsb(0, 0, 10, 0.2)
+    :shadow-blur 25
+    :shadow-offset-y 12
+  #header
+    :corner-radius-top-left inherit
+    :corner-radius-top-right inherit
+    :padding-right 5px
+    :padding-top 3px
+    :padding-left 5px
+    :padding-bottom 3px
+    :height auto
+    :background-color gradient(hsb(0, 0, 80), hsb(0, 0, 60))
+    :reflection-color gradient(hsb(0, 0, 100, 1), hsb(0, 0, 0, 0))
+    :border-bottom-width 1px
+    :border-bottom-style solid
+    :border-bottom-color #979797
+  #toolbar
+    :clear both
+    :padding-top 5px
+    :background-color gradient(hsb(0, 0, 80), hsb(0, 0, 60))
+    :reflection-color gradient(hsb(0, 0, 100, 1), hsb(0, 0, 0, 0))
+  #content
+    :height 150px
+    :background-color gradient(hsb(0, 0, 80, 0.3), hsb(0, 0, 70, 0.4))
+    :reflection-color gradient(hsb(0, 0, 100, 0.3), hsb(0, 0, 0, 0))
+  #footer  
+    :corner-radius-bottom-left inherit
+    :corner-radius-bottom-right inherit
+    :background-color gradient(hsb(0, 0, 80), hsb(0, 0, 70))
+    :reflection-color gradient(hsb(0, 0, 100, 1), hsb(0, 0, 0, 0))
+    :height auto
+    :border-top-width 1px
+    :border-top-style solid
+    :border-top-color #979797
+  &:minified 
+    #content
+      :background-color gradient(hsb(0, 0, 80, 0.5), hsb(0, 0, 70, 0.7))
+      :reflection-color gradient(hsb(0, 0, 100, 0.5), hsb(0, 0, 0, 0))
+    button
+      :height 20px
+      :width 20px
+      :glyph-top 5
+      :glyph-left 5
+      &.right
+        :corner-radius-top-right 3
+        :corner-radius-bottom-right 3
+        :corner-radius-top-left 0
+        :corner-radius-bottom-left 0
+        :margin-left -1
+        :glyph-left 8
+        :glyph-top 6
+        :width 25px
+      &:text
+        :width auto
+        :display block
+  button
+    :background-color gradient(hsb(0, 0, 99), hsb(0, 0, 74))
+    :reflection-color gradient(hsb(0, 0, 30, 0), hsb(0, 0, 40, 0.3))
+    &:active
+      :background-color gradient(hsb(0, 0, 40), hsb(0, 0, 74))
+    &:disabled
+      :glyph-color hsb(0, 0, 50)
+      :color #777
+      :cursor default  
+    &:active
+      :fill-color gradient(hsb(205, 25, 60), hsb(0, 0, 0, 0))
+      :glyph-color hsb(0, 0, 100)
+    &:text
+      :width auto
+      :height 20px
+      :padding-left 5px
+      :padding-right 5px
+      :display block
+    &.left  
+      :corner-radius-top-right 0
+      :corner-radius-bottom-right 0
+      :corner-radius-top-left 3
+      :corner-radius-bottom-left 3
+      :width 25px
+      :glyph-left 8
+      :glyph-top 6
+      :margin-right 0px
+    &.right
+      :corner-radius-top-right 3
+      :corner-radius-bottom-right 3
+      :corner-radius-top-left 0
+      :corner-radius-bottom-left 0
+      :margin-left -1
+      :glyph-left 8
+      :glyph-top 6
+      :width 25px
+    &#search
+      :glyph glyph("search")
+    &#bookmark
+      :glyph glyph("smallPlus")
+    &#reload
+      :glyph glyph("refresh")
+    &#wrench
+      :glyph glyph("wrench")
+    &#back
+      :glyph glyph("triangleLeft")
+    &#forward
+      :glyph glyph("triangleRight")
+  
+  scrollbar
+    :position absolute
+  
+    track
+      :fill-color gradient(hsb(0, 0, 30, 0.4), hsb(0, 0, 50, 0.5))
+      :reflection-color gradient(hsb(31, 0, 100, 0.3), hsb(45, 0, 50, 0))
+      :stroke-width 1
+      :stroke-color hsb(0, 0, 0, 0.3)
+    
+    button
+      :height 14px
+      :width 14px
+      :margin-left 0px
+      :glyph-scale 0.8
+      :glyph-top 3
+      :glyph-left 3
+      :stroke-width 1
+    
+    &:vertical 
+      :top 0
+      :right 0
+
+      button
+        &#decrement
+          :bottom 0
+          :glyph glyph("triangleDown")
+          :corner-radius-top-right 0
+          :corner-radius-bottom-right 3
+          :corner-radius-top-left 0
+          :corner-radius-bottom-left 3
+
+
+        &#increment
+          :glyph glyph("triangleUp")
+          :corner-radius-top-right 3
+          :corner-radius-bottom-right 0
+          :corner-radius-top-left 3
+          :corner-radius-bottom-left 0
+
+    &:horizontal 
+      :bottom 0
+      :left 0
+
+      button
+        &#increment
+          :right 0
+          :corner-radius-top-right 3
+          :corner-radius-bottom-right 3
+          :corner-radius-top-left 0
+          :corner-radius-bottom-left 0
+          :glyph glyph("triangleRight")
+
+        &#decrement
+          :glyph glyph("triangleLeft")
+          :corner-radius-top-left 3
+          :corner-radius-bottom-left 3
+          :corner-radius-top-right 0
+          :corner-radius-bottom-right 0

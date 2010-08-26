@@ -1,0 +1,35 @@
+window.hud    
+  :corner-radius 15
+  #content
+    :height 70px
+    :background-color gradient(hsb(0, 0, 0, 0.6), hsb(0, 0, 20, 0.5))
+    :reflection-color gradient(hsb(0, 0, 100, 0.6), hsb(0, 0, 10, 0))
+    :corner-radius-bottom-left inherit
+    :corner-radius-bottom-right inherit
+    
+  #header
+    :corner-radius-top-left inherit
+    :corner-radius-top-right inherit
+    :height 28px
+    :background-color gradient(hsb(0, 0, 0, 0.55), hsb(0, 0, 0, 0.5))
+    :reflection-color gradient(hsb(0, 0, 0, 0), hsb(0, 0, 0, 0))
+  button
+    :height 16px
+    :width 16px
+    :cursor pointer
+    :background-color gradient(hsb(0, 0, 0, 0.4), hsb(0, 0, 0, 0.5))
+    :reflection-color gradient(hsb(0, 0, 0, 0.3), hsb(0, 0, 0, 0))
+    :glyph-color hsb(82, 0, 100, 0.5)
+    :corner-radius 7
+    :float left
+    :margin-left 5px
+  #buttons #close
+    :stroke-color hsb(82, 0, 100, 0.3)
+    :glyph-top 2
+    :glyph-left 2
+    
+  #header #title  
+    :font-size 1em
+    :color #ddd
+    .container:element
+      +light-emboss

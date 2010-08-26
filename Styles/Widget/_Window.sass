@@ -1,0 +1,111 @@
+window    
+  :display inline-block
+  :vertical-align top
+  :width auto
+  :height auto
+  :shadow-blur 20
+  :shadow-offset-y 5
+  :shadow-color hsb(0, 0, 0, 0.5)
+  :line-height 16px
+  
+  
+  #footer, #header  
+    :width auto
+    :display block
+    
+  #content
+    :width 300px
+    :min-height 50
+  
+  #header 
+    :cursor default
+    
+    input#search
+      :float right
+
+    #title  
+      :z-index 4
+      :text-align center
+      :font-size 13px
+      .container:element
+        +dark-emboss        
+      :color #555          
+          
+    #buttons
+      :float left
+      :height 16px
+      :position relative
+      :z-index 5
+      button
+        :glyph-left 0.5
+        :glyph-top 0
+        :glyph-color hsb(0, 0, 0, 0)
+        :width 13px
+        :height 13px
+        :corner-radius 6
+        :reflection-color gradient("radial", "{0.4: hsb(0, 0, 100, 0.6), 0.9: hsb(0, 0, 100, 0)}, {cy: '10%', r: '17%', fy: '50%'}")
+        :fill-color hsb(0,0,0,0)
+        :background-color gradient("radial", "{0: hsb(0, 0, 100, 0.7), 0.35: hsb(0, 0, 100, 0.6), 1: hsb(0,0,100,0.2)}, {cy: '90%', r: '60%', fy: '80%'}")
+    #toggler
+      :float right
+      :margin-left -20
+      :margin-right 0px
+      :height 8px
+      :width 18px
+      :corner-radius 4
+      :reflection-color gradient(hsb(0, 0, 100, 0.5), hsb(0, 0, 40, 0.5), hsb(0, 0, 100, 0.5))
+      :background-color gradient(hsb(0, 0, 90, 0.3), hsb(0, 0, 100, 0.9))
+      :z-index 5
+      
+      &:active
+        :fill-color gradient(hsb(210, 61, 90), hsb(202, 95, 100))
+      
+  #header #buttons button, #header #toggler, #toolbar button, input, #legend select
+    :shadow-blur 0
+    :shadow-offset-y 1
+    :shadow-color hsb(0, 0, 77)
+        
+  #header #buttons button, #header #toggler
+    :shadow-color hsb(0, 0, 85)
+  
+  button
+    :height 20px
+    :cursor pointer
+    :fill-color gradient(hsb(0, 0, 75), hsb(0, 0, 100, 0.3))
+    :background-color gradient(hsb(0, 0, 95), hsb(0, 0, 0, 0))
+    :shadow-color hsb(0, 0, 100, 0.4)
+    :stroke-color hsb(0, 0, 45)
+    :glyph-color hsb(0, 0, 30)
+    :float left
+    :margin-right 5px
+    
+      
+  #close
+    :glyph glyph("smallCross")
+  
+  #minimize
+    :glyph glyph("smallMinus")
+
+  #maximize
+    :glyph glyph("smallPlus")
+    
+  #bookmark
+    :glyph glyph("smallPlus")
+    
+    
+    
+  #handle  
+    :z-index 10
+    :glyph glyph("resize")
+    :glyph-color hsb(0, 0, 50, 0.5)
+    :glyph-top 2
+    :glyph-left 0
+    :width 13px
+    :height 15px
+    :shadow-color hsb(0, 0, 0, 0.4)
+    :touchable true
+    :float right
+    :cursor se-resize
+    &:active
+      :glyph-color hsb(0, 0, 100, 0.7)
+      :shadow-color hsb(0, 0, 0, 0.6)

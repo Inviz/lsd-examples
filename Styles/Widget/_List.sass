@@ -1,0 +1,43 @@
+list
+  :width auto
+  :height auto
+  :z-index 25
+  :user-select none
+  &:focused    
+    :shadow-color hsb(212, 58, 93)
+    :shadow-blur 10
+    :shadow-offset-y 0
+    :stroke-color hsb(212, 58, 93)
+    :background-color hsb(0, 0, 100)
+  item
+    :width auto
+    :height auto
+    :reflection-color false
+    :fill-color false
+    &:selected
+      :reflection-color gradient(hsb(0, 0, 74, 0.3), hsb(0, 0, 58, 0.3))
+      :fill-color gradient(hsb(223, 19, 80), hsb(222, 28, 72))
+
+  &:focused
+    item
+      &:selected
+        :fill-color gradient(hsb(223, 49, 80), hsb(222, 58, 72))
+      
+  &#networks 
+    item
+      :width auto
+      :display block
+      :padding-top 5px
+      :padding-left 5px
+      :padding-right 5px
+      :padding-bottom 5px
+      &:selected
+        :color #fff
+        :reflection-color gradient(hsb(0, 0, 74, 0.3), hsb(0, 0, 58, 0.3))
+        :fill-color gradient(hsb(223, 19, 80), hsb(222, 28, 72))
+
+    h2, p
+      :font-size 1em
+      :line-height 1em
+      :padding 0px
+      :margin 0

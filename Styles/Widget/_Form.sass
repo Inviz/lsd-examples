@@ -1,0 +1,56 @@
+form
+  &.two-column
+    :margin-left 20px
+    :margin-right 20px
+    :margin-bottom 0px
+    label
+      :float left
+      :clear both
+      :text-align right
+      :margin-right 16px
+      :line-height 20px
+      :margin-bottom 16px
+      :width 100px
+      
+    input
+      :float left
+      :margin-bottom 16px
+      
+      &[type=checkbox]
+        :margin-top 3px
+        
+    select
+      :float left
+        
+    .field
+      :float left
+      :margin-bottom 16px
+      :line-height 20px
+      label
+        :float none
+        :clear none
+        :text-align left
+        :margin-right 0
+        :margin-bottom 0
+        :width auto
+        :display inline-block
+        :vertical-align middle
+        :line-height 16px
+  
+  
+  .options.field
+    input
+      &[type=checkbox], &[type=radio]
+        :float none
+        :display inline-block
+        :margin-bottom 0
+        :vertical-align middle
+        :margin-right 3px
+       
+        
+  section
+    :border-bottom 1px solid #8a8a8a
+    :height auto
+    :margin-top 20px
+    &.last
+      :border-bottom 0 

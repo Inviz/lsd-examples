@@ -1,0 +1,36 @@
+input, textarea    
+  :corner-radius 1
+  :stroke-color hsb(0, 0, 50)
+  :stroke-width 1
+  :fill-color gradient(hsb(0, 0, 90), hsb(0, 0, 95))
+  :reflection-color gradient(hsb(0, 0, 100, 1), hsb(0, 0, 70, 0))
+  :width 170px
+  :height 18px
+
+
+textarea    
+  :height 88px
+  textarea:element
+    :padding-top 2px
+    :margin 0px
+    
+input, textarea
+  &:focused
+    :shadow-color hsb(212, 58, 93)
+    :shadow-blur 5
+    :shadow-offset-y 0
+    :stroke-color hsb(212, 58, 93)
+    
+    
+
+input input:element, textarea textarea:element
+  :border 0
+  :line-height 14px
+  :font-size 13px
+  :padding-top 3px
+  :padding-left 4px
+  :font-family Helvetica
+  :background none
+  :display block
+  :outline none
+  

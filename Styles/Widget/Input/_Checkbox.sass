@@ -1,0 +1,16 @@
+input[type=checkbox]
+  :width 14px
+  :height 14px
+  :glyph-color false
+  :corner-radius 3
+  
+  &:active
+    :fill-color gradient(hsb(0, 0, 80), hsb(0, 0, 85))
+    :reflection-color gradient(hsb(0, 0, 90, 1), hsb(0, 0, 60, 0))
+    
+  &:checked
+    :glyph glyph("checkMark")
+    :glyph-top 0px
+    :glyph-left 1px
+    :glyph-scale 1.6
+    :glyph-color hsb(0, 0, 30)

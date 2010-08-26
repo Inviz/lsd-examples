@@ -1,0 +1,35 @@
+button
+  .container:element
+    +dark-emboss
+  :padding 0px
+  
+  :glyph false
+  :glyph-stroke 2
+  :glyph-color hsb(0, 0, 0, 0.8)
+  :glyph-height 13
+  :glyph-width 13
+  :glyph-top 1
+  :glyph-left 1
+  
+  :stroke-color hsb(0, 0, 25, 0.7)
+  :stroke-width 1
+  
+  :corner-radius-bottom-left 3
+  :corner-radius-bottom-right 3
+  :corner-radius-top-left 3
+  :corner-radius-top-right 3
+  :background-color gradient(hsb(0, 0, 80), hsb(0, 0, 60))
+  :reflection-color gradient(hsb(0, 0, 100, 1), hsb(0, 0, 0, 0))
+  
+  :line-height 1.7em
+  :vertical-align middle
+  :font-family Helvetica
+  :font-size 12px
+  
+  &[shape=arrow]
+    :width 30px
+    :height 40px
+    :arrow-width 10
+    :arrow-height 10
+    :arrow-side left
+    :arrow-position 9

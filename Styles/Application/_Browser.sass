@@ -1,0 +1,74 @@
+window#browser, window#browser #footer
+  :arrow-width 20
+  :arrow-height 20
+  :arrow-side bottom
+  :arrow-position 9
+  
+window#browser #footer
+  :arrow-width 18
+  :arrow-height 18
+  :arrow-position 10
+
+window#browser 
+  #toolbar 
+    button
+      :glyph-scale 2
+      :glyph-top 6
+      :glyph-left 6
+      :height 36px
+      :width 36px
+      &#bookmark
+        :stroke-width 1
+        :stroke-color hsb(0, 0, 0, 0.35)
+      &#back
+        :glyph-top 11
+        :glyph-left 10
+        :corner-radius 18
+        &[shape=arrow]
+          :corner-radius 5
+        :glyph-scale 1.5
+        :z-index 10
+
+      &#forward
+        :height 21px
+        :corner-radius-top-right 10
+        :corner-radius-bottom-right 10
+        :corner-radius-top-left 0
+        :corner-radius-bottom-left 0
+        :glyph-scale 1.2
+        :glyph-left 15
+        :glyph-top 5
+        :width 32px
+        :margin-top 7px
+        :margin-left -15
+        :z-index 5
+  &:minified 
+    #toolbar 
+      button
+        :height 16px
+        :width 16px
+        :glyph-top 2
+        :glyph-left 2
+        :glyph-scale 1
+        
+        &#back
+          :arrow-width 6
+          :arrow-height 6
+        
+        &#back, &#forward
+          :corner-radius 5
+          :glyph-scale 1
+          :glyph-top 4
+          :glyph-left 4
+          :padding-right 4
+
+          
+        &#forward
+          :margin-right 5px
+          :margin-left 0px
+          :margin-top 0px
+          :height 16px
+          :width 16px
+        
+  &:dragged
+    :stroke-dash 10, 2, 2

@@ -1,0 +1,11 @@
+name: Examples
+filename: lsd.js
+description: Some examples of what LSD can do. Turn your brain into shit.
+license: MIT-Style License, http://mootools.net/license
+copyright: Yaroslaff Fedin
+authors: Yaroslaff Fedin
+sources:
+  - Source/Application/Application.js
+  - Source/Application/Network.js
+  - Source/Application/Preferences.js
+  - Source/Application/Browser.js

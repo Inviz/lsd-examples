@@ -1,0 +1,16 @@
+input[type=radio]
+  :width 14px
+  :height 14px
+  :glyph-color false
+  :corner-radius 7px
+  
+  &:active
+    :fill-color gradient(hsb(0, 0, 80), hsb(0, 0, 85))
+    :reflection-color gradient(hsb(0, 0, 90, 1), hsb(0, 0, 60, 0))
+    
+  &:checked
+    :glyph glyph("radio")
+    :glyph-top 3px
+    :glyph-left 3px
+    :glyph-scale 1.6
+    :glyph-color hsb(0, 0, 40)

@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>ART Demo</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script src="../../compiled/lsd-examples/lsd.js"></script>
+	
+	<link rel="art stylesheet" href="./Assets/Styles/Widgets.css">
+	<script>
+	  window.addEvent('domready', function() {
+  		
+  		ART.Sheet.decompile('art', function() {
+  		  
+  		//ART.Sheet.compile();
+  		
+
+      $d = new ART.Document
+  		
+	    $z = new ART.Application.Browser();
+	    $z.inject($d);	
+	    $z.setStyles({top: 50, left: 50, zIndex: 400})
+			$z.header.title.setContent('Hello')
+			$z.content.setContent(new Element('div', {'html': 'Orange box of truth (250x100)', 'styles': {'background': 'orange', width: 250, height: 100}}))
+			$z.fit();
+      
+  		
+  		$p = new ART.Application.Preferences
+  		$p.inject($d);	
+  		$p.header.title.setContent('Preferences');
+	    $p.setStyles({top: 50, left: 550, zIndex: 400});
+	    
+	    
+	    
+	    var counter = {}
+	    counter.old = {
+	      redraws: ART.Widget.Paint.redraws,
+	      widgets: ART.Widget.count
+	    }
+	    if (window.console && console.profile) console.profile('Network render')
+	    
+  		$n = new ART.Application.Preferences.Network;
+  		$n.inject($d);	
+  		$n.header.title.setContent('Network');
+	    $n.setStyles({top: 300, left: 300, zIndex: 400});
+	    
+	    
+      
+	    counter.current = {
+	      redraws: ART.Widget.Paint.redraws,
+	      widgets: ART.Widget.count
+	    }
+	    counter.delta = {
+	      redraws: counter.current.redraws - counter.old.redraws,
+	      widgets: counter.current.widgets - counter.old.widgets,
+	    }
+	    if (window.console && console.profile) console.profileEnd('Network render')
+	    console.info('Widgets: ', counter.delta.widgets, 'Redraws: ', counter.delta.redraws)
+	    //$p.fit();
+		});
+  		
+	  });
+	</script>
+</head>
+<body>
+</body>
+</html>
