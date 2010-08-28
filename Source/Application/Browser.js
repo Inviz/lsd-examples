@@ -22,6 +22,7 @@ requires:
 - LSD/ART.Widget.Trait.ResizableContainer
 - LSD/ART.Widget.Trait.Fitting
 - LSD/ART.Widget.Trait.Scrollable
+- LSD/ART.Widget.Trait.Hoverable
 - Base/Widget.Trait.Shy
  
 provides: [ART.Application.Preferences.Network]

@@ -26,6 +26,7 @@ requires:
 - LSD/ART.Widget.Module.Layout
 - LSD/ART.Widget.Trait.Draggable
 - LSD/ART.Widget.Trait.Fitting
+- LSD/ART.Widget.Trait.Hoverable
 - Base/Widget.Trait.Shy
  
 provides: [ART.Application.Preferences]

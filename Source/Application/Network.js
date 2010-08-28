@@ -21,7 +21,6 @@ requires:
 - LSD/ART.Widget.Button
 - LSD/ART.Widget.Glyph
 - LSD/ART.Widget.Container
-- LSD/ART.Widget.Toolbar
 - LSD/ART.Widget.Module.Container
 - LSD/ART.Widget.Module.Expression
 - LSD/ART.Widget.Module.LayoutEvents
@@ -31,6 +30,7 @@ requires:
 - LSD/ART.Widget.Trait.ResizableContainer
 - LSD/ART.Widget.Trait.Fitting
 - LSD/ART.Widget.Trait.Liquid
+- LSD/ART.Widget.Trait.Hoverable
 - Base/Widget.Trait.Shy
  
 provides: [ART.Application.Preferences.Network]
