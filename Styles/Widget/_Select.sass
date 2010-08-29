@@ -7,15 +7,16 @@ select
   :width 170px
   :height 18px
   
-  &:focused
-    :shadow-color hsb(212, 58, 93)
-    :shadow-blur 5
-    :shadow-offset-y 0
-    :stroke-color hsb(212, 58, 93)
-    button
-      :stroke-color hsb(212, 58, 93, 0.5)
-      :margin-bottom -1
-      :margin-left 1px
+  &, #legend &
+    &:focused
+      :shadow-color hsb(212, 58, 93)
+      :shadow-blur 5
+      :shadow-offset-y 0
+      :stroke-color hsb(212, 58, 93)
+      button
+        :stroke-color hsb(212, 58, 93, 0.5)
+        :margin-bottom -1
+        :margin-left 1px
 
   button    
     :width 18px
