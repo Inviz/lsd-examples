@@ -70,23 +70,24 @@ window.fancy
     #content
       :background-color gradient(hsb(0, 0, 80, 0.5), hsb(0, 0, 70, 0.7))
       :reflection-color gradient(hsb(0, 0, 100, 0.5), hsb(0, 0, 0, 0))
-    button
-      :height 20px
-      :width 20px
-      :glyph-top 5
-      :glyph-left 5
-      &.right
-        :corner-radius-top-right 3
-        :corner-radius-bottom-right 3
-        :corner-radius-top-left 0
-        :corner-radius-bottom-left 0
-        :margin-left -1
-        :glyph-left 8
-        :glyph-top 6
-        :width 25px
-      &:text
-        :width auto
-        :display block
+    #toolbar
+      button
+        :height 20px
+        :width 20px
+        :glyph-top 5
+        :glyph-left 5
+        &.right
+          :corner-radius-top-right 3
+          :corner-radius-bottom-right 3
+          :corner-radius-top-left 0
+          :corner-radius-bottom-left 0
+          :margin-left -1
+          :glyph-left 8
+          :glyph-top 6
+          :width 25px
+        &:text
+          :width auto
+          :display block
   button
     :background-color gradient(hsb(0, 0, 99), hsb(0, 0, 74))
     :reflection-color gradient(hsb(0, 0, 30, 0), hsb(0, 0, 40, 0.3))

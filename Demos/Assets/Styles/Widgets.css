@@ -159,12 +159,12 @@ html > body .art.window.fancy .art.id-footer {
 html > body .art.window.fancy.is-minified .art.id-content {
   -art-background-color: "[hsb(0, 0, 80, 0.5), hsb(0, 0, 70, 0.7)]";
   -art-reflection-color: "[hsb(0, 0, 100, 0.5), hsb(0, 0, 0, 0)]"; }
-.art.window.fancy.is-minified .art.button {
+html > body .art.window.fancy.is-minified .art.id-toolbar .art.button {
   height: 20px;
   width: 20px;
   -art-glyph-top: 5;
   -art-glyph-left: 5; }
-.art.window.fancy.is-minified .art.button.right {
+html > body .art.window.fancy.is-minified .art.id-toolbar .art.button.right {
     -art-corner-radius-top-right: 3;
     -art-corner-radius-bottom-right: 3;
     -art-corner-radius-top-left: 0;
@@ -173,7 +173,7 @@ html > body .art.window.fancy.is-minified .art.id-content {
     -art-glyph-left: 8;
     -art-glyph-top: 6;
     width: 25px; }
-.art.window.fancy.is-minified .art.button.is-text {
+html > body .art.window.fancy.is-minified .art.id-toolbar .art.button.is-text {
     width: auto;
     display: block; }
 .art.window.fancy .art.button {
@@ -449,7 +449,6 @@ html > body .art.list.id-networks h2, html > body .art.list.id-networks p {
 width: 150px;
 height: auto;
 z-index: 250;
-margin-top: -5px;
 padding-top: 5px;
 padding-bottom: 5px; }
 .art.menu .option .container {
