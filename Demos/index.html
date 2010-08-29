@@ -3,8 +3,11 @@
 <head>
 	<title>ART Demo</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<!-- <script src="../Scripts/includes.js"></script> -->
-	<script src="../Scripts/lsd.js"></script>
+	<script>
+		window.prefix = '../'
+	</script>
+	<script src="../Scripts/includes.js"></script>
+	<!-- <script src="../Scripts/lsd.js"></script> -->
 	
 	<link rel="art stylesheet" href="./Assets/Styles/Widgets.css">
 	<script>
@@ -17,6 +20,12 @@
 
       $d = new ART.Document
   		
+	    var counter = {}
+	    counter.old = {
+	      redraws: ART.Widget.Paint.redraws,
+	      widgets: ART.Widget.count
+	    }
+	    if (window.console && console.profile) console.profile('Network render')
 	    $z = new ART.Application.Browser();
 	    $z.inject($d);	
 	    $z.setStyles({top: 50, left: 50, zIndex: 400})
@@ -32,12 +41,6 @@
 	    
 	    
 	    
-	    var counter = {}
-	    counter.old = {
-	      redraws: ART.Widget.Paint.redraws,
-	      widgets: ART.Widget.count
-	    }
-	    if (window.console && console.profile) console.profile('Network render')
 	    
   		$n = new ART.Application.Preferences.Network;
   		$n.inject($d);	
