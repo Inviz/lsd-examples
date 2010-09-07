@@ -12,7 +12,7 @@ module Sass::Tree
     border-top-style border-right-style border-bottom-style border-left-style
     border-top-color border-right-color border-bottom-color border-left-color
     position z-index float clear display cursor visibility _display zoom box-shadow text-shadow opacity
-    color font-family line-height font-size font letter-spacing
+    color font-family line-height font-size font-weight font letter-spacing
     text-align vertical-align
     height width content background outline
     ]

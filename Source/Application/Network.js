@@ -10,8 +10,8 @@ license: MIT-style license.
 requires:
 - ART.Application.Preferences
 - LSD/ART.Widget.Section
-- LSD/ART.Widget.Toolbar
-- LSD/ART.Widget.List
+- LSD/ART.Widget.Menu.List
+- LSD/ART.Widget.Menu.Toolbar
 - LSD/ART.Widget.Select
 - LSD/ART.Widget.Form
 - LSD/ART.Widget.Panel
@@ -73,13 +73,13 @@ ART.Application.Preferences.Network = new Class({
 	layout: {
 	  'section#header': {
       'button#toggler[shy]': {},
-	    '#buttons[hoverable][shy]': {
+	    'menu[type=toolbar][hoverable][shy]#buttons': {
         'button#close': {},
 	      'button#minimize:disabled': {},
         'button#maximize:disabled': {}
 	    },
 	    '#title[container]': {},
-  	  '#toolbar': {
+  	  'menu[type=toolbar]#toolbar': {
         'input[type=search]#search': {},
   	    'button#back.left': {},
   	    'button#forward.right:disabled': {},
@@ -94,8 +94,8 @@ ART.Application.Preferences.Network = new Class({
   	      'select#location'
   	    ],
   	    'panel#left': {
-  	      'list-networks#networks[height="parent - hub - 1"]': {},
-	        'toolbar[at=bottom]#hub': {
+  	      'menu-list-networks#networks[height="parent - hub - 1"]': {},
+	        'menu[type=toolbar][at=bottom]#hub': {
       	    'button#remove:disabled': {},
       	    'button#add': {},
       	    'button#configure': {}
@@ -121,7 +121,7 @@ ART.Application.Preferences.Network = new Class({
   	        ]}
   	      ]},
   	    ],
-  	    '#actions': {
+  	    'menu[type=toolbar]#actions': {
     	    'button#assist': 'Assist me...',
     	    'button#revert:disabled': 'Revert',
     	    'button#apply:disabled': 'Apply'
@@ -136,12 +136,17 @@ ART.Application.Preferences.Network = new Class({
 	}
 });
 
-ART.Widget.List.Networks = new Class({
-  Extends: ART.Widget.List,
-  
+ART.Widget.Menu.List.Networks = new Class({
+  Extends: ART.Widget.Menu.List,  
+
+  layered: {
+    shadow:  ['shadow'],
+    background:  ['fill', ['backgroundColor']]
+  },
+
   options: {
     list: {
-      item: 'list-item-network'
+      item: 'menu-list-item-network'
     }
   },
   
@@ -159,15 +164,15 @@ ART.Widget.List.Networks = new Class({
 	buildItem: function(item) {
 	  var widget = this.buildLayout(this.options.list.item);
 	  widget.value = item;
-	  widget.listWidget = this;
+	  widget.setList(this);
 	  widget.setContent(item);
 	  this.getContainer().append(widget); 
 	  return widget;
 	},
 })
 
-ART.Widget.List.Item.Network = new Class({
-  Extends: ART.Widget.List.Item,
+ART.Widget.Menu.List.Item.Network = new Class({
+  Extends: ART.Widget.Menu.List.Item,
   
   setContent: function(item) {
     this.parent('<h2>' + item.name + '</h2>' + '<p>' + (item.online ? 'Connected' : 'Not connected') + '</p>');

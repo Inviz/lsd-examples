@@ -48,13 +48,13 @@ ART.Application.Browser = new Class({
 	layout: {
 	  'section#header': {
       'button#toggler[shy]': {},
-	    '#buttons[hoverable][shy=true]': {
+	    'menu[type=toolbar][hoverable][shy]#buttons': {
         'button#close': {},
 	      'button#minimize': {},
         'button#maximize': {}
 	    },
 	    '#title[container]': {},
-  	  '#toolbar': {
+  	  'menu[type=toolbar]#toolbar': {
   	    'button#back[shape=arrow]': {},
   	    'button#forward:disabled': {},
   	    'button#search': {},
