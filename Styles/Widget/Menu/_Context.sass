@@ -1,0 +1,34 @@
+menu[type=context], menu[type=toolbar] menu
+  :background-color hsb(0, 0, 100)
+  :shadow-color hsb(0, 0, 30, 0.6)
+  :shadow-blur 15
+  :shadow-offset-y 3
+  :stroke-color hsb(0, 0, 30, 0.4)
+  :stroke-width 1
+  :width 150px
+  :height auto
+  :z-index 250
+  :padding-top 5px
+  :padding-bottom 5px
+  
+  option
+    .container:element
+      :text-align left
+      
+    > .container
+      :padding 0 10px
+      :line-height 23px
+
+    &:chosen
+      :background #445af2
+      :color #fff
+      
+menu[type=context]
+  :corner-radius-top-left 3
+  :corner-radius-top-right 3
+  :corner-radius-bottom-left 3
+  :corner-radius-bottom-right 3
+  
+menu[type=toolbar] menu
+  :corner-radius-top-left 0
+  :corner-radius-top-right 0

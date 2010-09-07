@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>ART Demo</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script>
+		window.prefix = ''
+	</script>
+	<script src="../Scripts/includes.js"></script>
+	<!-- <script src="../Scripts/lsd.js"></script> -->
+	
+	<link rel="art stylesheet" href="./Assets/Styles/Desktop.css">
+	<script>
+	  window.addEvent('domready', function() {
+  		
+  		ART.Sheet.decompile('art', function() {
+  		  
+  		//ART.Sheet.compile();
+  		
+
+  		
+	    var counter = {}
+	    counter.old = {
+	      redraws: ART.Widget.Paint.redraws,
+	      widgets: ART.Widget.count
+	    }
+	    if (window.console && console.profile) console.profile('Network render')
+	    
+      $d = new ART.Application.Desktop
+	    
+      
+	    counter.current = {
+	      redraws: ART.Widget.Paint.redraws,
+	      widgets: ART.Widget.count
+	    }
+	    counter.delta = {
+	      redraws: counter.current.redraws - counter.old.redraws,
+	      widgets: counter.current.widgets - counter.old.widgets,
+	    }
+	    if (window.console && console.profile) console.profileEnd('Network render')
+	    console.info('Widgets: ', counter.delta.widgets, 'Redraws: ', counter.delta.redraws)
+	    //$p.fit();
+		});
+  		
+	  });
+	</script>
+</head>
+<body>
+</body>
+</html>

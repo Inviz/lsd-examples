@@ -1,0 +1,64 @@
+header#top
+  +dark-emboss
+  :height 22px
+  :width inherit
+  :font-family Helvetica
+  :font-size 14px
+  
+  :reflection-color gradient(hsb(0, 0, 90), hsb(0, 0, 70))
+  :border-bottom 1px solid #333
+  :z-index 150
+  
+  menu[type=toolbar]
+    &#commands
+      button
+        +inline-block
+        &:text
+          :padding 0 10px
+          :width auto
+        &.important
+          > .container:element
+            :font-weight bold
+          
+        &#shutdown
+          :glyph-scale 0.5
+          :glyph glyph("shutdown")
+          :margin-left 10px
+
+        menu
+          :z-index 100
+          :margin-top -1px
+          :min-width 150px
+          :shadow-blur 10
+          :shadow-offset-y 5
+          
+          option
+            :width auto
+            :height 20px
+          
+    &#notification button, &#commands button#shutdown
+      :width 24px
+      
+    button
+      :height 22px
+      :glyph-color hsb(0, 0, 20)
+      :glyph-left 4px
+      :glyph-top 3px
+      :glyph-scale 1.2
+      +inline-block
+      :vertical-align top
+      :line-height 24px
+    button, option
+      &:active, &:selected
+        :background-color gradient(hsb(232, 55, 96), hsb(234, 74, 94))
+        :glyph-color hsb(0, 0, 100)
+        > .container:element
+          +light-emboss
+          :color #fff
+      &#preferences
+        :glyph glyph("wrench")
+      &#search
+        :glyph glyph("search")
+      &#time
+        :width 50px
+        :text-align center
