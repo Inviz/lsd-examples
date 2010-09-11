@@ -100,29 +100,30 @@ html > body .art.window .art.id-handle.is-active {
 -art-stroke-width: 5;
 -art-stroke-cap: square;
 -art-stroke-color: hsb(0, 0, 10, 0.5); }
-html > body .art.window.fancy .art.id-buttons.is-hover .art.button {
+html > body .art.window.fancy .art.id-header .art.id-buttons.is-hover .art.button {
   -art-glyph-color: hsb(0, 0, 20, 0.7); }
-html > body .art.window.fancy .art.id-buttons .art.id-close {
+html > body .art.window.fancy .art.id-header .art.id-buttons .art.id-close {
   -art-fill-color: "['radial', {0: hsb(0, 95, 80), 0.9: hsb(0, 97, 73), 1: hsb(359, 65, 22)}, {cy: '55%', r: '42%', fy: '55%'}]";
   -art-stroke-color: "[hsb(359, 71, 60), hsb(359, 24, 75)]"; }
-html > body .art.window.fancy .art.id-buttons .art.id-close.is-active {
+html > body .art.window.fancy .art.id-header .art.id-buttons .art.id-close.is-active {
     -art-fill-color: "['radial', {0: hsb(0, 95, 70), 0.8: hsb(0, 97, 63), 1: hsb(359, 65, 32)}, {cy: '55%', r: '42%', fy: '55%'}]"; }
-html > body .art.window.fancy .art.id-buttons .art.id-minimize {
+html > body .art.window.fancy .art.id-header .art.id-buttons .art.id-minimize {
   -art-fill-color: "['radial', {0: hsb(58, 95, 80), 0.8: hsb(28, 66, 85), 1: hsb(2, 64, 58)}, {cy: '55%', r: '44%', fy: '55%'}]";
   -art-stroke-color: "[hsb(55, 71, 40), hsb(45, 24, 75)]"; }
-html > body .art.window.fancy .art.id-buttons .art.id-minimize.is-active {
+html > body .art.window.fancy .art.id-header .art.id-buttons .art.id-minimize.is-active {
     -art-fill-color: "['radial', {0: hsb(58, 95, 70), 0.8: hsb(28, 66, 75), 1: hsb(2, 64, 48)}, {cy: '55%', r: '44%', fy: '55%'}]"; }
-html > body .art.window.fancy .art.id-buttons .art.id-maximize {
+html > body .art.window.fancy .art.id-header .art.id-buttons .art.id-maximize {
   -art-fill-color: "['radial', {0: hsb(100, 76, 76), 0.8: hsb(95, 46, 73), 1: hsb(103, 53, 43)}, {cy: '55%', r: '44%', fy: '55%'}]";
   -art-stroke-color: "[hsb(55, 71, 40), hsb(45, 24, 75)]"; }
-html > body .art.window.fancy .art.id-buttons .art.id-maximize.is-active {
+html > body .art.window.fancy .art.id-header .art.id-buttons .art.id-maximize.is-active {
     -art-fill-color: "['radial', {0: hsb(100, 76, 66), 0.8: hsb(95, 46, 63), 1: hsb(103, 53, 33)}, {cy: '55%', r: '44%', fy: '55%'}]"; }
-html > body .art.window.fancy .art.id-buttons .art.id-close.is-disabled, html > body .art.window.fancy .art.id-buttons .art.id-minimize.is-disabled, html > body .art.window.fancy .art.id-buttons .art.id-maximize.is-disabled {
+html > body .art.window.fancy .art.id-header .art.id-buttons .art.id-close.is-disabled, html > body .art.window.fancy .art.id-header .art.id-buttons .art.id-minimize.is-disabled, html > body .art.window.fancy .art.id-header .art.id-buttons .art.id-maximize.is-disabled {
   -art-fill-color: false;
   opacity: 0.5; }
 .art.window.fancy.is-dragged {
   cursor: move;
   -art-stroke-color: hsb(0, 0, 10, 0.2);
+  -art-stroke-dash: 2, 2, 0;
   -art-shadow-blur: 25;
   -art-shadow-offset-y: 12; }
 html > body .art.window.fancy .art.id-header {
@@ -140,9 +141,7 @@ html > body .art.window.fancy .art.id-header {
   border-bottom-color: #979797; }
 html > body .art.window.fancy .art.id-toolbar {
   clear: both;
-  padding-top: 5px;
-  -art-background-color: "[hsb(0, 0, 80), hsb(0, 0, 60)]";
-  -art-reflection-color: "[hsb(0, 0, 100, 1), hsb(0, 0, 0, 0)]"; }
+  padding-top: 5px; }
 html > body .art.window.fancy .art.id-content {
   height: 150px;
   -art-background-color: "[hsb(0, 0, 80, 0.3), hsb(0, 0, 70, 0.4)]";

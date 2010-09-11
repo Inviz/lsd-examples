@@ -1,4 +1,34 @@
-@import url(Widget/Menu.css);
+.art.menu[type=context], .art.menu[type=toolbar] .art.menu {
+-art-background-color: hsb(0, 0, 100);
+-art-shadow-color: hsb(0, 0, 30, 0.6);
+-art-shadow-blur: 15;
+-art-shadow-offset-y: 3;
+-art-stroke-color: hsb(0, 0, 30, 0.4);
+-art-stroke-width: 1;
+width: 150px;
+height: auto;
+z-index: 250;
+padding-top: 5px;
+padding-bottom: 5px; }
+.art.menu[type=context] .art.option .container, .art.menu[type=toolbar] .art.menu .art.option .container {
+  text-align: left; }
+.art.menu[type=context] .art.option > .container, .art.menu[type=toolbar] .art.menu .art.option > .container {
+  padding: 0 10px;
+  line-height: 23px; }
+.art.menu[type=context] .art.option.is-chosen, .art.menu[type=toolbar] .art.menu .art.option.is-chosen {
+  background: #445af2;
+  color: white; }
+
+.art.menu[type=context] {
+-art-corner-radius-top-left: 3;
+-art-corner-radius-top-right: 3;
+-art-corner-radius-bottom-left: 3;
+-art-corner-radius-bottom-right: 3; }
+
+.art.menu[type=toolbar] .art.menu {
+-art-corner-radius-top-left: 0;
+-art-corner-radius-top-right: 0; }
+
 .art.section {
 width: inherit;
 font-family: Helvetica;
@@ -13,7 +43,37 @@ visibility: hidden;
 _display: block;
 zoom: 1; }
 
-@import url(Widget/Toolbar.css);
+.art.menu[type=toolbar] {
+width: inherit; }
+
+.art.panel .art.menu[type=toolbar] {
+height: 20px;
+line-height: 30;
+vertical-align: middle;
+border-top: 1px solid #d4d4d4;
+-art-fill-color: hsb(0, 0, 92);
+-art-reflection-color: "[hsb(0, 0, 100, 0.5), hsb(0, 0, 100, 0)]"; }
+.art.panel .art.menu[type=toolbar] .art.button {
+  height: 20px;
+  width: 24px;
+  vertical-align: middle;
+  -art-corner-radius: 0;
+  margin-left: 0px;
+  margin-right: 0px;
+  border-right: 1px solid #d4d4d4;
+  -art-shadow-blur: 0;
+  -art-shadow-offset-y: 0;
+  -art-stroke-width: 0;
+  -art-glyph-top: 4;
+  -art-glyph-left: 6;
+  -art-glyph-color: hsb(0, 0, 0, 0.7); }
+html > body .art.panel .art.menu[type=toolbar] .art.button.id-add {
+    -art-glyph: ART.Glyphs.smallPlus; }
+html > body .art.panel .art.menu[type=toolbar] .art.button.id-remove {
+    -art-glyph: ART.Glyphs.smallMinus; }
+html > body .art.panel .art.menu[type=toolbar] .art.button.id-configure {
+    -art-glyph: ART.Glyphs.wrench; }
+
 html > body .art.header.id-top {
 text-shadow: 0 1px 0 #e5e5ee;
 -art-filter: dropshadow(color=#e5e5ee, offX=0, offY=1px);

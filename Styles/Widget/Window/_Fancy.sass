@@ -6,33 +6,34 @@ window.fancy
   :stroke-width 5
   :stroke-cap square
   :stroke-color hsb(0, 0, 10, 0.5)
-
-  #buttons
-    &:hover button
-      :glyph-color hsb(0, 0, 20, 0.7)
-    #close
-      :fill-color gradient("radial", "{0: hsb(0, 95, 80), 0.9: hsb(0, 97, 73), 1: hsb(359, 65, 22)}, {cy: '55%', r: '42%', fy: '55%'}")
-      :stroke-color gradient(hsb(359, 71, 60), hsb(359, 24, 75))
-      &:active
-        :fill-color gradient("radial", "{0: hsb(0, 95, 70), 0.8: hsb(0, 97, 63), 1: hsb(359, 65, 32)}, {cy: '55%', r: '42%', fy: '55%'}")
-    #minimize
-      :fill-color gradient("radial", "{0: hsb(58, 95, 80), 0.8: hsb(28, 66, 85), 1: hsb(2, 64, 58)}, {cy: '55%', r: '44%', fy: '55%'}")
-      :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
-      &:active
-        :fill-color gradient("radial", "{0: hsb(58, 95, 70), 0.8: hsb(28, 66, 75), 1: hsb(2, 64, 48)}, {cy: '55%', r: '44%', fy: '55%'}")
-    #maximize
-      :fill-color gradient("radial", "{0: hsb(100, 76, 76), 0.8: hsb(95, 46, 73), 1: hsb(103, 53, 43)}, {cy: '55%', r: '44%', fy: '55%'}")
-      :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
-      &:active
-        :fill-color gradient("radial", "{0: hsb(100, 76, 66), 0.8: hsb(95, 46, 63), 1: hsb(103, 53, 33)}, {cy: '55%', r: '44%', fy: '55%'}")
-    #close, #minimize, #maximize
-      &:disabled
-        :fill-color false
-        :opacity 0.5
+  #header
+    #buttons
+      &:hover button
+        :glyph-color hsb(0, 0, 20, 0.7)
+      #close
+        :fill-color gradient("radial", "{0: hsb(0, 95, 80), 0.9: hsb(0, 97, 73), 1: hsb(359, 65, 22)}, {cy: '55%', r: '42%', fy: '55%'}")
+        :stroke-color gradient(hsb(359, 71, 60), hsb(359, 24, 75))
+        &:active
+          :fill-color gradient("radial", "{0: hsb(0, 95, 70), 0.8: hsb(0, 97, 63), 1: hsb(359, 65, 32)}, {cy: '55%', r: '42%', fy: '55%'}")
+      #minimize
+        :fill-color gradient("radial", "{0: hsb(58, 95, 80), 0.8: hsb(28, 66, 85), 1: hsb(2, 64, 58)}, {cy: '55%', r: '44%', fy: '55%'}")
+        :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
+        &:active
+          :fill-color gradient("radial", "{0: hsb(58, 95, 70), 0.8: hsb(28, 66, 75), 1: hsb(2, 64, 48)}, {cy: '55%', r: '44%', fy: '55%'}")
+      #maximize
+        :fill-color gradient("radial", "{0: hsb(100, 76, 76), 0.8: hsb(95, 46, 73), 1: hsb(103, 53, 43)}, {cy: '55%', r: '44%', fy: '55%'}")
+        :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
+        &:active
+          :fill-color gradient("radial", "{0: hsb(100, 76, 66), 0.8: hsb(95, 46, 63), 1: hsb(103, 53, 33)}, {cy: '55%', r: '44%', fy: '55%'}")
+      #close, #minimize, #maximize
+        &:disabled
+          :fill-color false
+          :opacity 0.5
     
   &:dragged    
     :cursor move
     :stroke-color hsb(0, 0, 10, 0.2)
+    :stroke-dash 2,2,0
     :shadow-blur 25
     :shadow-offset-y 12
   #header
@@ -51,8 +52,6 @@ window.fancy
   #toolbar
     :clear both
     :padding-top 5px
-    :background-color gradient(hsb(0, 0, 80), hsb(0, 0, 60))
-    :reflection-color gradient(hsb(0, 0, 100, 1), hsb(0, 0, 0, 0))
   #content
     :height 150px
     :background-color gradient(hsb(0, 0, 80, 0.3), hsb(0, 0, 70, 0.4))
