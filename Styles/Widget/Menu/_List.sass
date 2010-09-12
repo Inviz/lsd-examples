@@ -1,0 +1,23 @@
+menu[type=list]
+  :width auto
+  :height auto
+  :z-index 25
+  :user-select none
+  &:focused    
+    :shadow-color hsb(212, 58, 93)
+    :shadow-blur 10
+    :shadow-offset-y 0
+    :stroke-color hsb(212, 58, 93)
+    :background-color hsb(0, 0, 100)
+  item
+    :width auto
+    :height auto
+    &:selected
+      :reflection-color gradient(hsb(0, 0, 74, 0.3), hsb(0, 0, 58, 0.3))
+      :fill-color gradient(hsb(223, 19, 80), hsb(222, 28, 72))
+      :color #fff
+
+  &:focused
+    item
+      &:selected
+        :fill-color gradient(hsb(223, 49, 80), hsb(222, 58, 72))
