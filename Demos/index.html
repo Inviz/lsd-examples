@@ -4,11 +4,36 @@
 	<title>ART Demo</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script>
-		window.prefix = ''
+		window.prefix = '';
+	  if (true) {//location.host.indexOf('github') > -1) {
+	    window.require = function(src) {
+	      src = src.replace(/^.*(qfocuser|lsd|lsd-base|lsd-examples|mootols-ext)\//, 'http://inviz.github.com/$1/').
+      	          replace(/^.*(..\/..\/Source)\//, 'http://inviz.github.com/Source/').
+      	          replace(/^.*(mootools-core|mootools-more)\//, 'http://github.com/mootools/$1/raw/master/').
+                	replace(/^.*(mootools-color|art)\//, 'http://github.com/kamicane/$1/raw/master/Source/')
+	         
+	      document.write('<scr' + 'ipt src="' + (prefix || '') + src + '"></sc' + 'ript>');
+	    }
+	  }
 	</script>
 	<script src="../Scripts/includes.js"></script>
 	<!-- <script src="../Scripts/lsd.js"></script> -->
 	
+	<script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-18508300-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+  
+  
 	<link rel="art stylesheet" href="./Assets/Styles/Widgets.css">
 	<script>
 	  window.addEvent('domready', function() {

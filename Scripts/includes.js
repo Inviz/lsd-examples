@@ -1,4 +1,4 @@
-(function(prefix) {
+(function(prefix, rekwire) {
       var sources = [
   "../../qfocuser/Source/QFocuser.js",
   "../../mootools-core/Source/Core/Core.js",
@@ -136,5 +136,8 @@
   "../Source/Application/Preferences.js",
   "../Source/Application/Network.js"
 ];
-      for (var i = 0, j = sources.length; i < j; i++) document.write('<scr' + 'ipt src="' + (prefix || '') + sources[i] + '"></script>');
-    })(window.prefix);
+      if (!rekwire) rekwire = function(src) {
+        document.write('<scr' + 'ipt src="' + (prefix || '') + src + '"></script>');
+      }
+      for (var i = 0, j = sources.length; i < j; i++) rekwire (sources[i]);
+    })(window.prefix, window.require);
