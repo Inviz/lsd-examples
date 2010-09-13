@@ -7,10 +7,11 @@
 		window.prefix = '';
 	  if (true) {//location.host.indexOf('github') > -1) {
 	    window.require = function(src) {
-	      src = src.replace(/^.*(qfocuser|lsd|lsd-base|lsd-examples|mootols-ext)\//, 'http://inviz.github.com/$1/').
-      	          replace(/^.*(..\/..\/Source)\//, 'http://inviz.github.com/Source/').
+	      src = src.replace(/^.*(qfocuser|lsd|lsd-base|lsd-examples|mootools-ext)\//, 'http://inviz.github.com/$1/').
+      	          replace(/^.*(..\/..\/..\/Source)\//, 'http://inviz.github.com/lsd/Source/').
+      	          replace(/^.*(..\/..\/Source)\//, 'http://inviz.github.com/lsd-examples/Source/').
       	          replace(/^.*(mootools-core|mootools-more)\//, 'http://github.com/mootools/$1/raw/master/').
-                	replace(/^.*(mootools-color|art)\//, 'http://github.com/kamicane/$1/raw/master/Source/')
+                	replace(/^.*(mootools-color|art)\//, 'http://github.com/kamicane/$1/raw/master/')
 	         
 	      document.write('<scr' + 'ipt src="' + (prefix || '') + src + '"></sc' + 'ript>');
 	    }
