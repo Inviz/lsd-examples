@@ -7,7 +7,8 @@
 		window.prefix = '';
 	  if (true) {//location.host.indexOf('github') > -1) {
 	    window.require = function(src) {
-	      src = src.replace(/^.*(qfocuser|lsd|lsd-base|lsd-examples|mootools-ext)\//, 'http://inviz.github.com/$1/').
+	      src = src.replace(/^.*(lsd|lsd-base|lsd-examples|mootools-ext)\//, 'http://inviz.github.com/$1/').
+      	          replace(/^.*(qfocuser|cssparser)\//, 'http://github.com/inviz/$1/raw/master/').
       	          replace(/^.*(..\/..\/..\/Source)\//, 'http://inviz.github.com/lsd/Source/').
       	          replace(/^.*(..\/..\/Source)\//, 'http://inviz.github.com/lsd-examples/Source/').
       	          replace(/^.*(mootools-core|mootools-more)\//, 'http://github.com/mootools/$1/raw/master/').
