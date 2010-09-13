@@ -140,4 +140,4 @@
         document.write('<scr' + 'ipt src="' + (prefix || '') + src + '"></script>');
       }
       for (var i = 0, j = sources.length; i < j; i++) rekwire (sources[i]);
-    })(window.prefix, window.require);
+    })(window.prefix, window.loader);
