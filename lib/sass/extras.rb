@@ -1,3 +1,3 @@
-require 'lib/sass/vendorize_properties'
-require 'lib/sass/separate_rules'
-require 'lib/sass/gradients'
+require File.expand_path(File.join(File.dirname(__FILE__), 'vendorize_properties'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'separate_rules'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'gradients'))
