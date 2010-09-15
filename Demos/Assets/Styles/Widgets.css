@@ -134,8 +134,8 @@ html > body .art.window.fancy .art.id-header {
   padding-left: 5px;
   padding-bottom: 3px;
   height: auto;
-  -art-background-color: "[hsb(0, 0, 80), hsb(0, 0, 60)]";
-  -art-reflection-color: "[hsb(0, 0, 100, 1), hsb(0, 0, 0, 0)]";
+  -art-reflection-color: "[hsb(0, 0, 80), hsb(0, 0, 60)]";
+  -art-background-color: "[hsb(0, 0, 100, 1), hsb(0, 0, 0, 0)]";
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-bottom-color: #979797; }
@@ -144,20 +144,20 @@ html > body .art.window.fancy .art.id-toolbar {
   padding-top: 5px; }
 html > body .art.window.fancy .art.id-content {
   height: 150px;
-  -art-background-color: "[hsb(0, 0, 80, 0.3), hsb(0, 0, 70, 0.4)]";
-  -art-reflection-color: "[hsb(0, 0, 100, 0.3), hsb(0, 0, 0, 0)]"; }
+  -art-reflection-color: "[hsb(0, 0, 80, 0.3), hsb(0, 0, 70, 0.4)]";
+  -art-background-color: "[hsb(0, 0, 100, 0.3), hsb(0, 0, 0, 0)]"; }
 html > body .art.window.fancy .art.id-footer {
   -art-corner-radius-bottom-left: inherit;
   -art-corner-radius-bottom-right: inherit;
-  -art-background-color: "[hsb(0, 0, 80), hsb(0, 0, 70)]";
-  -art-reflection-color: "[hsb(0, 0, 100, 1), hsb(0, 0, 0, 0)]";
+  -art-reflection-color: "[hsb(0, 0, 80), hsb(0, 0, 70)]";
+  -art-background-color: "[hsb(0, 0, 100, 1), hsb(0, 0, 0, 0)]";
   height: auto;
   border-top-width: 1px;
   border-top-style: solid;
   border-top-color: #979797; }
 html > body .art.window.fancy.is-minified .art.id-content {
-  -art-background-color: "[hsb(0, 0, 80, 0.5), hsb(0, 0, 70, 0.7)]";
-  -art-reflection-color: "[hsb(0, 0, 100, 0.5), hsb(0, 0, 0, 0)]"; }
+  -art-reflection-color: "[hsb(0, 0, 80, 0.5), hsb(0, 0, 70, 0.7)]";
+  -art-background-color: "[hsb(0, 0, 100, 0.5), hsb(0, 0, 0, 0)]"; }
 html > body .art.window.fancy.is-minified .art.id-toolbar .art.button {
   height: 20px;
   width: 20px;
@@ -240,9 +240,9 @@ html > body .art.window.fancy .art.button.id-forward {
     -art-stroke-width: 1; }
 .art.window.fancy .art.scrollbar.is-vertical {
     top: 0;
-    -art-right: 0; }
+    right: 0; }
 html > body .art.window.fancy .art.scrollbar.is-vertical .art.button.id-decrement {
-      -art-bottom: 0;
+      bottom: 0;
       -art-glyph: ART.Glyphs.triangleDown;
       -art-corner-radius-top-right: 0;
       -art-corner-radius-bottom-right: 3;
@@ -255,10 +255,10 @@ html > body .art.window.fancy .art.scrollbar.is-vertical .art.button.id-incremen
       -art-corner-radius-top-left: 3;
       -art-corner-radius-bottom-left: 0; }
 .art.window.fancy .art.scrollbar.is-horizontal {
-    -art-bottom: 0;
+    bottom: 0;
     left: 0; }
 html > body .art.window.fancy .art.scrollbar.is-horizontal .art.button.id-increment {
-      -art-right: 0;
+      right: 0;
       -art-corner-radius-top-right: 3;
       -art-corner-radius-bottom-right: 3;
       -art-corner-radius-top-left: 0;
