@@ -6,7 +6,7 @@ module Sass::Tree
   CSS_PROPERTIES = %w[
     margin margin-top margin-right margin-bottom margin-left
     padding padding-top padding-right padding-bottom padding-left
-    top left
+    top left bottom right
     border border-top border-right border-bottom border-left
     border-top-width border-right-width border-bottom-width border-left-width
     border-top-style border-right-style border-bottom-style border-left-style
