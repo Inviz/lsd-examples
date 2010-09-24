@@ -45,7 +45,8 @@ ART.Application.Preferences.Network = new Class({
 	  ART.Widget.Trait.Draggable,
 	  ART.Widget.Trait.Resizable,
 	  ART.Widget.Trait.ResizableContainer,
-	  ART.Widget.Trait.Fitting
+	  ART.Widget.Trait.Fitting,
+	  Widget.Trait.Focus
 	],
 
   States: {
