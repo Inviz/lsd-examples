@@ -47,7 +47,7 @@
   "../../mootools-ext/Source/Drag/Drag.Limits.js",
   "../../mootools-more/Source/Drag/Slider.js",
   "../../mootools-ext/Source/Element/Events/Keypress.js",
-  "../../mootools-core/Source/Utilities/DomReady.js",
+  "../../mootools-core/Source/Utilities/DOMReady.js",
   "../../lsd-base/Source/Widget/Base.js",
   "../../lsd-base/Source/Widget/Trait/Animation.js",
   "../../lsd-base/Source/Widget/Trait/Slider.js",

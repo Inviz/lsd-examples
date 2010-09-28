@@ -23,7 +23,7 @@ requires:
 - LSD/ART.Layer.InnerShadow
 - LSD/ART.Layer.Shadow
 - LSD/ART.Layer.Stroke
-- Core/DomReady
+- Core/DOMReady
  
 provides: [ART.Application]
  

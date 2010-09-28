@@ -84,7 +84,7 @@
       "Ext/Drag.Limits",
       "More/Slider",
       "Ext/Element.Events.outerClick",
-      "Core/DomReady",
+      "Core/DOMReady",
       "Base/Widget.Base",
       "Base/Widget.Trait.Animation",
       "Base/Widget.Trait.Slider",
