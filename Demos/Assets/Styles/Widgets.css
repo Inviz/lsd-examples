@@ -224,12 +224,11 @@ html > body .art.window.fancy .art.button.id-back {
 html > body .art.window.fancy .art.button.id-forward {
     -art-glyph: ART.Glyphs.triangleRight; }
 .art.window.fancy .art.scrollbar {
-  position: absolute; }
-.art.window.fancy .art.scrollbar .art.track {
-    -art-fill-color: "[hsb(0, 0, 30, 0.4), hsb(0, 0, 50, 0.5)]";
-    -art-reflection-color: "[hsb(31, 0, 100, 0.3), hsb(45, 0, 50, 0)]";
-    -art-stroke-width: 1;
-    -art-stroke-color: hsb(0, 0, 0, 0.3); }
+  position: absolute;
+  -art-fill-color: "[hsb(0, 0, 30, 0.4), hsb(0, 0, 50, 0.5)]";
+  -art-reflection-color: "[hsb(31, 0, 100, 0.3), hsb(45, 0, 50, 0)]";
+  -art-stroke-width: 1;
+  -art-stroke-color: hsb(0, 0, 0, 0.3); }
 .art.window.fancy .art.scrollbar .art.button {
     height: 14px;
     width: 14px;
@@ -237,7 +236,8 @@ html > body .art.window.fancy .art.button.id-forward {
     -art-glyph-scale: 0.8;
     -art-glyph-top: 3;
     -art-glyph-left: 3;
-    -art-stroke-width: 1; }
+    -art-stroke-width: 1;
+    margin-right: 0; }
 .art.window.fancy .art.scrollbar.is-vertical {
     top: 0;
     right: 0; }
@@ -515,7 +515,7 @@ width: 16px;
 cursor: pointer;
 -art-stroke-color: hsb(0, 0, 0, 0.3);
 -art-stroke-width: 0;
--art-corner-radius: 3;
+-art-corner-radius: 2;
 -art-glyph-color: hsb(82, 0, 100, 0.5); }
 .art.scrollbar.is-horizontal .art.track {
   height: 14px;
@@ -526,8 +526,6 @@ cursor: pointer;
 .art.scrollbar .art.track .art.thumb {
   width: 12px;
   height: 12px;
-  -art-stroke-width: 1;
-  -art-stroke-color: hsb(0, 0, 100, 0.7);
   -art-corner-radius: 5;
   -art-background-color: "[hsb(0, 0, 0, 0.2), hsb(0, 0, 0, 0.24)]";
   -art-fill-color: "[hsb(44, 0, 100, 0.15), hsb(31, 0, 50, 0)]"; }
@@ -757,7 +755,8 @@ height: 36px;
 width: 36px; }
 html > body .art.window.id-browser .art.id-toolbar .art.button.id-bookmark {
   -art-stroke-width: 1;
-  -art-stroke-color: hsb(0, 0, 0, 0.35); }
+  -art-stroke-color: hsb(0, 0, 0, 0.35);
+  margin-right: 0; }
 html > body .art.window.id-browser .art.id-toolbar .art.button.id-back {
   -art-glyph-top: 11;
   -art-glyph-left: 10;
@@ -793,7 +792,7 @@ html > body .art.window.id-browser.is-minified .art.id-toolbar .art.button.id-ba
   -art-glyph-scale: 1;
   -art-glyph-top: 4;
   -art-glyph-left: 4;
-  padding-right: 4; }
+  margin-right: 4px; }
 html > body .art.window.id-browser.is-minified .art.id-toolbar .art.button.id-forward {
   margin-right: 5px;
   margin-left: 0px;
