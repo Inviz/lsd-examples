@@ -146,7 +146,7 @@ ART.Widget.Menu.List.Networks = new Class({
   },
 
   options: {
-    list: {
+    layout: {
       item: 'menu-list-item-network'
     }
   },
@@ -160,16 +160,7 @@ ART.Widget.Menu.List.Networks = new Class({
       online: false,
       name: 'Ethernet'
     }
-  ],
-  
-	buildItem: function(item) {
-	  var widget = this.buildLayout(this.options.list.item);
-	  widget.value = item;
-	  widget.setList(this);
-	  widget.setContent(item);
-	  this.getContainer().append(widget); 
-	  return widget;
-	},
+  ]
 })
 
 ART.Widget.Menu.List.Item.Network = new Class({

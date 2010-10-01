@@ -115,6 +115,7 @@ ART.Application.Desktop = new Class({
 	appendChild: function(widget) {
 	  this.parent.apply(this, arguments);
 	  widget.parentNode = this;
+	  widget.setDocument(this);
 	},
 	
 	render: function() {
@@ -229,7 +230,7 @@ ART.Widget.Menu.List.Icons = new Class({
   Extends: ART.Widget.Menu.List,
   
   options: {
-    list: {
+    layout: {
       item: 'menu-list-item-icon'
     }
   },
@@ -245,16 +246,7 @@ ART.Widget.Menu.List.Icons = new Class({
       name: 'valid_icon.png',
       size: 12309
     }
-  ],
-  
-	buildItem: function(item) {
-	  var widget = this.buildLayout(this.options.list.item);
-	  widget.value = item;
-	  widget.setList(this);
-	  widget.setContent(item);
-	  this.getContainer().append(widget);   
-	  return widget;
-	}
+  ]
 });
 
 ART.Widget.Menu.List.Item.Icon = new Class({

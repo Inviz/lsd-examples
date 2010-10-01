@@ -1,5 +1,5 @@
 .art.menu[type=context], .art.menu[type=toolbar] .art.menu {
--art-background-color: hsb(0, 0, 100);
+-art-fill-color: hsb(0, 0, 100);
 -art-shadow-color: hsb(0, 0, 30, 0.6);
 -art-shadow-blur: 15;
 -art-shadow-offset-y: 3;

@@ -123,7 +123,6 @@ html > body .art.window.fancy .art.id-header .art.id-buttons .art.id-close.is-di
 .art.window.fancy.is-dragged {
   cursor: move;
   -art-stroke-color: hsb(0, 0, 10, 0.2);
-  -art-stroke-dash: 2, 2, 0;
   -art-shadow-blur: 25;
   -art-shadow-offset-y: 12; }
 html > body .art.window.fancy .art.id-header {
@@ -457,7 +456,7 @@ z-index: 25;
   -art-fill-color: "[hsb(223, 49, 80), hsb(222, 58, 72)]"; }
 
 .art.menu[type=context], .art.menu[type=toolbar] .art.menu {
--art-background-color: hsb(0, 0, 100);
+-art-fill-color: hsb(0, 0, 100);
 -art-shadow-color: hsb(0, 0, 30, 0.6);
 -art-shadow-blur: 15;
 -art-shadow-offset-y: 3;
