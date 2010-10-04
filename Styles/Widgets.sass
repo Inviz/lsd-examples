@@ -25,15 +25,25 @@
 @import Application/Browser
 @import Application/Network
 @import Application/Preferences
+@import Application/Desktop/Header
+@import Application/Desktop/Footer
+@import Application/Desktop/Icons
 
 svg
   :display block
   
+  ~ .container, ~ *:element
+    :position relative
 v\:*
   :background transparent
     
 *
   :shadow-blur 0
+  
+body, html
+  &:element 
+    :padding 0
+    :margin 0
   
 .art:element
   +clearfix
@@ -44,9 +54,4 @@ v\:*
       :padding 0 10px
     
     .container
-      :line-height 22px
-
-  &.window
-    svg
-      ~ *:element, .container
-        :position relative
+      :line-height 22px 

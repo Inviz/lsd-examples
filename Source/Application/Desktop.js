@@ -236,16 +236,16 @@ ART.Widget.Menu.List.Icons = new Class({
   },
   
   items: [
-    {
-      content_type: 'application/pdf',
-      name: 'Presentation.pdf',
-      size: 1999133
-    },
-    {
-      content_type: 'image/png',
-      name: 'valid_icon.png',
-      size: 12309
-    }
+    //{
+    //  content_type: 'application/pdf',
+    //  name: 'Presentation.pdf',
+    //  size: 1999133
+    //},
+    //{
+    //  content_type: 'image/png',
+    //  name: 'valid_icon.png',
+    //  size: 12309
+    //}
   ]
 });
 
