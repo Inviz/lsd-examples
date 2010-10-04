@@ -32,6 +32,7 @@ requires:
 - LSD/ART.Widget.Trait.Liquid
 - LSD/ART.Widget.Trait.Hoverable
 - Base/Widget.Trait.Shy
+- Base/Widget.Trait.Focus
  
 provides: [ART.Application.Preferences.Network]
  
@@ -68,6 +69,9 @@ ART.Application.Preferences.Network = new Class({
 	    toggler: {
         click: 'mutate'
 	    }
+	  },
+	  element: {
+	    mousedown: 'retain'
 	  }
 	},
 	
@@ -95,7 +99,7 @@ ART.Application.Preferences.Network = new Class({
   	      'select#location'
   	    ],
   	    'panel#left': {
-  	      'menu-list-networks#networks[height="parent - hub - 1"]': {},
+  	      'menu-list-networks#networks': {},
 	        'menu[type=toolbar][at=bottom]#hub': {
       	    'button#remove:disabled': {},
       	    'button#add': {},
@@ -103,9 +107,9 @@ ART.Application.Preferences.Network = new Class({
 	        }
   	    },
   	    //'splitter#resizer': {},
-  	    'panel#right[width="parent - left - 50"]': [
+  	    'panel#right': [
   	      {'label[for=appearance]': 'Network name:'},
-  	      'input#text[width="parent - 150"]',
+  	      'input#text',
   	      {'label[for=appearance]': 'Slider:'},
     	    'input[type=range]#count',
   	      {'label[for=appearance]': 'Active?'},

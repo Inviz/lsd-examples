@@ -9,7 +9,13 @@ window#browser #footer
   :arrow-height 18
   :arrow-position 10
 
-window#browser 
+window#browser   
+  :stroke-color hsb(0, 0, 70, 0.5)
+  &:focused
+    :stroke-width 5px
+    :margin-top -4px
+    :margin-left -4px
+    :stroke-color hsb(0, 0, 40, 0.5)
   #toolbar 
     button
       :glyph-scale 2

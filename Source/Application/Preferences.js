@@ -28,6 +28,7 @@ requires:
 - LSD/ART.Widget.Trait.Fitting
 - LSD/ART.Widget.Trait.Hoverable
 - Base/Widget.Trait.Shy
+- Base/Widget.Trait.Focus
  
 provides: [ART.Application.Preferences]
  
@@ -38,7 +39,8 @@ ART.Application.Preferences = new Class({
 	Includes: [
     ART.Application,
 	  ART.Widget.Trait.Draggable,
-	  ART.Widget.Trait.Fitting
+	  ART.Widget.Trait.Fitting,
+	  Widget.Trait.Focus
 	],
 
   States: {
@@ -88,6 +90,9 @@ ART.Application.Preferences = new Class({
 	    toggler: {
         click: 'mutate'
 	    }
+	  },
+	  element: {
+	    mousedown: 'retain'
 	  }
 	}
 });

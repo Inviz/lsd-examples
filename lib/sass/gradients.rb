@@ -8,7 +8,6 @@ module Sass
     end
     
     module ExtraFunctions
-      # Only works with selector_aware_helpers.rb
       def gradient(*args)
         args.map! {|a| a.to_s.sub(/^["']/, '').sub(/["']$/, '') } 
         args[0] = "'radial'" if args[0] == 'radial'
@@ -18,6 +17,11 @@ module Sass
       def glyph(name)
         name = name.to_s.sub(/^["']/, '').sub(/["']$/, '')
         Sass::Script::LiteralString.new("ART.Glyphs." + name)
+      end
+      
+      def calculate(property, expression)
+        expression = expression.to_s.sub(/^["']/, '').sub(/["']$/, '')
+        Sass::Script::LiteralString.new("ART.Styles.calculate(" + property.to_s + ", '" + expression + "')")
       end
     end
   end

@@ -1,18 +1,19 @@
 window#network
-  :stroke-width 1
-  :stroke-color hsb(0, 0, 40, 0.5)
   :corner-radius-bottom-left 0
   :corner-radius-bottom-right 0
   
   &:minified #toolbar
     :display none
+    
+  #right
+    :width calculate("width", "parent - left - 50")
+    
   #content    
     :height auto
     :display block
     :width 520px
     :min-width 520px
-    :background-color hsb(0, 0, 93)
-    :border-top 1px solid #666
+    :border-top 1px solid #ededed
     #actions
       :float right
       :margin-bottom 10px
@@ -25,6 +26,7 @@ window#network
         :shadow-offset-y 1
         
   #networks
+    :height calculate("height", "parent - hub - 1")
     item
       :width auto
       :display block
@@ -35,6 +37,6 @@ window#network
 
     h2, p
       :font-size 1em
-      :line-height 1em
+      :line-height   1em
       :padding 0px
       :margin 0

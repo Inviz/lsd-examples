@@ -24,6 +24,7 @@ requires:
 - LSD/ART.Widget.Trait.Scrollable
 - LSD/ART.Widget.Trait.Hoverable
 - Base/Widget.Trait.Shy
+- Base/Widget.Trait.Focus
  
 provides: [ART.Application.Preferences.Network]
  
@@ -36,9 +37,10 @@ ART.Application.Browser = new Class({
 	  ART.Widget.Trait.Draggable,
 	  ART.Widget.Trait.Resizable,
 	  ART.Widget.Trait.ResizableContainer,
-	  ART.Widget.Trait.Fitting
+	  ART.Widget.Trait.Fitting,
+	  Widget.Trait.Focus
 	],
-	
+		
   States: {
     'minified': ['minify', 'enlarge', 'mutate']
   },
@@ -81,6 +83,9 @@ ART.Application.Browser = new Class({
 	    toggler: {
         click: 'mutate'
 	    }
+	  },
+	  element: {
+	    mousedown: 'retain'
 	  }
 	},
 

@@ -3,13 +3,15 @@ window.fancy
   :corner-radius-bottom-right 5
   :corner-radius-top-left 5
   :corner-radius-top-right 5
-  :stroke-width 5
+  :stroke-width 1
   :stroke-cap square
-  :stroke-color hsb(0, 0, 10, 0.5)
+  :stroke-color hsb(0, 0, 40, 0.5)
   #header
     #buttons
       &:hover button
         :glyph-color hsb(0, 0, 20, 0.7)
+  &:focused #header
+    #buttons
       #close
         :fill-color gradient("radial", "{0: hsb(0, 95, 80), 0.9: hsb(0, 97, 73), 1: hsb(359, 65, 22)}, {cy: '55%', r: '42%', fy: '55%'}")
         :stroke-color gradient(hsb(359, 71, 60), hsb(359, 24, 75))
@@ -25,16 +27,46 @@ window.fancy
         :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
         &:active
           :fill-color gradient("radial", "{0: hsb(100, 76, 66), 0.8: hsb(95, 46, 63), 1: hsb(103, 53, 33)}, {cy: '55%', r: '44%', fy: '55%'}")
-      #close, #minimize, #maximize
-        &:disabled
-          :fill-color false
-          :opacity 0.5
     
+  :shadow-offset-y 2
+  :z-index 10
+  #content
+    :background-color gradient(hsb(0, 0, 93), hsb(0, 0, 93))
+  panel#right  
+    :inner-shadow-color hsb(0, 0, 0, 0.15)
+  &:focused 
+    #header, #footer
+      :background-color gradient(hsb(0, 0, 81), hsb(0, 0, 65))
+    #header
+      :border-bottom-color #515151
+    #footer
+      :border-top-color #515151
+    #content
+      :background-color gradient(hsb(0, 0, 93), hsb(0, 0, 83))
+    panel#right
+      :inner-shadow-color hsb(0, 0, 0, 0.25)
+      
+    :shadow-offset-y 5
+    :shadow-blur 25
+    :z-index 20 
+    :stroke-color hsb(0, 0, 10, 0.5)
+    button
+      :stroke-color hsb(0, 0, 33)
+      :background-color gradient(hsb(0, 0, 100), hsb(0, 0, 72))
+    
+  #header, #footer  
+    :background-color gradient(hsb(0, 0, 95), hsb(0, 0, 85))
+    
+  #header
+    :border-bottom-color #999
+  #footer
+    :border-top-color #999
+
   &:dragged    
     :cursor move
     :stroke-color hsb(0, 0, 10, 0.2)
-    :shadow-blur 25
     :shadow-offset-y 12
+    
   #header
     :corner-radius-top-left inherit
     :corner-radius-top-right inherit
@@ -43,27 +75,20 @@ window.fancy
     :padding-left 5px
     :padding-bottom 3px
     :height auto
-    :reflection-color gradient(hsb(0, 0, 80), hsb(0, 0, 60))
-    :background-color gradient(hsb(0, 0, 100, 1), hsb(0, 0, 0, 0))
     :border-bottom-width 1px
     :border-bottom-style solid
-    :border-bottom-color #979797
   #toolbar
     :clear both
     :padding-top 5px
+      
   #content
     :height 150px
-    :reflection-color gradient(hsb(0, 0, 80, 0.3), hsb(0, 0, 70, 0.4))
-    :background-color gradient(hsb(0, 0, 100, 0.3), hsb(0, 0, 0, 0))
   #footer  
     :corner-radius-bottom-left inherit
     :corner-radius-bottom-right inherit
-    :reflection-color gradient(hsb(0, 0, 80), hsb(0, 0, 70))
-    :background-color gradient(hsb(0, 0, 100, 1), hsb(0, 0, 0, 0))
     :height auto
     :border-top-width 1px
     :border-top-style solid
-    :border-top-color #979797
   &:minified 
     #content
       :reflection-color gradient(hsb(0, 0, 80, 0.5), hsb(0, 0, 70, 0.7))
@@ -87,8 +112,8 @@ window.fancy
           :width auto
           :display block
   button
-    :background-color gradient(hsb(0, 0, 99), hsb(0, 0, 74))
-    :reflection-color gradient(hsb(0, 0, 30, 0), hsb(0, 0, 40, 0.3))
+    :stroke-color hsb(0, 0, 60, 0.7)
+    :background-color gradient(hsb(0, 0, 96), hsb(0, 0, 82))
     &:active
       :background-color gradient(hsb(0, 0, 40), hsb(0, 0, 74))
     &:disabled

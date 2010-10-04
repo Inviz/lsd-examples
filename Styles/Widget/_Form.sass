@@ -1,4 +1,6 @@
 form
+  :width auto
+  
   &.two-column
     :margin-left 20px
     :margin-right 20px
@@ -19,6 +21,8 @@ form
       &[type=checkbox]
         :margin-top 3px
         
+      &[type=range], &[type=text]
+        :width calculate("width", "parent - 150")
     select
       :float left
         
@@ -42,7 +46,8 @@ form
     input
       &[type=checkbox], &[type=radio]
         :float none
-        :display inline-block
+        +inline-block
+        :vertical-align top
         :margin-bottom 0
         :vertical-align middle
         :margin-right 3px
