@@ -51,7 +51,8 @@ ART.Application.Desktop = new Class({
 	Includes: [	  
     ART.Document,
     ART.Widget.Module.Layout,
-    Widget.Module.Events
+    Widget.Module.Events,
+    Widget.Module.Attributes
 	],
 	
 	layout: {
