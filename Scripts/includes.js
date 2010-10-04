@@ -1,4 +1,4 @@
-(function(prefix) {
+(function(prefix, loader) {
       var sources = [
   "../../qfocuser/Source/QFocuser.js",
   "../../mootools-core/Source/Core/Core.js",
@@ -137,5 +137,8 @@
   "../Source/Application/Network.js",
   "../Source/Application/Desktop.js"
 ];
-      for (var i = 0, j = sources.length; i < j; i++) document.write('<scr' + 'ipt src="' + (prefix || '') + sources[i] + '"></script>');
-    })(window.prefix);
+  if (!loader) var loader = function(src) {
+    document.write('<scr' + 'ipt src="' + (prefix || '') + src + '"></script>')
+  }
+      for (var i = 0, j = sources.length; i < j; i++) loader(sources[i]);
+    })(window.prefix, window.loader);
