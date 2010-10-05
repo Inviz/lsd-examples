@@ -78,13 +78,13 @@ ART.Application.Preferences.Network = new Class({
 	layout: {
 	  'section#header': {
       'button#toggler[shy]': {},
-	    'menu[type=toolbar][hoverable][shy]#buttons': {
+	    'menu[type=toolbar][hoverable][shy][tabindex=-1]#buttons': {
         'button#close': {},
 	      'button#minimize:disabled': {},
         'button#maximize:disabled': {}
 	    },
 	    '#title[container]': {},
-  	  'menu[type=toolbar]#toolbar': {
+  	  'menu[type=toolbar]#toolbar[tabindex=-1]': {
         'input[type=search]#search': {},
   	    'button#back.left': {},
   	    'button#forward.right:disabled': {},
@@ -100,7 +100,7 @@ ART.Application.Preferences.Network = new Class({
   	    ],
   	    'panel#left': {
   	      'menu-list-networks#networks': {},
-	        'menu[type=toolbar][at=bottom]#hub': {
+	        'menu[type=toolbar][at=bottom][tabindex=-1]#hub': {
       	    'button#remove:disabled': {},
       	    'button#add': {},
       	    'button#configure': {}

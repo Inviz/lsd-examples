@@ -52,13 +52,13 @@ ART.Application.Preferences = new Class({
 	layout: {
 	  'section#header': {
       'button#toggler[shy]': {},
-	    'menu[type=toolbar][hoverable][shy]#buttons': {
+	    'menu[type=toolbar][hoverable][shy][tabindex=-1]#buttons': {
         'button#close': {},
 	      'button#minimize': {},
         'button#maximize:disabled': {}
 	    },
 	    '#title[container]': {},
-  	  'menu[type=toolbar]#toolbar': {
+  	  'menu[type=toolbar][tabindex=-1]#toolbar': {
         'input[type=search]#search': {},
   	    'button#back.left': {},
   	    'button#forward.right:disabled': {},

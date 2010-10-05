@@ -151,9 +151,10 @@ html > body .art.window.fancy .art.id-header {
 html > body .art.window.fancy .art.id-footer {
   border-top-color: #999999; }
 .art.window.fancy.is-dragged {
-  cursor: move;
   -art-stroke-color: hsb(0, 0, 10, 0.2);
   -art-shadow-offset-y: 12; }
+html > body .art.window.fancy.is-dragged .art.id-title {
+    cursor: move; }
 html > body .art.window.fancy .art.id-header {
   -art-corner-radius-top-left: inherit;
   -art-corner-radius-top-right: inherit;
