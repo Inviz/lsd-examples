@@ -972,6 +972,9 @@ background: transparent; }
 .art.* {
 -art-shadow-blur: 0; }
 
+*:focus {
+outline: none; }
+
 body, html {
 padding: 0;
 margin: 0; }

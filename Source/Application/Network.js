@@ -47,7 +47,7 @@ ART.Application.Preferences.Network = new Class({
 	  ART.Widget.Trait.Resizable,
 	  ART.Widget.Trait.ResizableContainer,
 	  ART.Widget.Trait.Fitting,
-	  Widget.Trait.Focus
+	  Widget.Trait.Focus.Stateful
 	],
 
   States: {
@@ -69,9 +69,6 @@ ART.Application.Preferences.Network = new Class({
 	    toggler: {
         click: 'mutate'
 	    }
-	  },
-	  element: {
-	    mousedown: 'retain'
 	  }
 	},
 	

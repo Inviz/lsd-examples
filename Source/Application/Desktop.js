@@ -132,9 +132,6 @@ ART.Widget.Menu.Toolbar.Commands = new Class({
   ],
   
   events: {
-    element: {
-      mousedown: 'retain'
-    },
     self: {
       blur: 'unselectItem'
     }

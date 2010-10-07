@@ -40,7 +40,7 @@ ART.Application.Preferences = new Class({
     ART.Application,
 	  ART.Widget.Trait.Draggable,
 	  ART.Widget.Trait.Fitting,
-	  Widget.Trait.Focus
+	  Widget.Trait.Focus.Stateful
 	],
 
   States: {
@@ -90,9 +90,6 @@ ART.Application.Preferences = new Class({
 	    toggler: {
         click: 'mutate'
 	    }
-	  },
-	  element: {
-	    mousedown: 'retain'
 	  }
 	}
 });
