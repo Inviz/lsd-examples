@@ -16,7 +16,8 @@ form
       
     input
       :float left
-      :margin-bottom 16px
+      &[type=text], &[type=range]
+        :margin-bottom 16px
       
       &[type=checkbox]
         :margin-top 3px
@@ -43,12 +44,13 @@ form
   
   
   .options.field
+    label
+      :line-height 16px
+      :vertical-align middle
     input
       &[type=checkbox], &[type=radio]
         :float none
         +inline-block
-        :vertical-align top
-        :margin-bottom 0
         :vertical-align middle
         :margin-right 3px
        
