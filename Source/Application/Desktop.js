@@ -31,9 +31,9 @@ requires:
 - LSD/ART.Widget.Module.Expression
 - LSD/ART.Widget.Module.LayoutEvents
 - LSD/ART.Widget.Module.Layout
-- LSD/ART.Widget.Trait.Draggable
-- LSD/ART.Widget.Trait.Resizable
-- LSD/ART.Widget.Trait.ResizableContainer
+- LSD/ART.Widget.Trait.Draggable.Stateful
+- LSD/ART.Widget.Trait.Resizable.Stateful
+- LSD/ART.Widget.Trait.Resizable.Container
 - LSD/ART.Widget.Trait.Fitting
 - LSD/ART.Widget.Trait.Liquid
 - LSD/ART.Widget.Trait.Hoverable

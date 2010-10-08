@@ -248,16 +248,16 @@ html > body .art.window.fancy .art.button.id-forward {
   position: absolute;
   -art-fill-color: "[hsb(0, 0, 30, 0.4), hsb(0, 0, 50, 0.5)]";
   -art-reflection-color: "[hsb(31, 0, 100, 0.3), hsb(45, 0, 50, 0)]";
-  -art-stroke-width: 1;
+  -art-stroke-width: 0;
   -art-stroke-color: hsb(0, 0, 0, 0.3); }
 .art.window.fancy .art.scrollbar .art.button {
-    height: 14px;
-    width: 14px;
+    height: 16px;
+    width: 16px;
     margin-left: 0px;
     -art-glyph-scale: 0.8;
-    -art-glyph-top: 3;
-    -art-glyph-left: 3;
-    -art-stroke-width: 1;
+    -art-glyph-top: 4;
+    -art-glyph-left: 4;
+    -art-stroke-width: 0;
     margin-right: 0; }
 .art.window.fancy .art.scrollbar.is-vertical {
     top: 0;
@@ -549,12 +549,16 @@ cursor: pointer;
 .art.scrollbar.is-horizontal .art.track {
   height: 14px;
   margin-left: 16px; }
+.art.scrollbar.is-horizontal .art.thumb {
+  margin-top: 1px; }
 .art.scrollbar.is-vertical .art.track {
   width: 14px;
   margin-top: 16px; }
+.art.scrollbar.is-vertical .art.thumb {
+  margin-left: 1px; }
 .art.scrollbar .art.track .art.thumb {
   width: 12px;
-  height: 12px;
+  height: 14px;
   -art-corner-radius: 5;
   -art-background-color: "[hsb(0, 0, 0, 0.2), hsb(0, 0, 0, 0.24)]";
   -art-fill-color: "[hsb(44, 0, 100, 0.15), hsb(31, 0, 50, 0)]"; }

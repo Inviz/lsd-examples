@@ -24,9 +24,9 @@ requires:
 - LSD/ART.Widget.Module.Expression
 - LSD/ART.Widget.Module.LayoutEvents
 - LSD/ART.Widget.Module.Layout
-- LSD/ART.Widget.Trait.Draggable
+- LSD/ART.Widget.Trait.Draggable.Stateful
 - LSD/ART.Widget.Trait.Fitting
-- LSD/ART.Widget.Trait.Hoverable
+- LSD/ART.Widget.Trait.Hoverable.Stateful
 - Base/Widget.Trait.Shy
 - Base/Widget.Trait.Focus
  
@@ -38,7 +38,7 @@ provides: [ART.Application.Preferences]
 ART.Application.Preferences = new Class({
 	Includes: [
     ART.Application,
-	  ART.Widget.Trait.Draggable,
+	  ART.Widget.Trait.Draggable.Stateful,
 	  ART.Widget.Trait.Fitting,
 	  Widget.Trait.Focus.Stateful
 	],
