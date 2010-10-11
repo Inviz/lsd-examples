@@ -559,7 +559,7 @@ cursor: pointer;
 .art.scrollbar.is-vertical .art.thumb {
   margin-left: 1px; }
 .art.scrollbar .art.track .art.thumb {
-  width: 12px;
+  width: 14px;
   height: 14px;
   -art-corner-radius: 5;
   -art-background-color: "[hsb(0, 0, 0, 0.2), hsb(0, 0, 0, 0.24)]";

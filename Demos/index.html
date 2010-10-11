@@ -81,7 +81,10 @@
 	      redraws: counter.current.redraws - counter.old.redraws,
 	      widgets: counter.current.widgets - counter.old.widgets,
 	    }
-	    if (window.console && console.profile) console.profileEnd('Network render')
+	    if (window.console && console.profile) (function() {
+	      console.profileEnd('Network render')
+	    }).delay(200);
+	    
 	    console.info('Widgets: ', counter.delta.widgets, 'Redraws: ', counter.delta.redraws)
 	    //$p.fit();
 		});
