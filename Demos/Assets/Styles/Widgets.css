@@ -262,30 +262,31 @@ html > body .art.window.fancy .art.button.id-forward {
 .art.window.fancy .art.scrollbar.is-vertical {
     top: 0;
     right: 0; }
-html > body .art.window.fancy .art.scrollbar.is-vertical .art.button.id-decrement {
+html > body .art.window.fancy .art.scrollbar.is-vertical .art.button.id-decrementor {
+      top: 0;
+      -art-glyph: ART.Glyphs.triangleUp;
+      -art-corner-radius-top-right: 3;
+      -art-corner-radius-bottom-right: 0;
+      -art-corner-radius-top-left: 3;
+      -art-corner-radius-bottom-left: 0; }
+html > body .art.window.fancy .art.scrollbar.is-vertical .art.button.id-incrementor {
       bottom: 0;
       -art-glyph: ART.Glyphs.triangleDown;
       -art-corner-radius-top-right: 0;
       -art-corner-radius-bottom-right: 3;
       -art-corner-radius-top-left: 0;
       -art-corner-radius-bottom-left: 3; }
-html > body .art.window.fancy .art.scrollbar.is-vertical .art.button.id-increment {
-      -art-glyph: ART.Glyphs.triangleUp;
-      -art-corner-radius-top-right: 3;
-      -art-corner-radius-bottom-right: 0;
-      -art-corner-radius-top-left: 3;
-      -art-corner-radius-bottom-left: 0; }
 .art.window.fancy .art.scrollbar.is-horizontal {
     bottom: 0;
     left: 0; }
-html > body .art.window.fancy .art.scrollbar.is-horizontal .art.button.id-increment {
+html > body .art.window.fancy .art.scrollbar.is-horizontal .art.button.id-incrementor {
       right: 0;
       -art-corner-radius-top-right: 3;
       -art-corner-radius-bottom-right: 3;
       -art-corner-radius-top-left: 0;
       -art-corner-radius-bottom-left: 0;
       -art-glyph: ART.Glyphs.triangleRight; }
-html > body .art.window.fancy .art.scrollbar.is-horizontal .art.button.id-decrement {
+html > body .art.window.fancy .art.scrollbar.is-horizontal .art.button.id-decrementor {
       -art-glyph: ART.Glyphs.triangleLeft;
       -art-corner-radius-top-left: 3;
       -art-corner-radius-bottom-left: 3;
@@ -343,6 +344,9 @@ padding: 0px;
 -art-corner-radius-top-left: 3;
 -art-corner-radius-top-right: 3;
 -art-background-color: "[hsb(0, 0, 100), hsb(0, 0, 72)]";
+-art-reflection-color: "[hsb(0, 0, 100, 0.7), hsb(0, 0, 100, 0.8)]";
+-art-reflection-offset: "[1, 1, '40%']";
+-art-reflection-corner-radius: 60%;
 line-height: 1.7em;
 vertical-align: middle;
 font-family: Helvetica;
@@ -356,7 +360,8 @@ font-size: 12px; }
   -art-arrow-width: 10;
   -art-arrow-height: 10;
   -art-arrow-side: left;
-  -art-arrow-position: 9; }
+  -art-arrow-position: 8;
+  -art-reflection-color: false; }
 
 html > body .art.container.id-legend {
 text-align: center;
@@ -870,7 +875,9 @@ html > body .art.window.id-network .art.id-content .art.id-actions .art.button {
       margin-right: 0px;
       -art-shadow-color: hsb(0, 0, 0, 0.2);
       -art-shadow-blur: 0;
-      -art-shadow-offset-y: 1; }
+      -art-shadow-offset-y: 1;
+      -art-reflection-offset: "[1, 3, '40%', 3]";
+      -art-reflection-corner-radius: 60%; }
 html > body .art.window.id-network .art.id-networks {
   height: ART.Styles.calculate("height", 'parent - hub - 1'); }
 html > body .art.window.id-network .art.id-networks .art.item {

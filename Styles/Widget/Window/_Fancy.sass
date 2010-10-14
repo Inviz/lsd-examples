@@ -187,7 +187,16 @@ window.fancy
       :right 0
 
       button
-        &#decrement
+        &#decrementor
+          :top 0
+          :glyph glyph("triangleUp")
+          :corner-radius-top-right 3
+          :corner-radius-bottom-right 0
+          :corner-radius-top-left 3
+          :corner-radius-bottom-left 0
+
+
+        &#incrementor
           :bottom 0
           :glyph glyph("triangleDown")
           :corner-radius-top-right 0
@@ -195,20 +204,12 @@ window.fancy
           :corner-radius-top-left 0
           :corner-radius-bottom-left 3
 
-
-        &#increment
-          :glyph glyph("triangleUp")
-          :corner-radius-top-right 3
-          :corner-radius-bottom-right 0
-          :corner-radius-top-left 3
-          :corner-radius-bottom-left 0
-
     &:horizontal 
       :bottom 0
       :left 0
 
       button
-        &#increment
+        &#incrementor
           :right 0
           :corner-radius-top-right 3
           :corner-radius-bottom-right 3
@@ -216,7 +217,7 @@ window.fancy
           :corner-radius-bottom-left 0
           :glyph glyph("triangleRight")
 
-        &#decrement
+        &#decrementor
           :glyph glyph("triangleLeft")
           :corner-radius-top-left 3
           :corner-radius-bottom-left 3
