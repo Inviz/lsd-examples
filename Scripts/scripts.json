@@ -156,7 +156,6 @@
       "LSD/ART.Layout",
       "LSD/ART.Widget.Module.Layout",
       "LSD/ART.Widget.Trait.Resizable",
-      "LSD/ART.Widget.Trait.ResizableContainer",
       "LSD/ART.Widget.Module.Container",
       "LSD/ART.Widget",
       "LSD/ART.Widget.Element",
