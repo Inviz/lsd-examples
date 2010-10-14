@@ -344,7 +344,7 @@ padding: 0px;
 -art-corner-radius-top-left: 3;
 -art-corner-radius-top-right: 3;
 -art-background-color: "[hsb(0, 0, 100), hsb(0, 0, 72)]";
--art-reflection-color: "[hsb(0, 0, 100, 0.7), hsb(0, 0, 100, 0.8)]";
+-art-reflection-color: "[hsb(0, 0, 100, 0.7), hsb(0, 0, 100, 0.8), hsb(0, 0, 100, 0.4)]";
 -art-reflection-offset: "[1, 1, '40%']";
 -art-reflection-corner-radius: 60%;
 line-height: 1.7em;
