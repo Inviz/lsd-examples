@@ -19,7 +19,7 @@ requires:
 - LSD/ART.Widget.Module.Layout
 - LSD/ART.Widget.Trait.Draggable.Stateful
 - LSD/ART.Widget.Trait.Resizable.Stateful
-- LSD/ART.Widget.Trait.Resizable.Container
+- LSD/ART.Widget.Trait.Resizable.Content
 - LSD/ART.Widget.Trait.Fitting
 - LSD/ART.Widget.Trait.Scrollable
 - LSD/ART.Widget.Trait.Hoverable
@@ -36,7 +36,7 @@ ART.Application.Browser = new Class({
     ART.Application,
 	  ART.Widget.Trait.Draggable.Stateful,
 	  ART.Widget.Trait.Resizable.Stateful,
-	  ART.Widget.Trait.Resizable.Container,
+	  ART.Widget.Trait.Resizable.Content,
 	  ART.Widget.Trait.Fitting,
 	  Widget.Trait.Focus.Stateful
 	],

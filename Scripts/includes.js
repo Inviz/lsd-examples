@@ -99,7 +99,6 @@
   "../../../Source/Layout.js",
   "../../../Source/Widget/Module/Layout.js",
   "../../../Source/Widget/Trait/Resizable.js",
-  "../../../Source/Widget/Trait/ResizableContainer.js",
   "../../../Source/Widget/Module/Container.js",
   "../../../Source/Widget/Widget.js",
   "../../../Source/Widget/Element.js",

@@ -33,7 +33,7 @@ requires:
 - LSD/ART.Widget.Module.Layout
 - LSD/ART.Widget.Trait.Draggable.Stateful
 - LSD/ART.Widget.Trait.Resizable.Stateful
-- LSD/ART.Widget.Trait.Resizable.Container
+- LSD/ART.Widget.Trait.Resizable.Content
 - LSD/ART.Widget.Trait.Fitting
 - LSD/ART.Widget.Trait.Liquid
 - LSD/ART.Widget.Trait.Hoverable
