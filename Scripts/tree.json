@@ -143,7 +143,7 @@
         "LSD/ART.Widget.Trait.Liquid",
         "LSD/ART.Widget.Trait.Hoverable",
         "LSD/ART.Widget.Trait.Aware",
-        "LSD/ART.Widget.Trait.ProxyChildren",
+        "LSD/ART.Widget.Trait.Proxies",
         "Base/Widget.Trait.Shy",
         "ART.Application"
       ],

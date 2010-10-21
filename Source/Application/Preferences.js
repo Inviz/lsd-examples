@@ -43,10 +43,6 @@ ART.Application.Preferences = new Class({
 	  Widget.Trait.Focus.Stateful
 	],
 
-  States: {
-    'minified': ['minify', 'enlarge', 'mutate']
-  },
-  
   expression: "window.fancy#preferences",
   
 	layout: {
@@ -81,14 +77,6 @@ ART.Application.Preferences = new Class({
   	      {'label[for=selectbox]': 'Selectbox:'},
   	      'select#selectbox'
   	    ]
-	    }
-	  }
-	},
-
-	events: {
-	  header: {
-	    toggler: {
-        click: 'mutate'
 	    }
 	  }
 	}

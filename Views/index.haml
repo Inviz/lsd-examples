@@ -1,0 +1,81 @@
+!!!
+
+%html
+%head
+  %title Desktop Example
+  %script{:src => "../Scripts/loader.js"}
+  %script{:src => "../Scripts/includes.js"}
+  %link{:rel => "art stylesheet", :href => "/.Assets/Styles/Widgets.css"}
+  
+  :javascript
+    window.addEvent('domready', function() {
+  		ART.Sheet.decompile('art', function() { /* decompiles stylesheets with 'art' in 'rel' attribute */
+        $d = new ART.Application.Desktop
+  		});
+  	});
+%body
+  
+  
+  
+  
+	<link rel="art stylesheet" href="./Assets/Styles/Widgets.css">
+	<script>
+	  window.addEvent('domready', function() {
+  		
+  		ART.Sheet.decompile('art', function() {
+  		  
+  		//ART.Sheet.compile();
+  		
+      
+  		
+	    var counter = {}
+	    counter.old = {
+	      redraws: ART.Widget.Paint.redraws,
+	      widgets: ART.Widget.count
+	    }
+	    if (window.console && console.profile) console.profile('Network render')
+	    $z = new ART.Application.Browser();
+	    $z.inject($d);	
+	    $z.setStyles({top: 50, left: 50})
+			$z.header.title.setContent('Hello')
+			$z.content.setContent(new Element('div', {'html': 'Orange box of truth (245x100)<br>Resize window to see some <em>scrollbar magic</em><br>Minify window by clicking top right button', 'styles': {'background': 'orange', width: 244, height: 100, minHeight: 50}}))
+			$z.fit();
+      
+  		
+  		$p = new ART.Application.Preferences
+  		$p.inject($d);	
+  		$p.header.title.setContent('Preferences');
+	    $p.setStyles({top: 50, left: 550});
+	    
+	    
+	    
+	    
+  		$n = new ART.Application.Preferences.Network;
+  		$n.inject($d);	
+  		$n.header.title.setContent('Network');
+	    $n.setStyles({top: 300, left: 300});
+	    
+	    
+      
+	    counter.current = {
+	      redraws: ART.Widget.Paint.redraws,
+	      widgets: ART.Widget.count
+	    }
+	    counter.delta = {
+	      redraws: counter.current.redraws - counter.old.redraws,
+	      widgets: counter.current.widgets - counter.old.widgets,
+	    }
+	    if (window.console && console.profile) (function() {
+	      console.profileEnd('Network render')
+	    }).delay(200);
+	    
+	    console.info('Widgets: ', counter.delta.widgets, 'Redraws: ', counter.delta.redraws)
+	    //$p.fit();
+		});
+  		
+	  });
+	</script>
+</head>
+<body>
+</body>
+</html>

@@ -1,4 +1,4 @@
-(function(prefix) {
+(function(prefix, loader) {
       var sources = [
   "../../cssparser/Source/CSSParser.js",
   "../../qfocuser/Source/QFocuser.js",
@@ -53,6 +53,7 @@
   "../../lsd-base/Source/Widget/Trait/Touchable.js",
   "../../mootools-core/Source/Types/Event.js",
   "../../mootools-ext/Source/Types/Event.js",
+  "../../mootools-ext/Source/Element/Element.Microdata.js",
   "../../mootools-core/Source/Element/Element.Event.js",
   "../../mootools-ext/Source/Element/Events/Keypress.js",
   "../../lsd-base/Source/Widget/Trait/Accessibility.js",
@@ -92,7 +93,7 @@
   "../../../Source/Widget/Trait/Draggable.js",
   "../../../Source/Widget/Trait/Dimensions.js",
   "../../../Source/Widget/Trait/Aware.js",
-  "../../../Source/Widget/Trait/ProxyChildren.js",
+  "../../../Source/Widget/Trait/Proxies.js",
   "../../../Source/Widget/Module/LayoutEvents.js",
   "../../../Source/Widget/Module/Position.js",
   "../../../Source/Widget/Trait/Hoverable.js",

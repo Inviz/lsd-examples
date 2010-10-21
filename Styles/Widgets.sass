@@ -29,11 +29,16 @@
 @import Application/Desktop/Footer
 @import Application/Desktop/Icons
 
-svg
-  :display block
-  
-  ~ .container, ~ *:element
-    :position relative
+
+.art
+  :position relative
+  > svg
+    :position absolute
+    :top 0
+    :left 0
+    ~ *:element
+      :position relative
+
 v\:*
   :background transparent
     

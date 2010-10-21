@@ -49,10 +49,6 @@ ART.Application.Preferences.Network = new Class({
 	  ART.Widget.Trait.Resizable.Content,
 	  ART.Widget.Trait.Fitting
 	],
-
-  States: {
-    'minified': ['minify', 'enlarge', 'mutate']
-  },
   
   options: {
     resizer: {
@@ -63,14 +59,6 @@ ART.Application.Preferences.Network = new Class({
   },
   
   expression: "window.fancy#network",
-  
-	events: {
-	  header: {
-	    toggler: {
-        click: 'mutate'
-	    }
-	  }
-	},
 	
 	layout: {
 	  'section#header': {
@@ -148,26 +136,19 @@ ART.Widget.Menu.List.Networks = new Class({
 
   options: {
     layout: {
-      item: 'menu-list-item-network'
+      item: 'menu-list-networks-item'
     }
-  },
-  
-  items: [
-    {
-      online: true,
-      name: 'Parallels adapter'
-    },
-    {
-      online: false,
-      name: 'Ethernet'
-    }
-  ]
+  }
 })
 
-ART.Widget.Menu.List.Item.Network = new Class({
+ART.Widget.Menu.List.Networks.Item = new Class({
   Extends: ART.Widget.Menu.List.Item,
   
+  attributes: {
+    itemscope: 'true'
+  },
+  
   setContent: function(item) {
-    this.parent('<h2>' + item.name + '</h2>' + '<p>' + (item.online ? 'Connected' : 'Not connected') + '</p>');
+    this.parent('<h2 itemprop="title">' + item.name + '</h2>' + '<p itemprop="status">' + (item.online ? 'Connected' : 'Not connected') + '</p>');
   }
 })

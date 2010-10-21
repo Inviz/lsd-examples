@@ -147,7 +147,7 @@
       "LSD/ART.Widget.Trait.Draggable",
       "LSD/ART.Widget.Trait.Dimensions",
       "LSD/ART.Widget.Trait.Aware",
-      "LSD/ART.Widget.Trait.ProxyChildren",
+      "LSD/ART.Widget.Trait.Proxies",
       "LSD/ART.Widget.Module.LayoutEvents",
       "LSD/ART.Widget.Module.Position",
       "LSD/ART.Widget.Trait.Hoverable",

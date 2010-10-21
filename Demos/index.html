@@ -3,32 +3,7 @@
 <head>
 	<title>ART Demo</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<script>
-		window.prefix = '';
-    
-	  if (location.host.indexOf('github') > -1) {
-	    window.loader = function(src) {
-	      src = src.replace(/^.*(lsd|lsd-base|lsd-examples|mootools-ext)\//, 'http://inviz.github.com/$1/').
-      	          replace(/^.*(qfocuser|cssparser)\//, 'http://github.com/inviz/$1/raw/master/').
-      	          replace(/^.*(..\/..\/..\/Source)\//, 'http://inviz.github.com/lsd/Source/').
-      	          replace(/^.*(..\/..\/Source)\//, 'http://inviz.github.com/lsd-examples/Source/').
-      	          replace(/^.*(mootools-core|mootools-more)\//, 'http://github.com/mootools/$1/raw/master/').
-                	replace(/^.*(mootools-color|mootools-touch|art)\//, 'http://github.com/kamicane/$1/raw/master/')
-	         
-	      document.write('<scr' + 'ipt src="' + (prefix || '') + src + '"></sc' + 'ript>');
-	    }
-
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-18508300-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-	  }
-	</script>
+	<script src="../Scripts/loader.js"></script>
 	<script src="../Scripts/includes.js"></script>
 	<!-- <script src="../Scripts/lsd.js"></script> -->
   
@@ -44,48 +19,22 @@
       
       $d = new ART.Application.Desktop
   		
-	    var counter = {}
-	    counter.old = {
-	      redraws: ART.Widget.Paint.redraws,
-	      widgets: ART.Widget.count
-	    }
 	    if (window.console && console.profile) console.profile('Network render')
-	    $z = new ART.Application.Browser();
-	    $z.inject($d);	
-	    $z.setStyles({top: 50, left: 50})
-			$z.header.title.setContent('Hello')
-			$z.content.setContent(new Element('div', {'html': 'Orange box of truth (245x100)<br>Resize window to see some <em>scrollbar magic</em><br>Minify window by clicking top right button', 'styles': {'background': 'orange', width: 244, height: 100, minHeight: 50}}))
-			$z.fit();
       
   		
-  		$p = new ART.Application.Preferences
-  		$p.inject($d);	
-  		$p.header.title.setContent('Preferences');
-	    $p.setStyles({top: 50, left: 550});
+	    $n = ART.Layout.replace($('preferences'));
 	    
 	    
+	    $z = ART.Layout.replace($('browser'));
+	    $z.content.setContent(new Element('div', {'html': 'Orange box of truth (245x100)<br>Resize window to see some <em>scrollbar magic</em><br>Minify window by clicking top right button', 'styles': {'background': 'orange', width: 244, height: 100, minHeight: 50}}))
+			$z.fit();
+			
+	    $n = ART.Layout.replace($('network'));
 	    
-	    
-  		$n = new ART.Application.Preferences.Network;
-  		$n.inject($d);	
-  		$n.header.title.setContent('Network');
-	    $n.setStyles({top: 300, left: 300});
-	    
-	    
-      
-	    counter.current = {
-	      redraws: ART.Widget.Paint.redraws,
-	      widgets: ART.Widget.count
-	    }
-	    counter.delta = {
-	      redraws: counter.current.redraws - counter.old.redraws,
-	      widgets: counter.current.widgets - counter.old.widgets,
-	    }
 	    if (window.console && console.profile) (function() {
 	      console.profileEnd('Network render')
 	    }).delay(200);
 	    
-	    console.info('Widgets: ', counter.delta.widgets, 'Redraws: ', counter.delta.redraws)
 	    //$p.fit();
 		});
   		
@@ -93,5 +42,146 @@
 	</script>
 </head>
 <body>
+  
+  <window class='fancy' draggable='draggable' fitting='fitting' id='browser' resizable-content='resizable-content' resizable='resizable' shape='arrow' style='top: 50px; left: 50px' tabindex='0'>
+    <section id='header'>
+      <button id='toggler' shy='shy'></button>
+      <menu hoverable='hoverable' id='buttons' shy='shy' tabindex='-1' type='toolbar'>
+        <button id='close'></button>
+        <button id='minimize'></button>
+        <button id='maximize'></button>
+      </menu>
+      <div container='container' id='title'>Browser</div>
+      <menu id='toolbar' tabindex='-1' type='toolbar'>
+        <button id='back' shape='arrow'></button>
+        <button class='is-disabled' id='forward'></button>
+        <button id='search'></button>
+        <button id='wrench'></button>
+        <button id='reload'></button>
+        <button id='bookmark' shape='star'></button>
+      </menu>
+    </section>
+    <section container='container' id='content' scrollable='scrollable'></section>
+    <section class='flexible' id='footer' shape='arrow'>
+      <div container='container' id='status'>Status: Bad</div>
+      <glyph at='top right' id='handle' name='drag-handle'></glyph>
+    </section>
+  </window>
+  
+  <window class='fancy' draggable='true' id='network' resizable-content='true' resizable='true' resizer-modifiers-y='false' style='top: 300px; left: 300px' tabindex='0'>
+    <section id='header'>
+      <button id='toggler' shy='shy'></button>
+      <menu hoverable='hoverable' id='buttons' shy='shy' tabindex='-1' type='toolbar'>
+        <button id='close'></button>
+        <button class='is-disabled' id='minimize'></button>
+        <button class='is-disabled' id='maximize'></button>
+      </menu>
+      <div container='container' id='title'>Network Preferences</div>
+      <menu id='toolbar' tabindex='-1' type='toolbar'>
+        <input id='search' type='search' />
+        <button class='left' id='back'></button>
+        <button class='right is-disabled' id='forward'></button>
+        <button id='index'>Show All</button>
+      </menu>
+    </section>
+    <section container='container' id='content'>
+      <glyph at='bottom right' id='handle' name='drag-handle'></glyph>
+      <form action='/' class='two-column' id='networking'>
+        <div id='legend'>
+          <label for='location'>Location:</label>
+          <select id='location'>
+            <option inherit='partial'>Home</option>
+            <option inherit='partial'>Work</option>
+          </select>
+        </div>
+        <panel id='left'>
+          <menu id='networks' kind='networks' type='list'>
+            <item inherit='full' itemspec='network'>
+              <h2 itempop='title'>Wireless Network</h2>
+              <p itemprop='status'>Offline</p>
+            </item>
+            <item inherit='full'>
+              <h2 itempop='title'>Local Area Network</h2>
+              <p itemprop='status'>Online</p>
+            </item>
+          </menu>
+          <menu at='bottom' id='hub' tabindex='-1' type='toolbar'>
+            <button class='is-disabled' id='remove'></button>
+            <button id='add'></button>
+            <button id='configure'></button>
+          </menu>
+        </panel>
+        <panel id='right'>
+          <label for='network_name'>Network name:</label>
+          <input id='network_name' />
+          <label for='count'>Slider:</label>
+          <input id='count' type='range' />
+          <label for='activator'>Active?</label>
+          <input id='activator' type='checkbox' />
+          <label for='apple_pies'>Choose one:</label>
+          <div class='field options'>
+            <div class='line'>
+              <input id='apple_pies' name='choice' type='radio' />
+              <label for='apple_pies'>Apple pies</label>
+            </div>
+            <div class='line'>
+              <input id='instant_coffee' name='choice' type='radio' />
+              <label for='instant_coffee'>Instant coffee</label>
+            </div>
+          </div>
+        </panel>
+        <menu id='actions' type='toolbar'>
+          <button id='assist'>Assist me…</button>
+          <button class='is-disabled' id='revert'>Revert</button>
+          <button class='is-disabled' id='revert'>Apply</button>
+        </menu>
+      </form>
+    </section>
+  </window>
+  
+  
+  
+  
+  <window class='fancy' draggable='draggable' id='preferences' style='top: 50px; left: 550px' tabindex='0'>
+    <section id='header'>
+      <button id='toggler' shy='shy'></button>
+      <menu hoverable='hoverable' id='buttons' shy='shy' tabindex='-1' type='toolbar'>
+        <button id='close'></button>
+        <button class='is-disabled' id='minimize'></button>
+        <button class='is-disabled' id='maximize'></button>
+      </menu>
+      <div container='container' id='title'></div>
+      <menu id='toolbar' tabindex='-1' type='toolbar'>
+        <input id='search' type='search' />
+        <button class='left' id='back'></button>
+        <button class='right is-disabled' id='forward'></button>
+        <button id='index'>Show All</button>
+      </menu>
+    </section>
+    <section container='container' id='content'>
+      <form action='/' class='two-column' id='networking'>
+        <section>
+          <label for='person_name'>Person name:</label>
+          <input id='person_name' />
+          <label for='count'>Evaluation:</label>
+          <input id='count' type='range' />
+        </section>
+        <section>
+          <label for='decision'>Decision:</label>
+          <input id='decision' />
+        </section>
+        <section class='last'>
+          <label for='status'>Status:</label>
+          <select id='status' list-force='list-force'>
+            <option inherit='partial'>Undecided</option>
+            <option inherit='partial'>Approved</option>
+            <option inherit='partial'>Unapproved</option>
+          </select>
+        </section>
+      </form>
+    </section>
+  </window>
+  
+  
 </body>
 </html>

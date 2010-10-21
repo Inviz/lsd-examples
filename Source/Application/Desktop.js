@@ -38,7 +38,7 @@ requires:
 - LSD/ART.Widget.Trait.Liquid
 - LSD/ART.Widget.Trait.Hoverable
 - LSD/ART.Widget.Trait.Aware
-- LSD/ART.Widget.Trait.ProxyChildren
+- LSD/ART.Widget.Trait.Proxies
 - Base/Widget.Trait.Shy
 - ART.Application
  
@@ -95,7 +95,6 @@ ART.Application.Desktop = new Class({
 
 	initialize: function() {
 	  this.parent.apply(this, arguments);
-		if (this.layout) this.setLayout(this.layout);
 	  this.onResize();
 	  this.attach();
 	},
@@ -146,15 +145,9 @@ ART.Widget.Menu.Toolbar.Commands.Menu = new Class({
   Includes: [
     ART.Widget.Menu.Toolbar.Menu,
     ART.Widget.Trait.Aware,
-    ART.Widget.Trait.ProxyChildren
+    ART.Widget.Trait.Proxies
   ],
-  
-  options: {
-    proxy: {
-      target: 'menu'
-    }
-  },
-  
+    
   events: {
     self: {
       unselect: 'collapse',
@@ -191,8 +184,7 @@ ART.Widget.Menu.Toolbar.Notification.Item = new Class({
   
   events: {
     self: {
-      click: 'select',
-      inject: 'setList'
+      click: 'select'
     },
     element: {
       mousemove: 'selectIfFocused'
@@ -231,7 +223,7 @@ ART.Widget.Menu.List.Icons = new Class({
     layout: {
       item: 'menu-list-item-icon'
     }
-  },
+  }/*,
   
   items: [
     //{
@@ -244,7 +236,7 @@ ART.Widget.Menu.List.Icons = new Class({
     //  name: 'valid_icon.png',
     //  size: 12309
     //}
-  ]
+  ]*/
 });
 
 ART.Widget.Menu.List.Item.Icon = new Class({

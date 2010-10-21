@@ -1,0 +1,29 @@
+%window.fancy#preferences{:draggable => true, :tabindex => 0, :style => "top: 50px; left: 550px"}
+  %section#header
+    %button#toggler{:shy => true}
+    %menu#buttons{:type => :toolbar, :hoverable => true, :shy => true, :tabindex => -1}
+      %button#close
+      %button#minimize.is-disabled
+      %button#maximize.is-disabled
+    #title{:container => true} Preferences
+    %menu#toolbar{:type => :toolbar, :tabindex => -1}
+      %input#search{:type => :search}
+      %button#back.left
+      %button#forward.right.is-disabled
+      %button#index Show All
+  %section#content{:container => true}
+    %form.two-column#networking{:action => "/"}
+      %section
+        %label{:for => :person_name} Person name:
+        %input#person_name
+        %label{:for => :count} Evaluation:
+        %input#count{:type => :range}
+      %section
+        %label{:for => :decision} Decision:
+        %input#decision
+      %section.last
+        %label{:for => :status} Status:
+        %select#status{:"list-force" => true}
+          %option{:inherit => "partial"} Undecided
+          %option{:inherit => "partial"} Approved
+          %option{:inherit => "partial"} Unapproved

@@ -7,7 +7,8 @@ window
   :shadow-offset-y 5
   :shadow-color hsb(0, 0, 0, 0.5)
   :line-height 16px
-  
+  &[draggable]
+    :position absolute
   
   #footer, #header  
     :width auto
@@ -94,8 +95,17 @@ window
     :glyph glyph("smallPlus")
     
     
-    
-  #handle  
+  #footer 
+    #handle[at="top right"]
+      :margin-top 1px
+      :margin-right 1px
+    #status
+      > .container:element
+        :padding 0 5px
+        :color #999
+        +dark-emboss
+  #handle
+    :position absolute
     :z-index 10
     :glyph glyph("resize")
     :glyph-color hsb(0, 0, 50, 0.5)

@@ -40,10 +40,6 @@ ART.Application.Browser = new Class({
 	  ART.Widget.Trait.Fitting,
 	  Widget.Trait.Focus.Stateful
 	],
-		
-  States: {
-    'minified': ['minify', 'enlarge', 'mutate']
-  },
 	
   expression: "window.fancy#browser[shape=arrow]",
   
