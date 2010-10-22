@@ -1,5 +1,5 @@
 window.prefix = '';
-if (location.host.indexOf('github') > -1 || location.host.indexOf('jsfiddle') > -1) {
+if (location.host.indexOf('github') > -1 || location.host.indexOf('fiddle') > -1) {
   window.loader = function(src) {
     src = src.replace(/^.*(lsd|lsd-base|lsd-examples|mootools-ext)\//, 'http://inviz.github.com/$1/').
   	          replace(/^.*(qfocuser|cssparser)\//, 'http://github.com/inviz/$1/raw/master/').
