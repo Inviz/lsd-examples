@@ -9,8 +9,8 @@
   
   :javascript
     window.addEvent('domready', function() {
-  		ART.Sheet.decompile('art', function() { /* decompiles stylesheets with 'art' in 'rel' attribute */
-        $d = new ART.Application.Desktop
+  		LSD.Sheet.decompile('lsd', function() { /* decompiles stylesheets with 'lsd' in 'rel' attribute */
+        $d = new LSD.Application.Desktop
   		});
   	});
 %body
@@ -18,23 +18,16 @@
   
   
   
-	<link rel="art stylesheet" href="./Assets/Styles/Widgets.css">
+	<link rel="lsd stylesheet" href="./Assets/Styles/Widgets.css">
 	<script>
 	  window.addEvent('domready', function() {
   		
-  		ART.Sheet.decompile('art', function() {
+  		LSD.Sheet.decompile('lsd', function() {
   		  
-  		//ART.Sheet.compile();
+  		//LSD.Sheet.compile();
   		
       
-  		
-	    var counter = {}
-	    counter.old = {
-	      redraws: ART.Widget.Paint.redraws,
-	      widgets: ART.Widget.count
-	    }
-	    if (window.console && console.profile) console.profile('Network render')
-	    $z = new ART.Application.Browser();
+  		$z = new LSD.Application.Browser();
 	    $z.inject($d);	
 	    $z.setStyles({top: 50, left: 50})
 			$z.header.title.setContent('Hello')
@@ -42,7 +35,7 @@
 			$z.fit();
       
   		
-  		$p = new ART.Application.Preferences
+  		$p = new LSD.Application.Preferences
   		$p.inject($d);	
   		$p.header.title.setContent('Preferences');
 	    $p.setStyles({top: 50, left: 550});
@@ -50,27 +43,10 @@
 	    
 	    
 	    
-  		$n = new ART.Application.Preferences.Network;
+  		$n = new LSD.Application.Preferences.Network;
   		$n.inject($d);	
   		$n.header.title.setContent('Network');
 	    $n.setStyles({top: 300, left: 300});
-	    
-	    
-      
-	    counter.current = {
-	      redraws: ART.Widget.Paint.redraws,
-	      widgets: ART.Widget.count
-	    }
-	    counter.delta = {
-	      redraws: counter.current.redraws - counter.old.redraws,
-	      widgets: counter.current.widgets - counter.old.widgets,
-	    }
-	    if (window.console && console.profile) (function() {
-	      console.profileEnd('Network render')
-	    }).delay(200);
-	    
-	    console.info('Widgets: ', counter.delta.widgets, 'Redraws: ', counter.delta.redraws)
-	    //$p.fit();
 		});
   		
 	  });

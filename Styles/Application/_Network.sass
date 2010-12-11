@@ -6,7 +6,7 @@ window#network
     :display none
     
   #right
-    :width calculate("width", "parent - left - 50")
+    :width calculate("width", "parent - left - 14")
     
   #content    
     :height auto
@@ -27,9 +27,9 @@ window#network
         :reflection-offset "[1, 3, '40%', 3]"
         :reflection-corner-radius 60%
         
-  #networks
+  menu[kind=networks]
     :height calculate("height", "parent - hub - 1")
-    item
+    option
       :width auto
       :display block
       :padding-top 5px

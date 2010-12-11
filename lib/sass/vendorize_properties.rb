@@ -1,4 +1,4 @@
-gem 'haml-edge'
+gem 'haml'
 require 'sass'
 
 
@@ -19,7 +19,7 @@ module Sass::Tree
   class PropNode
     def cssize!(extends, parent)
       self.resolved_name = "#{parent.resolved_name}-#{resolved_name}" if parent
-      self.resolved_name = "-art-#{self.resolved_name}" unless CSS_PROPERTIES.include?(self.resolved_name)
+      self.resolved_name = "-lsd-#{self.resolved_name}" unless CSS_PROPERTIES.include?(self.resolved_name)
       self.tabs = parent.tabs + (parent.resolved_value.empty? ? 0 : 1) if parent && style == :nested
       self.children = children.map {|c| c.cssize(extends, self)}.flatten
     end

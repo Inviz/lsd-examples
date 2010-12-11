@@ -5,31 +5,31 @@ script: Application.js
  
 description: Basic application
  
-license: MIT-style license.
+license: Public domain (http://unlicense.org).
  
 requires:
-- LSD/ART.Widget.Window
-- LSD/ART.Sheet
-- LSD/ART.Glyphs
-- LSD/ART.Document
-- LSD/ART.Shape.Arrow
-- LSD/ART.Shape.Ellipse
-- LSD/ART.Shape.Flower
-- LSD/ART.Shape.Rectangle
-- LSD/ART.Shape.Star
-- LSD/ART.Layer.Fill
-- LSD/ART.Layer.Glyph
-- LSD/ART.Layer.Icon
-- LSD/ART.Layer.InnerShadow
-- LSD/ART.Layer.Shadow
-- LSD/ART.Layer.Stroke
-- Core/DOMReady
+  - LSD/LSD.Widget.Window
+  - LSD/LSD.Sheet
+  - LSD/ART.Glyphs
+  - LSD/LSD.Document
+  - LSD/ART.Shape.Arrow
+  - LSD/ART.Shape.Ellipse
+  - LSD/ART.Shape.Flower
+  - LSD/ART.Shape.Rectangle
+  - LSD/ART.Shape.Star
+  - LSD/LSD.Layer.Fill
+  - LSD/LSD.Layer.Glyph
+  - LSD/LSD.Layer.Icon
+  - LSD/LSD.Layer.InnerShadow
+  - LSD/LSD.Layer.Shadow
+  - LSD/LSD.Layer.Stroke
+  - Core/DOMReady
  
-provides: [ART.Application]
+provides: [LSD.Application]
  
 ...
 */
 
-ART.Application = new Class({
-  Extends: ART.Widget.Window
+LSD.Application = new Class({
+  Extends: LSD.Widget.Window
 });

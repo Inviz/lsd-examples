@@ -1,0 +1,15 @@
+%header#top
+  %menu.autoselect{:type => :toolbar, :kind => :commands}
+    %menu#shutdown{:title => "Demo"}
+      %command#demo-shutdown{:inherit => "partial"} Shutdown
+    %menu.important{:label => "LSD"}
+      %command#demo-shutdown{:inherit => "partial", :onclick => "LSD.Desktop.navigate('http://github.com/inviz/lsd')"} View GitHub
+      %command#pony{:inherit => "partial"} Pony
+    %menu{:label => "File"}  
+      %command#file-open{:inherit => "partial"} Open
+  %menu.autoselect{:type => :toolbar, :kind => :notification, :at => "right top"}
+    %command#settings{:inherit => "full"}
+    %command#search{:inherit => "full"} 
+    %command#time{:inherit => "full", :kind => "time"}
+%menu{:type => :list, :kind => :icons}
+%menu{:type => :toolbar, :kind => :dock}

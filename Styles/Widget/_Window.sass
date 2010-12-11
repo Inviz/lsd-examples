@@ -7,10 +7,10 @@ window
   :shadow-offset-y 5
   :shadow-color hsb(0, 0, 0, 0.5)
   :line-height 16px
-  &[draggable]
+  &:draggable
     :position absolute
   
-  #footer, #header  
+  footer, header  
     :width auto
     :display block
     
@@ -18,8 +18,9 @@ window
     :width 300px
     :min-height 50
   
-  #header 
+  header 
     :cursor default
+    :font 14px Helvetica
     
     input#search
       :float right
@@ -37,6 +38,7 @@ window
       :height 16px
       :position relative
       :z-index 5
+      :margin-right 5px
       button
         :glyph-left 0.5
         :glyph-top 0
@@ -62,12 +64,12 @@ window
       &:active
         :fill-color gradient(hsb(210, 61, 90), hsb(202, 95, 100))
       
-  #header #buttons button, #header #toggler, #toolbar button, input, #legend select
+  header #buttons button, header #toggler, #toolbar button, input, #legend select
     :shadow-blur 0
     :shadow-offset-y 1
     :shadow-color hsb(0, 0, 77)
         
-  #header #buttons button, #header #toggler
+  header #buttons button, header #toggler
     :shadow-color hsb(0, 0, 85)
   
   button
@@ -95,7 +97,7 @@ window
     :glyph glyph("smallPlus")
     
     
-  #footer 
+  footer 
     #handle[at="top right"]
       :margin-top 1px
       :margin-right 1px
@@ -104,6 +106,9 @@ window
         :padding 0 5px
         :color #999
         +dark-emboss
+        :font 12px/16px Helvetica
+  &:focused footer #status > .container:element
+    :color #666
   #handle
     :position absolute
     :z-index 10

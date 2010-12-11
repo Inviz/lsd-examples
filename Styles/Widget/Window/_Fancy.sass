@@ -8,27 +8,26 @@ window.fancy
   :stroke-color hsb(0, 0, 70, 0.5)
   &:focused
     :stroke-color hsb(0, 0, 50, 0.5)
-  #header
+  header
     #buttons
       &:hover button
         :glyph-color hsb(0, 0, 20, 0.7)
-  &:focused #header
-    #buttons
-      #close
-        :fill-color gradient("radial", "{0: hsb(0, 95, 80), 0.9: hsb(0, 97, 73), 1: hsb(359, 65, 22)}, {cy: '55%', r: '42%', fy: '55%'}")
-        :stroke-color gradient(hsb(359, 71, 60), hsb(359, 24, 75))
-        &:active
-          :fill-color gradient("radial", "{0: hsb(0, 95, 70), 0.8: hsb(0, 97, 63), 1: hsb(359, 65, 32)}, {cy: '55%', r: '42%', fy: '55%'}")
-      #minimize
-        :fill-color gradient("radial", "{0: hsb(58, 95, 80), 0.8: hsb(28, 66, 85), 1: hsb(2, 64, 58)}, {cy: '55%', r: '44%', fy: '55%'}")
-        :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
-        &:active
-          :fill-color gradient("radial", "{0: hsb(58, 95, 70), 0.8: hsb(28, 66, 75), 1: hsb(2, 64, 48)}, {cy: '55%', r: '44%', fy: '55%'}")
-      #maximize
-        :fill-color gradient("radial", "{0: hsb(100, 76, 76), 0.8: hsb(95, 46, 73), 1: hsb(103, 53, 43)}, {cy: '55%', r: '44%', fy: '55%'}")
-        :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
-        &:active
-          :fill-color gradient("radial", "{0: hsb(100, 76, 66), 0.8: hsb(95, 46, 63), 1: hsb(103, 53, 33)}, {cy: '55%', r: '44%', fy: '55%'}")
+  &:focused header #buttons, header #buttons:hover
+    #close
+      :fill-color gradient("radial", "{0: hsb(0, 95, 80), 0.9: hsb(0, 97, 73), 1: hsb(359, 65, 22)}, {cy: '55%', r: '42%', fy: '55%'}")
+      :stroke-color gradient(hsb(359, 71, 60), hsb(359, 24, 75))
+      &:active
+        :fill-color gradient("radial", "{0: hsb(0, 95, 70), 0.8: hsb(0, 97, 63), 1: hsb(359, 65, 32)}, {cy: '55%', r: '42%', fy: '55%'}")
+    #minimize
+      :fill-color gradient("radial", "{0: hsb(58, 95, 80), 0.8: hsb(28, 66, 85), 1: hsb(2, 64, 58)}, {cy: '55%', r: '44%', fy: '55%'}")
+      :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
+      &:active
+        :fill-color gradient("radial", "{0: hsb(58, 95, 70), 0.8: hsb(28, 66, 75), 1: hsb(2, 64, 48)}, {cy: '55%', r: '44%', fy: '55%'}")
+    #maximize
+      :fill-color gradient("radial", "{0: hsb(100, 76, 76), 0.8: hsb(95, 46, 73), 1: hsb(103, 53, 43)}, {cy: '55%', r: '44%', fy: '55%'}")
+      :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
+      &:active
+        :fill-color gradient("radial", "{0: hsb(100, 76, 66), 0.8: hsb(95, 46, 63), 1: hsb(103, 53, 33)}, {cy: '55%', r: '44%', fy: '55%'}")
     
   :shadow-offset-y 2
   :z-index 10
@@ -37,11 +36,11 @@ window.fancy
   panel#right  
     :inner-shadow-color hsb(0, 0, 0, 0.15)
   &:focused 
-    #header, #footer
+    header, footer
       :background-color gradient(hsb(0, 0, 81), hsb(0, 0, 65))
-    #header
+    header
       :border-bottom-color #515151
-    #footer
+    footer
       :border-top-color #515151
     #content
       :background-color gradient(hsb(0, 0, 93), hsb(0, 0, 83))
@@ -56,12 +55,12 @@ window.fancy
       :stroke-color hsb(0, 0, 33)
       :background-color gradient(hsb(0, 0, 100), hsb(0, 0, 72))
     
-  #header, #footer  
+  header, footer  
     :background-color gradient(hsb(0, 0, 95), hsb(0, 0, 85))
     
-  #header
+  header
     :border-bottom-color #999
-  #footer
+  footer
     :border-top-color #999
 
   &:dragged
@@ -70,7 +69,7 @@ window.fancy
     :stroke-color hsb(0, 0, 10, 0.2)
     :shadow-offset-y 12
     
-  #header
+  header
     :corner-radius-top-left inherit
     :corner-radius-top-right inherit
     :padding-right 5px
@@ -86,7 +85,7 @@ window.fancy
       
   #content
     :height 150px
-  #footer  
+  footer  
     :corner-radius-bottom-left inherit
     :corner-radius-bottom-right inherit
     :height auto

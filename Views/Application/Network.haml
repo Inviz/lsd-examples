@@ -1,5 +1,5 @@
 %window.fancy#network{:draggable => "true", :resizable => "true", :"resizable-content" => "true", :"resizer-modifiers-y" => "false", :tabindex => 0, :style => "top: 300px; left: 300px"}
-  %section#header
+  header
     %button#toggler{:shy => true}
     %menu#buttons{:type => :toolbar, :hoverable => true, :shy => true, :tabindex => -1}
       %button#close
@@ -21,15 +21,17 @@
           %option{:inherit => "partial"} Work
       %panel#left
         %menu#networks{:type => :list, :kind => :networks}
-          %item{:inherit => "full", :itemspec => "network"}
+          %command{:inherit => "full", :itemspec => "network"}
             %h2{:itempop => "title"} Wireless Network
             %p{:itemprop => "status"} Offline
-          %item{:inherit => "full"}
+          %command{:inherit => "full"}
             %h2{:itempop => "title"} Local Area Network
             %p{:itemprop => "status"} Online
         %menu#hub{:type => :toolbar, :at => :bottom, :tabindex => -1}
           %button#remove.is-disabled
-          %button#add
+          %menu#add{:inherit => "partial"}
+            %option{:inherit => "partial"} Add local network
+            %option{:inherit => "partial"} Add wireless network
           %button#configure
       %panel#right
         %label{:for => :network_name} Network name:

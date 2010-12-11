@@ -17,9 +17,11 @@ select
         :stroke-color hsb(212, 58, 93, 0.5)
         :margin-bottom -1
         :margin-left 1px
+        
+    
 
   button    
-    :width 18px
+    :width 17px
     :height 18px
     :margin-right -1
     :margin-top -1
@@ -27,6 +29,17 @@ select
     :corner-radius-bottom-left 0
     :corner-radius-top-left 0
     :glyph-top 6
-    :glyph-left 6
+    :glyph-left 5
     :glyph-scale 0.8
     :glyph glyph("triangleDown")
+
+  menu 
+    option
+      &:chosen
+        +menu-context-option-highlighted
+      &:selected
+        :glyph glyph("checkMark")
+        :glyph-top 0px
+        :glyph-left 1px
+        :glyph-scale 1
+        :glyph-color hsb(0, 0, 0)

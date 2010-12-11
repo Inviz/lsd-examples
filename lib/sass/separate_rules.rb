@@ -54,7 +54,7 @@ module Sass::Tree
           else
             if bit.index('#')
               prefix = true#increase specificity
-              bit = '.art' + bit if bit[0, 1] == '#'
+              bit = '.lsd' + bit if bit[0, 1] == '#'
               bit.gsub!('#', '.id-') #id
             end
             bit.gsub!(/:([a-z]+)/) do |state, match| #pseudo
@@ -66,10 +66,12 @@ module Sass::Tree
               end
             end
             bit.gsub(/^([a-z0-9*]+)/) do |tag|
-              if %[vml svg h1 h2 h3 p].include?(tag)
+              if %[vml svg h1 h2 h3 p ul ol li dl dt dd
+                  header footer section nav menu command aside 
+                  label fieldset form].include?(tag)
                 tag
               else
-                '.art.' + tag
+                ".lsd.#{tag}"
               end
             end
           end

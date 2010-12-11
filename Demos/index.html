@@ -1,36 +1,30 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<title>ART Demo</title>
+	<title>LSD Demo</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script src="../Scripts/loader.js"></script>
 	<script src="../Scripts/includes.js"></script>
 	<!-- <script src="../Scripts/lsd.js"></script> -->
   
   
-	<link rel="art stylesheet" href="./Assets/Styles/Widgets.css">
+	<link rel="lsd stylesheet" href="./Assets/Styles/Widgets.css">
 	<script>
 	  window.addEvent('domready', function() {
   		
-  		ART.Sheet.decompile('art', function() {
-  		  
-  		//ART.Sheet.compile();
+  		LSD.Sheet.decompile('lsd', function() {
+  		//LSD.Sheet.compile();
   		
-      
-      $d = new ART.Application.Desktop
   		
 	    if (window.console && console.profile) console.profile('Network render')
       
-  		
-	    $n = ART.Layout.replace($('preferences'));
-	    
-	    
-	    $z = ART.Layout.replace($('browser'));
-	    $z.content.setContent(new Element('div', {'html': 'Orange box of truth (245x100)<br>Resize window to see some <em>scrollbar magic</em><br>Minify window by clicking top right button', 'styles': {'background': 'orange', width: 244, height: 100, minHeight: 50}}))
-			$z.fit();
-			
-	    $n = ART.Layout.replace($('network'));
-	    
+	    var time = new Date().getTime()
+      $d = LSD.Layout.build(document.body);
+      $d.browser.content.setContent(new Element('div', {'html': 'Orange box of truth (260x100)<br>Resize window to see some <em>scrollbar magic</em><br>Minify window by clicking top right button', 'styles': {'background': 'orange', width: 260, height: 100, minHeight: 50}}));
+      //$d.browser.fit();
+      var now = new Date().getTime();
+      //alert(now - time)
+      
 	    if (window.console && console.profile) (function() {
 	      console.profileEnd('Network render')
 	    }).delay(200);
@@ -41,10 +35,32 @@
 	  });
 	</script>
 </head>
-<body>
+<body kind='desktop'>
+  <header id='top'>
+    <menu kind='commands' type='toolbar' class='autoselect'>
+      <menu id='shutdown' title='Demo' inherit='partial'>
+        <command id='demo-shutdown' inherit='partial'>Shutdown</command>
+      </menu>
+      <menu class='important' label='LSD' inherit='partial'>
+        <command id='demo-shutdown' inherit='partial' onclick="LSD.Desktop.navigate('http://github.com/inviz/lsd')">View GitHub</command>
+        <command id='pony' inherit='partial'>Pony</command>
+      </menu>
+      <menu label='File' inherit='partial'>
+        <command id='file-open' inherit='partial'>Open</command>
+      </menu>
+    </menu>
+    <menu at='right top' kind='notification' type='toolbar' class='autoselect'>
+      <command id='settings' inherit='full'></command>
+      <command id='search' inherit='full'></command>
+      <command id='time' inherit='full' kind='time'></command>
+    </menu>
+  </header>
+  
+  <menu kind='icons' type='list'></menu>
+  <menu kind='dock' type='toolbar'></menu>
   
   <window class='fancy' draggable='draggable' fitting='fitting' id='browser' resizable-content='resizable-content' resizable='resizable' shape='arrow' style='top: 50px; left: 50px' tabindex='0'>
-    <section id='header'>
+    <header>
       <button id='toggler' shy='shy'></button>
       <menu hoverable='hoverable' id='buttons' shy='shy' tabindex='-1' type='toolbar'>
         <button id='close'></button>
@@ -60,16 +76,16 @@
         <button id='reload'></button>
         <button id='bookmark' shape='star'></button>
       </menu>
-    </section>
+    </header>
     <section container='container' id='content' scrollable='scrollable'></section>
-    <section class='flexible' id='footer' shape='arrow'>
+    <footer class='flexible' shape='arrow'>
       <div container='container' id='status'>Status: Bad</div>
       <glyph at='top right' id='handle' name='drag-handle'></glyph>
-    </section>
+    </footer>
   </window>
   
   <window class='fancy' draggable='true' id='network' resizable-content='true' resizable='true' resizer-modifiers-y='false' style='top: 300px; left: 300px' tabindex='0'>
-    <section id='header'>
+    <header>
       <button id='toggler' shy='shy'></button>
       <menu hoverable='hoverable' id='buttons' shy='shy' tabindex='-1' type='toolbar'>
         <button id='close'></button>
@@ -83,7 +99,7 @@
         <button class='right is-disabled' id='forward'></button>
         <button id='index'>Show All</button>
       </menu>
-    </section>
+    </header>
     <section container='container' id='content'>
       <glyph at='bottom right' id='handle' name='drag-handle'></glyph>
       <form action='/' class='two-column' id='networking'>
@@ -96,18 +112,21 @@
         </div>
         <panel id='left'>
           <menu id='networks' kind='networks' type='list'>
-            <item inherit='full' itemspec='network'>
+            <command inherit='full' itemspec='network'>
               <h2 itempop='title'>Wireless Network</h2>
               <p itemprop='status'>Offline</p>
-            </item>
-            <item inherit='full'>
+            </command>
+            <command inherit='full'>
               <h2 itempop='title'>Local Area Network</h2>
               <p itemprop='status'>Online</p>
-            </item>
+            </command>
           </menu>
           <menu at='bottom' id='hub' tabindex='-1' type='toolbar'>
             <button class='is-disabled' id='remove'></button>
-            <button id='add'></button>
+            <menu id='add' inherit='partial'>
+              <command inherit='partial'>Add local network</command>
+              <command inherit='partial'>Add wireless network</command>
+            </menu>
             <button id='configure'></button>
           </menu>
         </panel>
@@ -143,7 +162,7 @@
   
   
   <window class='fancy' draggable='draggable' id='preferences' style='top: 50px; left: 550px' tabindex='0'>
-    <section id='header'>
+    <header>
       <button id='toggler' shy='shy'></button>
       <menu hoverable='hoverable' id='buttons' shy='shy' tabindex='-1' type='toolbar'>
         <button id='close'></button>
@@ -157,7 +176,7 @@
         <button class='right is-disabled' id='forward'></button>
         <button id='index'>Show All</button>
       </menu>
-    </section>
+    </header>
     <section container='container' id='content'>
       <form action='/' class='two-column' id='networking'>
         <section>

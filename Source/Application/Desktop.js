@@ -5,199 +5,108 @@ script: Desktop.js
  
 description: Simple desktop emulation
  
-license: MIT-style license.
+license: Public domain (http://unlicense.org).
  
 requires:
 - Core/Element.Dimensions
-- LSD/ART.Widget.Section
-- LSD/ART.Widget.Header
-- LSD/ART.Widget.Footer
-- LSD/ART.Widget.Nav
-- LSD/ART.Widget.Menu.Toolbar
-- LSD/ART.Widget.Menu.Toolbar.Menu
-- LSD/ART.Widget.Menu.Context
-- LSD/ART.Widget.Menu.List
-- LSD/ART.Widget.List
-- LSD/ART.Widget.Select
-- LSD/ART.Widget.Form
-- LSD/ART.Widget.Panel
-- LSD/ART.Widget.Input.Checkbox
-- LSD/ART.Widget.Input.Radio
-- LSD/ART.Widget.Input.Range
-- LSD/ART.Widget.Button
-- LSD/ART.Widget.Glyph
-- LSD/ART.Widget.Container
-- LSD/ART.Widget.Module.Container
-- LSD/ART.Widget.Module.Expression
-- LSD/ART.Widget.Module.LayoutEvents
-- LSD/ART.Widget.Module.Layout
-- LSD/ART.Widget.Trait.Draggable.Stateful
-- LSD/ART.Widget.Trait.Resizable.Stateful
-- LSD/ART.Widget.Trait.Resizable.Content
-- LSD/ART.Widget.Trait.Fitting
-- LSD/ART.Widget.Trait.Liquid
-- LSD/ART.Widget.Trait.Hoverable
-- LSD/ART.Widget.Trait.Aware
-- LSD/ART.Widget.Trait.Proxies
+- LSD/LSD.Widget.Body
+- LSD/LSD.Widget.Section
+- LSD/LSD.Widget.Header
+- LSD/LSD.Widget.Footer
+- LSD/LSD.Widget.Nav
+- LSD/LSD.Widget.Menu
+- LSD/LSD.Widget.Menu.Toolbar
+- LSD/LSD.Widget.Menu.Toolbar.Menu
+- LSD/LSD.Widget.Menu.Context
+- LSD/LSD.Widget.Menu.List
+- LSD/LSD.Widget.Select
+- LSD/LSD.Widget.Form
+- LSD/LSD.Widget.Panel
+- LSD/LSD.Widget.Input.Checkbox
+- LSD/LSD.Widget.Input.Radio
+- LSD/LSD.Widget.Input.Range
+- LSD/LSD.Widget.Button
+- LSD/LSD.Widget.Glyph
+- LSD/LSD.Widget.Container
+- LSD/LSD.Widget.Module.Container
+- LSD/LSD.Widget.Module.Layout
+- LSD/LSD.Widget.Trait.Draggable.Stateful
+- LSD/LSD.Widget.Trait.Resizable.Stateful
+- LSD/LSD.Widget.Trait.Resizable.Content
+- LSD/LSD.Widget.Trait.Fitting
+- LSD/LSD.Widget.Trait.Hoverable
+- LSD/LSD.Widget.Trait.Proxies
+- LSD/LSD.Widget.Trait.Position
 - Base/Widget.Trait.Shy
-- ART.Application
+- LSD.Application
+- Ext/Element.Properties.userSelect
  
-provides: [ART.Application.Desktop]
+provides: [LSD.Application.Desktop]
  
 ...
 */
 
-ART.Application.Desktop = new Class({
-	Includes: [	  
-    ART.Document,
-    ART.Widget.Module.Layout,
-    Widget.Module.Events,
-    Widget.Module.Attributes
-	],
+LSD.Widget.Body.Desktop = new Class({
+	Extends: LSD.Widget.Body,
 	
-	layout: {
-	  'header#top': {
-  	  'menu-toolbar-commands#commands': {
-  	    '^menu#shutdown[title=Demo]': {
-  	      '^command#demo-shutdown': 'Shut down'
-  	    },
-        '^menu.important[label=LSD]': {
-          '^command#lsd-view-github': 'View github',
-          '^command#lsd-fork': 'Fork'
-        },
-        '^menu[label=File]': {
-          '^command#file-open': 'Open'
-        }
-  	  },
-  	  'menu-toolbar-notification#notification[at=right top]': {
-  	    '^item#preferences': {},
-  	    '^item#search': {},
-  	    '^item-time#time': {}
-  	  }
-	  },
-	  'menu-list-icons#icons': {},
-	  'menu[type=toolbar]#dock': {},
-	},
-	
-	events: {
-	  window: {
-	    resize: 'onResize'
-	  }
-	},
-	
-	style: {
-	  current: {}
-	},
-	
-	getHandle: function() {
-	  return this.content.handle;
-	},
-
-	initialize: function() {
-	  this.parent.apply(this, arguments);
-	  this.onResize();
-	  this.attach();
-	},
-	
-	attach: function() {
-	  window.addEvents(this.bindEvents(this.events.window));
-	},
-	
-	detach: function() {
-	  window.removeEvents(this.bindEvents(this.events.window));
-	},
-	
-	onResize: function() {
-	  $extend(this.style.current, document.getCoordinates());
-	  this.render()
-	},
-	
-	appendChild: function(widget) {
-	  this.parent.apply(this, arguments);
-	  widget.parentNode = this;
-	  widget.setDocument(this);
-	},
-	
-	render: function() {
-		this.childNodes.each(function(child){
-		  child.refresh();
-		});
-	}
+	options: {
+  	element: {
+  	  userSelect: false
+  	}
+  }
 });
 
-ART.Widget.Menu.Toolbar.Commands = new Class({
-  Includes: [
-    ART.Widget.Menu.Toolbar
-  ],
-  
-  events: {
-    self: {
-      blur: 'unselectItem'
-    }
+LSD.Widget.Module.Behaviours.define('.autoselect', {
+  self: {
+    blur: 'unselectItem'
   },
+  focused: {
+    element: {
+      'mouseover:on(button:not(:selected))': function() {
+        this.select();
+      }
+    }
+  }
+});
+
+LSD.Widget.Menu.Toolbar.Commands = new Class({
+  Includes: [
+    LSD.Widget.Menu.Toolbar
+  ],
   
   getItems: function() {
     return this.childNodes;
   }
 });
 
-ART.Widget.Menu.Toolbar.Commands.Menu = new Class({
-  Includes: [
-    ART.Widget.Menu.Toolbar.Menu,
-    ART.Widget.Trait.Aware,
-    ART.Widget.Trait.Proxies
-  ],
+LSD.Widget.Menu.Toolbar.Commands.Menu = new Class({
+  Extends: LSD.Widget.Menu.Toolbar.Menu,
     
-  events: {
-    self: {
-      unselect: 'collapse',
-      select: 'expand'
+  options: {
+    events: {
+      self: {
+        unselect: 'collapse',
+        select: 'expand'
+      }
     }
   }
 });
-ART.Widget.Menu.Toolbar.Commands.Menu.Command = ART.Widget.Menu.Context.Item;
 
+LSD.Widget.Menu.Toolbar.Commands.Menu.Command = LSD.Widget.Menu.Toolbar.Menu.Command;
 
-ART.Widget.Menu.Toolbar.Notification = new Class({
-  Extends: ART.Widget.Menu.Toolbar.Commands
-})
+LSD.Widget.Menu.Toolbar.Notification = new Class({
+  Extends: LSD.Widget.Menu.Toolbar.Commands
+});
 
-//ART.Widget.Command = new Class({
-//  build: function() {
-//    
-//  },
-//  
-//  inject: function(widget) {
-//    widget.items.push(this);
-//  },
-//  
-//  setContent: function(value) {
-//    this.value = value
-//  }
-//})
-
-ART.Widget.Menu.Toolbar.Notification.Item = new Class({
+LSD.Widget.Menu.Toolbar.Notification.Command = new Class({
   Includes: [
-    ART.Widget.Button,
+    LSD.Widget.Button,
     Widget.Trait.Item.Stateful
-  ],
-  
-  events: {
-    self: {
-      click: 'select'
-    },
-    element: {
-      mousemove: 'selectIfFocused'
-    }
-  },
-  
-  selectIfFocused: function() {
-    if (this.listWidget.focused) this.select();
-  }
+  ]
 })
 
-ART.Widget.Menu.Toolbar.Notification.Item.Time = new Class({
-  Extends: ART.Widget.Menu.Toolbar.Notification.Item,
+LSD.Widget.Menu.Toolbar.Notification.Command.Time = new Class({
+  Extends: LSD.Widget.Menu.Toolbar.Notification.Command,
   
   attach: Macro.onion(function() {
     this.timer = (function() {
@@ -212,16 +121,19 @@ ART.Widget.Menu.Toolbar.Notification.Item.Time = new Class({
   
   render: Macro.onion(function() {
     var date = (new Date);
-    this.setContent([date.getHours(), date.getMinutes()].join(":"));
+    var bits = [date.getHours(), date.getMinutes()].map(function(bit) {
+      return (bit < 10) ? '0' + bit : bit;
+    })
+    this.setContent(bits.join(":"));
   }),
 });
 
-ART.Widget.Menu.List.Icons = new Class({
-  Extends: ART.Widget.Menu.List,
+LSD.Widget.Menu.List.Icons = new Class({
+  Extends: LSD.Widget.Menu.List,
   
   options: {
     layout: {
-      item: 'menu-list-item-icon'
+      item: '>item[type=icon]'
     }
   }/*,
   
@@ -239,10 +151,12 @@ ART.Widget.Menu.List.Icons = new Class({
   ]*/
 });
 
-ART.Widget.Menu.List.Item.Icon = new Class({
-  Extends: ART.Widget.Menu.List.Item,
+LSD.Widget.Menu.List.Option.Icon = new Class({
+  Extends: LSD.Widget.Menu.List.Option,
   
   setContent: function(item) {
     this.parent('<h2>' + item.name + '</h2>' + '<p>' + (item.online ? 'Connected' : 'Not connected') + '</p>');
   }
 });
+
+LSD.Widget.Menu.Toolbar.Dock = LSD.Widget.Menu.Toolbar

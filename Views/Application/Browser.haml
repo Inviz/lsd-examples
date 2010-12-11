@@ -1,5 +1,5 @@
 %window.fancy#browser{:shape => :arrow, :draggable => true, :resizable => true, :"resizable-content" => true, :fitting => true, :tabindex => 0, :style => "top: 50px; left: 50px"}
-  %section#header
+  header
     %button#toggler{:shy => true}
     %menu#buttons{:type => :toolbar, :hoverable => true, :shy => true, :tabindex => -1}
       %button#close
@@ -14,6 +14,6 @@
       %button#reload
       %button#bookmark{:shape => :star} 
   %section#content{:container => true, :scrollable => true}
-  %section#footer.flexible{:shape => :arrow}
+  %footer.flexible{:shape => :arrow}
     #status{:container => true} Status: Bad
     %glyph#handle{:name => :"drag-handle", :at => "top right"} 

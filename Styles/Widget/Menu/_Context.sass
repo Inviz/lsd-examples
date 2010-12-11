@@ -1,3 +1,9 @@
+= menu-context-option-highlighted
+  :background-color gradient(hsb(232, 55, 96), hsb(234, 74, 94))
+  > .container:element
+    +light-emboss
+    :color #fff
+  
 menu[type=context], menu[type=toolbar] menu
   :fill-color hsb(0, 0, 100)
   :shadow-color hsb(0, 0, 30, 0.6)
@@ -10,22 +16,27 @@ menu[type=context], menu[type=toolbar] menu
   :z-index 250
   :padding-top 5px
   :padding-bottom 5px
+  :margin-top -5px
+  :cursor default
   :position absolute
   
+  .lsd > svg ~ & :element
+    :position absolute
+    
   &:hidden
     :visibility hidden
   
-  option
-    .container:element
-      :text-align left
-      
-    > .container
-      :padding 0 10px
-      :line-height 23px
+menu[type=context] command, select menu option
+  :display block
+  :width auto
 
-    &:chosen
-      :background #445af2
-      :color #fff
+  > .container:element
+    :text-align left
+    :padding 0 10px
+    :line-height 21px
+
+menu[type=context] command:selected
+  +menu-context-option-highlighted
       
 menu[type=context]
   :corner-radius-top-left 3

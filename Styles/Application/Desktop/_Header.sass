@@ -15,7 +15,7 @@ header#top
       :background-color false
       :stroke-width 0
       :corner-radius 0
-    &#commands
+    &[kind=commands]
       button
         +inline-block
         &:text
@@ -37,11 +37,11 @@ header#top
           :shadow-blur 10
           :shadow-offset-y 5
           
-          option
+          command
             :width auto
             :height 20px
           
-    &#notification button, &#commands button#shutdown
+    &[kind=notification] button, &[kind=commands] button#shutdown
       :width 24px
       
     button
@@ -60,7 +60,7 @@ header#top
         > .container:element
           +light-emboss
           :color #fff
-      &#preferences
+      &#settings
         :glyph glyph("wrench")
       &#search
         :glyph glyph("search")
