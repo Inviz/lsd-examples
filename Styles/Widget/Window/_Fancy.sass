@@ -12,6 +12,7 @@ window.fancy
     #buttons
       &:hover button
         :glyph-color hsb(0, 0, 20, 0.7)
+        :glyph-shadow-color hsb(0, 0, 100, 0.5)
   &:focused header #buttons, header #buttons:hover
     #close
       :fill-color gradient("radial", "{0: hsb(0, 95, 80), 0.9: hsb(0, 97, 73), 1: hsb(359, 65, 22)}, {cy: '55%', r: '42%', fy: '55%'}")
@@ -101,18 +102,6 @@ window.fancy
         :width 20px
         :glyph-top 5
         :glyph-left 5
-        &.right
-          :corner-radius-top-right 3
-          :corner-radius-bottom-right 3
-          :corner-radius-top-left 0
-          :corner-radius-bottom-left 0
-          :margin-left -1
-          :glyph-left 8
-          :glyph-top 6
-          :width 25px
-        &:text
-          :width auto
-          :display block
   button
     :stroke-color hsb(0, 0, 60, 0.7)
     :background-color gradient(hsb(0, 0, 96), hsb(0, 0, 82))

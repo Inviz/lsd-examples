@@ -11,26 +11,39 @@
 	<link rel="lsd stylesheet" href="./Assets/Styles/Widgets.css">
 	<script>
 	  window.addEvent('domready', function() {
-  		
-  		LSD.Sheet.decompile('lsd', function() {
+  		$$('link[rel*=lsd]').each(function(style) {
+  		  
+  		  new LSD.Sheet(style, function(sheet) {
+    		  $z = sheet;
+    	    var time = new Date().getTime()
+    	    if (window.console && console.profile) console.profile('Building layout')
+          $d = LSD.Layout.build(document.body);
+          $d.browser.content.setContent(new Element('div', {'html': 'Orange box of truth (260x100)<br>Resize window to see some <em>scrollbar magic</em><br>Minify window by clicking top right button', 'styles': {'background': 'orange', width: 260, height: 100, minHeight: 50}}));
+          $d.browser.fit();
+  	      if (window.console && console.profile) {
+  	        console.profileEnd('Building layout')
+  	        console.profile('Render styles')
+          }
+          $d.render()
+            var now = new Date().getTime();
+            //alert(now - time)
+          if (window.console && console.profile) (function() {
+    	      console.profileEnd('Render styles')
+    	    }).delay(200);
+  		  })
+  		})
   		//LSD.Sheet.compile();
   		
   		
-	    if (window.console && console.profile) console.profile('Network render')
+	    //
       
-	    var time = new Date().getTime()
-      $d = LSD.Layout.build(document.body);
-      $d.browser.content.setContent(new Element('div', {'html': 'Orange box of truth (260x100)<br>Resize window to see some <em>scrollbar magic</em><br>Minify window by clicking top right button', 'styles': {'background': 'orange', width: 260, height: 100, minHeight: 50}}));
-      //$d.browser.fit();
-      var now = new Date().getTime();
       //alert(now - time)
       
-	    if (window.console && console.profile) (function() {
-	      console.profileEnd('Network render')
-	    }).delay(200);
+	    //if (window.console && console.profile) (function() {
+	    //  console.profileEnd('Network render')
+	    //}).delay(200);
 	    
 	    //$p.fit();
-		});
   		
 	  });
 	</script>
@@ -112,14 +125,14 @@
         </div>
         <panel id='left'>
           <menu id='networks' kind='networks' type='list'>
-            <command inherit='full' itemspec='network'>
+            <div class='lsd tag-command' inherit='full' itemspec='network'>
               <h2 itempop='title'>Wireless Network</h2>
               <p itemprop='status'>Offline</p>
-            </command>
-            <command inherit='full'>
+            </div>
+            <div class='lsd tag-command' inherit='full'>
               <h2 itempop='title'>Local Area Network</h2>
               <p itemprop='status'>Online</p>
-            </command>
+            </div>
           </menu>
           <menu at='bottom' id='hub' tabindex='-1' type='toolbar'>
             <button class='is-disabled' id='remove'></button>

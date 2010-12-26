@@ -1,7 +1,7 @@
 header#top
   +dark-emboss
   :height 22px
-  :width inherit
+  :width auto
   :font-family Helvetica
   :font-size 14px
   
@@ -57,6 +57,7 @@ header#top
       &:active, &:selected
         :background-color gradient(hsb(232, 55, 96), hsb(234, 74, 94))
         :glyph-color hsb(0, 0, 100)
+        :glyph-shadow-color hsb(0, 0, 0, 0.8)
         > .container:element
           +light-emboss
           :color #fff

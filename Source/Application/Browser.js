@@ -73,14 +73,7 @@ LSD.Application.Browser = new Class({
           click: 'mutate'
   	    }
   	  }
-  	},
-	  resizer: {
-	    crop: true
-	  }
-	},
-
-	getHandle: function() {
-	  return this.footer.handle
+  	}
 	}
 
 });

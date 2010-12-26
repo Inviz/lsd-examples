@@ -33,13 +33,20 @@ select
     :glyph-scale 0.8
     :glyph glyph("triangleDown")
 
-  menu 
-    option
-      &:chosen
-        +menu-context-option-highlighted
-      &:selected
-        :glyph glyph("checkMark")
-        :glyph-top 0px
-        :glyph-left 1px
-        :glyph-scale 1
-        :glyph-color hsb(0, 0, 0)
+  option
+    :display block
+    :width auto
+    +menu-context-glyph
+    
+    > .container:element
+      :text-align left
+      :padding 0 10px 0 20px
+      :line-height 21px
+      
+    &:selected
+      :glyph glyph("checkMark")
+      :glyph-scale 1.2
+      :glyph-color hsb(0, 0, 0)
+    &:chosen
+      +menu-context-option-highlighted
+      :glyph-color hsb(0, 0, 100)

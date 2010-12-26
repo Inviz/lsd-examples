@@ -19,6 +19,7 @@ requires:
   - LSD/ART.Shape.Star
   - LSD/LSD.Layer.Fill
   - LSD/LSD.Layer.Glyph
+  - LSD/LSD.Layer.GlyphShadow
   - LSD/LSD.Layer.Icon
   - LSD/LSD.Layer.InnerShadow
   - LSD/LSD.Layer.Shadow

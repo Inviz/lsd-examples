@@ -115,11 +115,7 @@ LSD.Application.Preferences.Network = new Class({
         y: false
       }
     }
-  },
-	
-	getHandle: function() {
-	  return this.content.handle;
-	}
+  }
 });
 
 LSD.Widget.Menu.List.Networks = new Class({

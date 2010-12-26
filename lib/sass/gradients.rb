@@ -21,7 +21,7 @@ module Sass
       
       def calculate(property, expression)
         expression = expression.to_s.sub(/^["']/, '').sub(/["']$/, '')
-        Sass::Script::LiteralString.new("ART.Styles.calculate(" + property.to_s + ", '" + expression + "')")
+        Sass::Script::LiteralString.new("LSD.calculate(" + property.to_s + ", '" + expression + "')")
       end
     end
   end

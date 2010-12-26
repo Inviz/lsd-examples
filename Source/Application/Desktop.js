@@ -56,14 +56,14 @@ LSD.Widget.Body.Desktop = new Class({
   }
 });
 
-LSD.Widget.Module.Behaviours.define('.autoselect', {
+LSD.Widget.Module.Expectations.behave('menu.autoselect', {
   self: {
     blur: 'unselectItem'
   },
   focused: {
     element: {
-      'mouseover:on(button:not(:selected))': function() {
-        this.select();
+      'mouseover:on(button)': function() {
+        if (!this.selected) this.select();
       }
     }
   }
@@ -95,7 +95,17 @@ LSD.Widget.Menu.Toolbar.Commands.Menu = new Class({
 LSD.Widget.Menu.Toolbar.Commands.Menu.Command = LSD.Widget.Menu.Toolbar.Menu.Command;
 
 LSD.Widget.Menu.Toolbar.Notification = new Class({
-  Extends: LSD.Widget.Menu.Toolbar.Commands
+  Extends: LSD.Widget.Menu.Toolbar.Commands,
+  
+  options: {
+    events: {
+      self: {
+        blur: function() {
+          if (this.selectedItem) this.selectedItem.unselect();
+        }
+      }
+    }
+  }
 });
 
 LSD.Widget.Menu.Toolbar.Notification.Command = new Class({
