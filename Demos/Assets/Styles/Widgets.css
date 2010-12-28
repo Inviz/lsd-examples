@@ -796,7 +796,6 @@ html > body .lsd.input.id-search .lsd.button.id-glyph {
   -lsd-glyph-left: 2;
   -lsd-glyph-top: 2;
   -lsd-glyph-color: hsb(0, 0, 40);
-  -lsd-glyph-shadow-color: hsb(0, 0, 60);
   height: 20px;
   width: 20px;
   margin-top: 2px;
@@ -977,7 +976,7 @@ html > body header.id-top {
 text-shadow: 0 1px 0 #e5e5ee;
 -lsd-filter: dropshadow(color=#e5e5ee, offX=0, offY=1px);
 height: 22px;
-width: auto;
+width: inherit;
 font-family: Helvetica;
 font-size: 14px;
 -lsd-reflection-color: "[hsb(0, 0, 90), hsb(0, 0, 70)]";
