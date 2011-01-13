@@ -15,6 +15,8 @@ module Sass::Tree
     color font-family line-height font-size font-weight font letter-spacing
     text-align vertical-align
     height width content background outline
+    -moz-user-select -webkit-user-select user-select -khtml-user-select
+    -moz-user-drag -webkit-user-drag user-drag -khtml-user-drag
     ]
   class PropNode
     def cssize!(extends, parent)

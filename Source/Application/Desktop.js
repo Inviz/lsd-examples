@@ -8,40 +8,57 @@ description: Simple desktop emulation
 license: Public domain (http://unlicense.org).
  
 requires:
-- Core/Element.Dimensions
-- LSD/LSD.Widget.Body
-- LSD/LSD.Widget.Section
-- LSD/LSD.Widget.Header
-- LSD/LSD.Widget.Footer
-- LSD/LSD.Widget.Nav
-- LSD/LSD.Widget.Menu
-- LSD/LSD.Widget.Menu.Toolbar
-- LSD/LSD.Widget.Menu.Toolbar.Menu
-- LSD/LSD.Widget.Menu.Context
-- LSD/LSD.Widget.Menu.List
-- LSD/LSD.Widget.Select
-- LSD/LSD.Widget.Form
-- LSD/LSD.Widget.Panel
-- LSD/LSD.Widget.Input.Checkbox
-- LSD/LSD.Widget.Input.Radio
-- LSD/LSD.Widget.Input.Range
-- LSD/LSD.Widget.Button
-- LSD/LSD.Widget.Glyph
-- LSD/LSD.Widget.Container
-- LSD/LSD.Widget.Module.Container
-- LSD/LSD.Widget.Module.Layout
-- LSD/LSD.Widget.Trait.Draggable.Stateful
-- LSD/LSD.Widget.Trait.Resizable.Stateful
-- LSD/LSD.Widget.Trait.Resizable.Content
-- LSD/LSD.Widget.Trait.Fitting
-- LSD/LSD.Widget.Trait.Hoverable
-- LSD/LSD.Widget.Trait.Proxies
-- LSD/LSD.Widget.Trait.Position
-- Base/Widget.Trait.Shy
-- LSD.Application
-- Ext/Element.Properties.userSelect
+  - Core/Element.Dimensions
+  - Widgets/LSD.Widget.Body
+  - Widgets/LSD.Widget.Section
+  - Widgets/LSD.Widget.Header
+  - Widgets/LSD.Widget.Footer
+  - Widgets/LSD.Widget.Nav
+  - Widgets/LSD.Widget.Menu
+  - Widgets/LSD.Widget.Menu.Toolbar
+  - Widgets/LSD.Widget.Menu.Toolbar.Menu
+  - Widgets/LSD.Widget.Menu.Context
+  - Widgets/LSD.Widget.Menu.List
+  - Widgets/LSD.Widget.Select
+  - Widgets/LSD.Widget.Form
+  - Widgets/LSD.Widget.Label
+  - Widgets/LSD.Widget.Panel
+  - Widgets/LSD.Widget.Input.Search
+  - Widgets/LSD.Widget.Input.Checkbox
+  - Widgets/LSD.Widget.Input.Radio
+  - Widgets/LSD.Widget.Input.Range
+  - Widgets/LSD.Widget.Button
+  - Widgets/LSD.Widget.Glyph
+  - Widgets/LSD.Widget.Container
+  - Widgets/LSD.Widget.Window
+  - Widgets/LSD.Widget.Window.Application
+  - LSD/ART.Shape.Arrow
+  - LSD/ART.Shape.Ellipse
+  - LSD/ART.Shape.Flower
+  - LSD/ART.Shape.Rectangle
+  - LSD/ART.Shape.Star
+  - LSD/LSD.Layer.Fill
+  - LSD/LSD.Layer.Glyph
+  - LSD/LSD.Layer.GlyphShadow
+  - LSD/LSD.Layer.Icon
+  - LSD/LSD.Layer.InnerShadow
+  - LSD/LSD.Layer.Shadow
+  - LSD/LSD.Layer.Stroke
+  - LSD/LSD.Module.Container
+  - LSD/LSD.Module.Layout
+  - LSD/LSD.Mixin.Draggable
+  - LSD/LSD.Mixin.Resizable
+  - LSD/LSD.Mixin.Shy
+  - LSD/LSD.Mixin.Position
+  - LSD.Application
+  - LSD/LSD.Sheet
+  - LSD/ART.Glyphs
+  - LSD/LSD.Document
+  - Ext/Element.Properties.userSelect
+  - Core/DOMReady
  
-provides: [LSD.Application.Desktop]
+provides:
+  - LSD.Application.Desktop
  
 ...
 */
@@ -56,18 +73,24 @@ LSD.Widget.Body.Desktop = new Class({
   }
 });
 
-LSD.Widget.Module.Expectations.behave('menu.autoselect', {
-  self: {
-    blur: 'unselectItem'
-  },
-  focused: {
-    element: {
-      'mouseover:on(button)': function() {
-        if (!this.selected) this.select();
+LSD.Mixin.Autoselect = new Class({
+  behaviour: 'menu.autoselect',
+  
+  options: {
+    events: {
+      self: {
+        blur: 'unselectItem'
+      },
+      focused: {
+        element: {
+          'mouseover:on(button)': function() {
+            if (!this.selected) this.select();
+          }
+        }
       }
     }
   }
-});
+})
 
 LSD.Widget.Menu.Toolbar.Commands = new Class({
   Includes: [
@@ -111,7 +134,7 @@ LSD.Widget.Menu.Toolbar.Notification = new Class({
 LSD.Widget.Menu.Toolbar.Notification.Command = new Class({
   Includes: [
     LSD.Widget.Button,
-    Widget.Trait.Item.Stateful
+    LSD.Trait.Item.Stateful
   ]
 })
 

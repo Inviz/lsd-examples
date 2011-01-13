@@ -22,10 +22,10 @@
       %panel#left
         %menu#networks{:type => :list, :kind => :networks}
           %command{:inherit => "full", :itemspec => "network"}
-            %h2{:itempop => "title"} Wireless Network
+            %h2{:itemprop => "title"} Wireless Network
             %p{:itemprop => "status"} Offline
           %command{:inherit => "full"}
-            %h2{:itempop => "title"} Local Area Network
+            %h2{:itemprop => "title"} Local Area Network
             %p{:itemprop => "status"} Online
         %menu#hub{:type => :toolbar, :at => :bottom, :tabindex => -1}
           %button#remove.is-disabled
@@ -48,7 +48,7 @@
           .line
             %input#instant_coffee{:type => :radio, :name => :choice}
             %label{:for => :instant_coffee} Instant coffee
-      %menu#actions{:type => :toolbar}
+      %menu{:type => :toolbar}
         %button#assist Assist me…
         %button#revert.is-disabled Revert
         %button#revert.is-disabled Apply  

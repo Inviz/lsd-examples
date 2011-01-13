@@ -43,6 +43,12 @@
 v\:*
   :background transparent
   
+section, h2, h1, h3, span, strong, header, footer, p, div, svg
+  &:element
+    :-webkit-user-select none
+    :-moz-user-select none
+    :-khtml-user-select none
+    :user-select none
 *:element
   &:focus
     :outline none

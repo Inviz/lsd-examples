@@ -1,14 +1,34 @@
 {
   "Application": {
-    "Application": {
+    "Desktop": {
       "provides": [
-        "LSD.Application"
+        "LSD.Application.Desktop"
       ],
       "requires": [
-        "LSD/LSD.Widget.Window",
-        "LSD/LSD.Sheet",
-        "LSD/ART.Glyphs",
-        "LSD/LSD.Document",
+        "Core/Element.Dimensions",
+        "Widgets/LSD.Widget.Body",
+        "Widgets/LSD.Widget.Section",
+        "Widgets/LSD.Widget.Header",
+        "Widgets/LSD.Widget.Footer",
+        "Widgets/LSD.Widget.Nav",
+        "Widgets/LSD.Widget.Menu",
+        "Widgets/LSD.Widget.Menu.Toolbar",
+        "Widgets/LSD.Widget.Menu.Toolbar.Menu",
+        "Widgets/LSD.Widget.Menu.Context",
+        "Widgets/LSD.Widget.Menu.List",
+        "Widgets/LSD.Widget.Select",
+        "Widgets/LSD.Widget.Form",
+        "Widgets/LSD.Widget.Label",
+        "Widgets/LSD.Widget.Panel",
+        "Widgets/LSD.Widget.Input.Search",
+        "Widgets/LSD.Widget.Input.Checkbox",
+        "Widgets/LSD.Widget.Input.Radio",
+        "Widgets/LSD.Widget.Input.Range",
+        "Widgets/LSD.Widget.Button",
+        "Widgets/LSD.Widget.Glyph",
+        "Widgets/LSD.Widget.Container",
+        "Widgets/LSD.Widget.Window",
+        "Widgets/LSD.Widget.Window.Application",
         "LSD/ART.Shape.Arrow",
         "LSD/ART.Shape.Ellipse",
         "LSD/ART.Shape.Flower",
@@ -21,129 +41,48 @@
         "LSD/LSD.Layer.InnerShadow",
         "LSD/LSD.Layer.Shadow",
         "LSD/LSD.Layer.Stroke",
+        "LSD/LSD.Module.Container",
+        "LSD/LSD.Module.Layout",
+        "LSD/LSD.Mixin.Draggable",
+        "LSD/LSD.Mixin.Resizable",
+        "LSD/LSD.Mixin.Shy",
+        "LSD/LSD.Mixin.Position",
+        "LSD.Application",
+        "LSD/LSD.Sheet",
+        "LSD/ART.Glyphs",
+        "LSD/LSD.Document",
+        "Ext/Element.Properties.userSelect",
         "Core/DOMReady"
       ],
-      "desc": "Basic application"
-    },
-    "Browser": {
-      "provides": [
-        "LSD.Application.Preferences.Network"
-      ],
-      "requires": [
-        "LSD.Application",
-        "LSD/LSD.Widget.Section",
-        "LSD/LSD.Widget.Button",
-        "LSD/LSD.Widget.Glyph",
-        "LSD/LSD.Widget.Container",
-        "LSD/LSD.Widget.Module.Container",
-        "LSD/LSD.Widget.Module.Layout",
-        "LSD/LSD.Widget.Trait.Draggable.Stateful",
-        "LSD/LSD.Widget.Trait.Resizable.Stateful",
-        "LSD/LSD.Widget.Trait.Resizable.Content",
-        "LSD/LSD.Widget.Trait.Fitting",
-        "LSD/LSD.Widget.Trait.Scrollable",
-        "LSD/LSD.Widget.Trait.Hoverable",
-        "Base/Widget.Trait.Shy",
-        "Base/Widget.Trait.Focus"
-      ],
-      "desc": "Some kind of a browser"
-    },
-    "Preferences": {
-      "provides": [
-        "LSD.Application.Preferences"
-      ],
-      "requires": [
-        "LSD.Application",
-        "LSD/LSD.Widget.Section",
-        "LSD/LSD.Widget.Select",
-        "LSD/LSD.Widget.Form",
-        "LSD/LSD.Widget.Panel",
-        "LSD/LSD.Widget.Input.Checkbox",
-        "LSD/LSD.Widget.Input.Range",
-        "LSD/LSD.Widget.Input.Search",
-        "LSD/LSD.Widget.Button",
-        "LSD/LSD.Widget.Glyph",
-        "LSD/LSD.Widget.Container",
-        "LSD/LSD.Widget.Label",
-        "LSD/LSD.Widget.Module.Container",
-        "LSD/LSD.Widget.Module.Layout",
-        "LSD/LSD.Widget.Trait.Draggable.Stateful",
-        "LSD/LSD.Widget.Trait.Fitting",
-        "LSD/LSD.Widget.Trait.Hoverable.Stateful",
-        "Base/Widget.Trait.Shy",
-        "Base/Widget.Trait.Focus"
-      ],
-      "desc": "Basic form and everything"
+      "desc": "Simple desktop emulation"
     },
     "Network": {
       "provides": [
-        "LSD.Application.Preferences.Network"
+        "LSD.Application.Network"
       ],
       "requires": [
-        "LSD.Application.Preferences",
-        "LSD/LSD.Widget.Section",
-        "LSD/LSD.Widget.Menu.List",
-        "LSD/LSD.Widget.Menu.Toolbar",
-        "LSD/LSD.Widget.Select",
-        "LSD/LSD.Widget.Form",
-        "LSD/LSD.Widget.Panel",
-        "LSD/LSD.Widget.Input.Checkbox",
-        "LSD/LSD.Widget.Input.Radio",
-        "LSD/LSD.Widget.Input.Range",
-        "LSD/LSD.Widget.Button",
-        "LSD/LSD.Widget.Glyph",
-        "LSD/LSD.Widget.Container",
-        "LSD/LSD.Widget.Module.Container",
-        "LSD/LSD.Widget.Module.Layout",
-        "LSD/LSD.Widget.Trait.Draggable.Stateful",
-        "LSD/LSD.Widget.Trait.Resizable.Stateful",
-        "LSD/LSD.Widget.Trait.Resizable.Content",
-        "LSD/LSD.Widget.Trait.Fitting",
-        "LSD/LSD.Widget.Trait.Hoverable",
-        "Base/Widget.Trait.Shy",
-        "Base/Widget.Trait.Focus"
+        "LSD.Application",
+        "Widgets/LSD.Widget.Section",
+        "Widgets/LSD.Widget.Menu.List",
+        "Widgets/LSD.Widget.Menu.Toolbar",
+        "Widgets/LSD.Widget.Select",
+        "Widgets/LSD.Widget.Form",
+        "Widgets/LSD.Widget.Panel",
+        "Widgets/LSD.Widget.Input.Checkbox",
+        "Widgets/LSD.Widget.Input.Radio",
+        "Widgets/LSD.Widget.Input.Range",
+        "Widgets/LSD.Widget.Button",
+        "Widgets/LSD.Widget.Glyph",
+        "Widgets/LSD.Widget.Container",
+        "LSD/LSD.Module.Container",
+        "LSD/LSD.Module.Layout",
+        "LSD/LSD.Mixin.Draggable",
+        "LSD/LSD.Mixin.Resizable",
+        "LSD/LSD.Mixin.Scrollable",
+        "LSD/LSD.Mixin.Shy",
+        "LSD/LSD.Mixin.Focus"
       ],
       "desc": "Some kind of a network preferences"
-    },
-    "Desktop": {
-      "provides": [
-        "LSD.Application.Desktop"
-      ],
-      "requires": [
-        "Core/Element.Dimensions",
-        "LSD/LSD.Widget.Body",
-        "LSD/LSD.Widget.Section",
-        "LSD/LSD.Widget.Header",
-        "LSD/LSD.Widget.Footer",
-        "LSD/LSD.Widget.Nav",
-        "LSD/LSD.Widget.Menu",
-        "LSD/LSD.Widget.Menu.Toolbar",
-        "LSD/LSD.Widget.Menu.Toolbar.Menu",
-        "LSD/LSD.Widget.Menu.Context",
-        "LSD/LSD.Widget.Menu.List",
-        "LSD/LSD.Widget.Select",
-        "LSD/LSD.Widget.Form",
-        "LSD/LSD.Widget.Panel",
-        "LSD/LSD.Widget.Input.Checkbox",
-        "LSD/LSD.Widget.Input.Radio",
-        "LSD/LSD.Widget.Input.Range",
-        "LSD/LSD.Widget.Button",
-        "LSD/LSD.Widget.Glyph",
-        "LSD/LSD.Widget.Container",
-        "LSD/LSD.Widget.Module.Container",
-        "LSD/LSD.Widget.Module.Layout",
-        "LSD/LSD.Widget.Trait.Draggable.Stateful",
-        "LSD/LSD.Widget.Trait.Resizable.Stateful",
-        "LSD/LSD.Widget.Trait.Resizable.Content",
-        "LSD/LSD.Widget.Trait.Fitting",
-        "LSD/LSD.Widget.Trait.Hoverable",
-        "LSD/LSD.Widget.Trait.Proxies",
-        "LSD/LSD.Widget.Trait.Position",
-        "Base/Widget.Trait.Shy",
-        "LSD.Application",
-        "Ext/Element.Properties.userSelect"
-      ],
-      "desc": "Simple desktop emulation"
     }
   }
 }

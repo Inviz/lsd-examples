@@ -14,13 +14,11 @@
   		$$('link[rel*=lsd]').each(function(style) {
   		  
   		  new LSD.Sheet(style, function(sheet) {
-    		  $z = sheet;
     	    var time = new Date().getTime()
     	    if (window.console && console.profile) console.profile('Building layout')
           $d = LSD.Layout.build(document.body);
-          $d.browser.content.setContent(new Element('div', {'html': 'Orange box of truth (260x100)<br>Resize window to see some <em>scrollbar magic</em><br>Minify window by clicking top right button', 'styles': {'background': 'orange', width: 260, height: 100, minHeight: 50}}));
-          $d.browser.fit();
-  	      if (window.console && console.profile) {
+          $d.browser.content.setContent(new Element('div', {'html': 'Orange box of truth<br>Resize window to see some <em>scrollbar magic</em><br>Minify window by clicking top right button', 'styles': {'background': 'orange', width: 256, height: 100, minHeight: 50}}));
+          if (window.console && console.profile) {
   	        console.profileEnd('Building layout')
   	        console.profile('Render styles')
           }
@@ -32,25 +30,12 @@
     	    }).delay(200);
   		  })
   		})
-  		//LSD.Sheet.compile();
-  		
-  		
-	    //
-      
-      //alert(now - time)
-      
-	    //if (window.console && console.profile) (function() {
-	    //  console.profileEnd('Network render')
-	    //}).delay(200);
-	    
-	    //$p.fit();
-  		
 	  });
 	</script>
 </head>
 <body kind='desktop'>
   <header id='top'>
-    <menu kind='commands' type='toolbar' class='autoselect'>
+    <menu kind='commands' type='toolbar' class='autoselect' tabindex="0">
       <menu id='shutdown' title='Demo' inherit='partial'>
         <command id='demo-shutdown' inherit='partial'>Shutdown</command>
       </menu>
@@ -62,7 +47,7 @@
         <command id='file-open' inherit='partial'>Open</command>
       </menu>
     </menu>
-    <menu at='right top' kind='notification' type='toolbar' class='autoselect'>
+    <menu at='right top' kind='notification' type='toolbar' class='autoselect' tabindex="0">
       <command id='settings' inherit='full'></command>
       <command id='search' inherit='full'></command>
       <command id='time' inherit='full' kind='time'></command>
@@ -72,16 +57,16 @@
   <menu kind='icons' type='list'></menu>
   <menu kind='dock' type='toolbar'></menu>
   
-  <window class='fancy' draggable='draggable' fitting='fitting' id='browser' resizable-content='resizable-content' resizable='resizable' shape='arrow' style='top: 50px; left: 50px' tabindex='0'>
+  <window type='application' class='fancy' draggable='draggable' id='browser' resizable='true' shape='arrow' style='top: 50px; left: 50px' tabindex='0'>
     <header>
       <button id='toggler' shy='shy'></button>
-      <menu hoverable='hoverable' id='buttons' shy='shy' tabindex='-1' type='toolbar'>
+      <menu hoverable='hoverable' id='buttons' shy='shy' type='toolbar'>
         <button id='close'></button>
         <button id='minimize'></button>
         <button id='maximize'></button>
       </menu>
       <div container='container' id='title'>Browser</div>
-      <menu id='toolbar' tabindex='-1' type='toolbar'>
+      <menu id='toolbar' type='toolbar'>
         <button id='back' shape='arrow'></button>
         <button class='is-disabled' id='forward'></button>
         <button id='search'></button>
@@ -97,16 +82,16 @@
     </footer>
   </window>
   
-  <window class='fancy' draggable='true' id='network' resizable-content='true' resizable='true' resizer-modifiers-y='false' style='top: 300px; left: 300px' tabindex='0'>
+  <window type='application' class='fancy' draggable='true' id='network' resizable='x' style='top: 300px; left: 300px' tabindex='0'>
     <header>
       <button id='toggler' shy='shy'></button>
-      <menu hoverable='hoverable' id='buttons' shy='shy' tabindex='-1' type='toolbar'>
+      <menu hoverable='hoverable' id='buttons' shy='shy' type='toolbar'>
         <button id='close'></button>
         <button class='is-disabled' id='minimize'></button>
         <button class='is-disabled' id='maximize'></button>
       </menu>
       <div container='container' id='title'>Network Preferences</div>
-      <menu id='toolbar' tabindex='-1' type='toolbar'>
+      <menu id='toolbar' type='toolbar'>
         <input id='search' type='search' />
         <button class='left' id='back'></button>
         <button class='right is-disabled' id='forward'></button>
@@ -124,17 +109,17 @@
           </select>
         </div>
         <panel id='left'>
-          <menu id='networks' kind='networks' type='list'>
+          <menu id='networks' kind='networks' type='list' tabindex="0">
             <div class='lsd tag-command' inherit='full' itemspec='network'>
-              <h2 itempop='title'>Wireless Network</h2>
+              <h2 itemprop='title'>Wireless Network</h2>
               <p itemprop='status'>Offline</p>
             </div>
             <div class='lsd tag-command' inherit='full'>
-              <h2 itempop='title'>Local Area Network</h2>
+              <h2 itemprop='title'>Local Area Network</h2>
               <p itemprop='status'>Online</p>
             </div>
           </menu>
-          <menu at='bottom' id='hub' tabindex='-1' type='toolbar'>
+          <menu at='bottom' id='hub' type='toolbar'>
             <button class='is-disabled' id='remove'></button>
             <menu id='add' inherit='partial'>
               <command inherit='partial'>Add local network</command>
@@ -162,7 +147,7 @@
             </div>
           </div>
         </panel>
-        <menu id='actions' type='toolbar'>
+        <menu type='toolbar'>
           <button id='assist'>Assist me…</button>
           <button class='is-disabled' id='revert'>Revert</button>
           <button class='is-disabled' id='revert'>Apply</button>
@@ -174,16 +159,16 @@
   
   
   
-  <window class='fancy' draggable='draggable' id='preferences' style='top: 50px; left: 550px' tabindex='0'>
+  <window type='application' class='fancy' draggable='draggable' id='preferences' style='top: 50px; left: 550px' tabindex='0'>
     <header>
       <button id='toggler' shy='shy'></button>
-      <menu hoverable='hoverable' id='buttons' shy='shy' tabindex='-1' type='toolbar'>
+      <menu hoverable='hoverable' id='buttons' shy='shy' type='toolbar'>
         <button id='close'></button>
         <button class='is-disabled' id='minimize'></button>
         <button class='is-disabled' id='maximize'></button>
       </menu>
       <div container='container' id='title'></div>
-      <menu id='toolbar' tabindex='-1' type='toolbar'>
+      <menu id='toolbar' type='toolbar'>
         <input id='search' type='search' />
         <button class='left' id='back'></button>
         <button class='right is-disabled' id='forward'></button>

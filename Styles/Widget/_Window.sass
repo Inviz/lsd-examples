@@ -7,15 +7,18 @@ window
   :shadow-offset-y 5
   :shadow-color hsb(0, 0, 0, 0.5)
   :line-height 16px
-  &:draggable
+  &[draggable=true]
     :position absolute
+    :-webkit-user-drag none
+    :-moz-user-drag none
   
   footer, header  
     :width auto
     :display block
     
   #content
-    :width 300px
+    :width auto
+    :height auto
     :min-height 50
   
   header 

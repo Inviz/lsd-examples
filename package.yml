@@ -5,8 +5,5 @@ license: Public domain, http://unlicense.org
 copyright: Yaroslaff Fedin
 authors: Yaroslaff Fedin
 sources:
-  - Source/Application/Application.js
   - Source/Application/Network.js
-  - Source/Application/Preferences.js
-  - Source/Application/Browser.js
   - Source/Application/Desktop.js
