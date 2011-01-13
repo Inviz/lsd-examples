@@ -1,12 +1,12 @@
 window.prefix = '';
 if (location.host.indexOf('github') > -1 || location.host.indexOf('fiddle') > -1) {
   window.loader = function(src) {
-    src = src.replace(/^.*(lsd|lsd-base|lsd-examples|mootools-ext)\//, 'http://inviz.github.com/$1/').
+    src = src.replace(/^.*(lsd|lsd-base|lsd-examples|lsd-widgets|mootools-ext|mootools-speedups|mootools-mobile)\//, 'http://inviz.github.com/$1/').
   	          replace(/^.*(qfocuser|cssparser)\//, 'http://github.com/inviz/$1/raw/master/').
   	          replace(/^.*(..\/..\/..\/Source)\//, 'http://inviz.github.com/lsd/Source/').
   	          replace(/^.*(..\/..\/Source)\//, 'http://inviz.github.com/lsd-examples/Source/').
   	          replace(/^.*(mootools-core|mootools-more)\//, 'http://github.com/mootools/$1/raw/master/').
-            	replace(/^.*(mootools-color|mootools-touch|art)\//, 'http://github.com/kamicane/$1/raw/master/')
+            	replace(/^.*(mootools-color|art)\//, 'http://github.com/kamicane/$1/raw/master/')
        
     document.write('<scr' + 'ipt src="' + (prefix || '') + src + '"></sc' + 'ript>');
   }
