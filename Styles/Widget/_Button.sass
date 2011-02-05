@@ -4,19 +4,21 @@ button
   :padding 0px
   :float left
   
-  :glyph false
-  :glyph-stroke 2
+  :glyph-shape none
   :glyph-color hsb(0, 0, 0, 0.8)
   :glyph-height 13
   :glyph-width 13
   :glyph-top 1
   :glyph-left 1
   
+  :glyph-position center
+  &:text
+    :glyph-position left
+  
   :glyph-shadow-offset-y 1
   :glyph-shadow-color hsb(0, 0, 100, 0.8)
   
-  :stroke-color hsb(0, 0, 25, 0.7)
-  :stroke-width 1
+  :stroke 1 hsb(0, 0, 25, 0.7)
   
   :corner-radius-bottom-left 3
   :corner-radius-bottom-right 3
@@ -26,7 +28,7 @@ button
   
   window #content  &
     :reflection-color gradient(hsb(0, 0, 100, 0.7), hsb(0, 0, 100, 0.8), hsb(0, 0, 100, 0.4))
-    :reflection-offset "[1, 1, '40%']"
+    :reflection-offset 1px 1px 40%
     :reflection-corner-radius 60%
   
   :line-height 1.7em
@@ -41,4 +43,4 @@ button
     :arrow-height 10
     :arrow-side left
     :arrow-position 8
-    :reflection-color false
+    :reflection-color none

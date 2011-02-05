@@ -11,8 +11,8 @@ header#top
   
   menu[type=toolbar]
     button
-      :fill-color false
-      :background-color false
+      :fill-color none
+      :background-color none
       :stroke-width 0
       :corner-radius 0
     &[kind=commands]
@@ -25,9 +25,8 @@ header#top
           > .container:element
             :font-weight bold
           
-        &#shutdown
-          :glyph-scale 0.5
-          :glyph glyph("shutdown")
+        &#shutdown                  
+          :glyph-shape glyph("shutdown")
           :margin-left 10px
 
         menu
@@ -47,9 +46,6 @@ header#top
     button
       :height 22px
       :glyph-color hsb(0, 0, 20)
-      :glyph-left 4px
-      :glyph-top 3px
-      :glyph-scale 1.2
       +inline-block
       :vertical-align top
       :line-height 24px
@@ -62,9 +58,9 @@ header#top
           +light-emboss
           :color #fff
       &#settings
-        :glyph glyph("wrench")
+        :glyph-shape glyph("wrench")
       &#search
-        :glyph glyph("search")
+        :glyph-shape glyph("search")
       &#time
         :width 50px
         :text-align center

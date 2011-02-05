@@ -15,20 +15,20 @@ window.fancy
         :glyph-shadow-color hsb(0, 0, 100, 0.5)
   &:focused header #buttons, header #buttons:hover
     #close
-      :fill-color gradient("radial", "{0: hsb(0, 95, 80), 0.9: hsb(0, 97, 73), 1: hsb(359, 65, 22)}, {cy: '55%', r: '42%', fy: '55%'}")
+      :fill-color radial-gradient("{0: hsb(0, 95, 80), 0.9: hsb(0, 97, 73), 1: hsb(359, 65, 22)}, {cy: '55%', r: '42%', fy: '55%'}")
       :stroke-color gradient(hsb(359, 71, 60), hsb(359, 24, 75))
       &:active
-        :fill-color gradient("radial", "{0: hsb(0, 95, 70), 0.8: hsb(0, 97, 63), 1: hsb(359, 65, 32)}, {cy: '55%', r: '42%', fy: '55%'}")
+        :fill-color radial-gradient("{0: hsb(0, 95, 70), 0.8: hsb(0, 97, 63), 1: hsb(359, 65, 32)}, {cy: '55%', r: '42%', fy: '55%'}")
     #minimize
-      :fill-color gradient("radial", "{0: hsb(58, 95, 80), 0.8: hsb(28, 66, 85), 1: hsb(2, 64, 58)}, {cy: '55%', r: '44%', fy: '55%'}")
+      :fill-color radial-gradient("{0: hsb(58, 95, 80), 0.8: hsb(28, 66, 85), 1: hsb(2, 64, 58)}, {cy: '55%', r: '44%', fy: '55%'}")
       :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
       &:active
-        :fill-color gradient("radial", "{0: hsb(58, 95, 70), 0.8: hsb(28, 66, 75), 1: hsb(2, 64, 48)}, {cy: '55%', r: '44%', fy: '55%'}")
+        :fill-color radial-gradient("{0: hsb(58, 95, 70), 0.8: hsb(28, 66, 75), 1: hsb(2, 64, 48)}, {cy: '55%', r: '44%', fy: '55%'}")
     #maximize
-      :fill-color gradient("radial", "{0: hsb(100, 76, 76), 0.8: hsb(95, 46, 73), 1: hsb(103, 53, 43)}, {cy: '55%', r: '44%', fy: '55%'}")
+      :fill-color radial-gradient("{0: hsb(100, 76, 76), 0.8: hsb(95, 46, 73), 1: hsb(103, 53, 43)}, {cy: '55%', r: '44%', fy: '55%'}")
       :stroke-color gradient(hsb(55, 71, 40), hsb(45, 24, 75))
       &:active
-        :fill-color gradient("radial", "{0: hsb(100, 76, 66), 0.8: hsb(95, 46, 63), 1: hsb(103, 53, 33)}, {cy: '55%', r: '44%', fy: '55%'}")
+        :fill-color radial-gradient("{0: hsb(100, 76, 66), 0.8: hsb(95, 46, 63), 1: hsb(103, 53, 33)}, {cy: '55%', r: '44%', fy: '55%'}")
     
   :shadow-offset-y 2
   :z-index 10
@@ -137,18 +137,20 @@ window.fancy
       :glyph-top 6
       :width 25px
     &#search
-      :glyph glyph("search")
+      :glyph-shape glyph("search")
     &#bookmark
-      :glyph glyph("smallPlus")
+      :glyph-shape glyph("plus")
     &#reload
-      :glyph glyph("refresh")
+      :glyph-shape glyph("refresh")
     &#wrench
-      :glyph glyph("wrench")
+      :glyph-shape glyph("wrench")
     &#back
-      :glyph glyph("triangleLeft")
+      :glyph-shape glyph("triangleLeft")
+      :glyph-scale 0.65
     &#forward
-      :glyph glyph("triangleRight")
-  
+      :glyph-shape glyph("triangleRight")
+      :glyph-scale 0.65
+      
   scrollbar
     :position absolute
     :fill-color gradient(hsb(0, 0, 30, 0.4), hsb(0, 0, 50, 0.5))
@@ -162,9 +164,6 @@ window.fancy
       :height 16px
       :width 16px
       :margin-left 0px
-      :glyph-scale 0.8
-      :glyph-top 4
-      :glyph-left 4
       :stroke-width 0
       :margin-right 0
     
@@ -175,7 +174,7 @@ window.fancy
       button
         &#decrementor
           :top 0
-          :glyph glyph("triangleUp")
+          :glyph-shape glyph("triangleUp")
           :corner-radius-top-right 3
           :corner-radius-bottom-right 0
           :corner-radius-top-left 3
@@ -184,7 +183,7 @@ window.fancy
 
         &#incrementor
           :bottom 0
-          :glyph glyph("triangleDown")
+          :glyph-shape glyph("triangleDown")
           :corner-radius-top-right 0
           :corner-radius-bottom-right 3
           :corner-radius-top-left 0
@@ -201,10 +200,10 @@ window.fancy
           :corner-radius-bottom-right 3
           :corner-radius-top-left 0
           :corner-radius-bottom-left 0
-          :glyph glyph("triangleRight")
+          :glyph-shape glyph("triangleRight")
 
         &#decrementor
-          :glyph glyph("triangleLeft")
+          :glyph-shape glyph("triangleLeft")
           :corner-radius-top-left 3
           :corner-radius-bottom-left 3
           :corner-radius-top-right 0

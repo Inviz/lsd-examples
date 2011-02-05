@@ -1,4 +1,5 @@
 window#browser, window#browser footer
+  :shape arrow
   :arrow-width 20
   :arrow-height 20
   :arrow-side bottom
@@ -8,7 +9,6 @@ window#browser footer
   :arrow-width 18
   :arrow-height 18
   :arrow-position 10
-  :margin-bottom -18px
 
 window#browser   
   :stroke-color hsb(0, 0, 70, 0.5)
@@ -19,22 +19,15 @@ window#browser
     :stroke-color hsb(0, 0, 40, 0.5) 
   #toolbar 
     button
-      :glyph-scale 2
-      :glyph-top 6
-      :glyph-left 6
-      :height 36px
-      :width 36px
+      :height 2em
+      :width 2em
+      :glyph-size 1.5em
       &#bookmark
-        :stroke-width 1
-        :stroke-color hsb(0, 0, 0, 0.35)
         :margin-right 0
       &#back
-        :glyph-top 11
-        :glyph-left 10
-        :corner-radius 18
+        :corner-radius 18px
         &[shape=arrow]
           :corner-radius 5
-        :glyph-scale 1.5
         :z-index 10
 
       &#forward
@@ -43,21 +36,17 @@ window#browser
         :corner-radius-bottom-right 10
         :corner-radius-top-left 0
         :corner-radius-bottom-left 0
-        :glyph-scale 1.2
-        :glyph-left 15
-        :glyph-top 5
         :width 32px
         :margin-top 7px
         :margin-left -15
         :z-index 5
+        :glyph-position right center
   &:minified 
     #toolbar 
       button
         :height 16px
         :width 16px
-        :glyph-top 2
-        :glyph-left 2
-        :glyph-scale 1
+        :glyph-size 12px
         
         &.right
           :corner-radius-top-right 3
@@ -65,8 +54,6 @@ window#browser
           :corner-radius-top-left 0
           :corner-radius-bottom-left 0
           :margin-left -1
-          :glyph-left 8
-          :glyph-top 6
           :width 25px
         
         &:text
@@ -78,10 +65,7 @@ window#browser
           :arrow-height 6
         
         &#back, &#forward
-          :corner-radius 5
-          :glyph-scale 1
-          :glyph-top 4
-          :glyph-left 4
+          :corner-radius 3
           :margin-right 4px
 
           

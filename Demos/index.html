@@ -78,7 +78,7 @@
     <section container='container' id='content' scrollable='scrollable'></section>
     <footer class='flexible' shape='arrow'>
       <div container='container' id='status'>Status: Bad</div>
-      <glyph at='top right' id='handle' name='drag-handle'></glyph>
+      <button at='top right' id='handle' name='drag-handle'></button>
     </footer>
   </window>
   
@@ -99,7 +99,7 @@
       </menu>
     </header>
     <section container='container' id='content'>
-      <glyph at='bottom right' id='handle' name='drag-handle'></glyph>
+      <button at='top right' id='handle' name='drag-handle'></button>
       <form action='/' class='two-column' id='networking'>
         <div id='legend'>
           <label for='location'>Location:</label>
@@ -108,7 +108,7 @@
             <option inherit='partial'>Work</option>
           </select>
         </div>
-        <panel id='left'>
+        <section class="panel" id='left'>
           <menu id='networks' kind='networks' type='list' tabindex="0">
             <div class='lsd tag-command' inherit='full' itemspec='network'>
               <h2 itemprop='title'>Wireless Network</h2>
@@ -127,8 +127,8 @@
             </menu>
             <button id='configure'></button>
           </menu>
-        </panel>
-        <panel id='right'>
+        </section>
+        <section class="panel" id='right'>
           <label for='network_name'>Network name:</label>
           <input id='network_name' />
           <label for='count'>Slider:</label>
@@ -146,7 +146,7 @@
               <label for='instant_coffee'>Instant coffee</label>
             </div>
           </div>
-        </panel>
+        </section>
         <menu type='toolbar'>
           <button id='assist'>Assist me…</button>
           <button class='is-disabled' id='revert'>Revert</button>

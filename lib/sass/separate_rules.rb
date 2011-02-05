@@ -76,7 +76,7 @@ module Sass::Tree
             end
           end
         end.join(' ')
-        rule = "html > body " + rule  if prefix
+        rule = "html body " + rule  if prefix
         rule
       end.join(rule_separator)
       

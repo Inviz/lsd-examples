@@ -28,10 +28,9 @@ select
     :float right
     :corner-radius-bottom-left 0
     :corner-radius-top-left 0
-    :glyph-top 6
-    :glyph-left 5
-    :glyph-scale 0.8
-    :glyph glyph("triangleDown")
+    :glyph-shape glyph("triangles")
+    :glyph-scale-x 0.4
+    :glyph-scale-x 0.8
 
   option
     :display block
@@ -44,8 +43,7 @@ select
       :line-height 21px
       
     &:selected
-      :glyph glyph("checkMark")
-      :glyph-scale 1.2
+      :glyph-shape glyph("checkMark")
       :glyph-color hsb(0, 0, 0)
       
     &:chosen

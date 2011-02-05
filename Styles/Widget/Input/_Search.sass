@@ -17,17 +17,17 @@ input[type=search]
 
     
   > button, > icon
-    :fill-color false
-    :shadow-color false
-    :reflection-color false
-    :background-color false
+    :fill-color none
+    :shadow-color none
+    :reflection-color none
+    :background-color none
     :stroke-width 0
     :shadow-blur 0
 
   
   > icon  
     :corner-radius 7
-    :glyph glyph("search")
+    :glyph-shape glyph("search")
     :glyph-left 2
     :glyph-top 2
     :glyph-color hsb(0, 0, 40)
@@ -38,14 +38,12 @@ input[type=search]
     :margin-right 0px
     
     &:active
-      :background-color false
+      :background-color none
       :glyph-color hsb(0, 0, 30)
     
   > button
     :corner-radius 7
-    :glyph glyph("smallCross")
-    :glyph-left 0.5
-    :glyph-top 0.5
+    :glyph-shape glyph("smallCross")
     :glyph-scale 1.10
     :cursor pointer
     :height 14px
@@ -71,7 +69,7 @@ input[type=search]
     &:uniconed 
       :background-position 4px 0
       icon
-        :glyph false
+        :glyph none
         :icon-left 17
       
   &:filled

@@ -1,7 +1,7 @@
 input[type=checkbox]
   :width 14px
   :height 14px
-  :glyph-color false
+  :glyph-color none
   :corner-radius 3
   
   &:active
@@ -9,8 +9,5 @@ input[type=checkbox]
     :reflection-color gradient(hsb(0, 0, 90, 1), hsb(0, 0, 60, 0))
     
   &:checked
-    :glyph glyph("checkMark")
-    :glyph-top 0px
-    :glyph-left 1px
-    :glyph-scale 1.6
+    :glyph-shape glyph("checkMark")
     :glyph-color hsb(0, 0, 30)

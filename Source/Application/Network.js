@@ -8,18 +8,16 @@ description: Some kind of a network preferences
 license: Public domain (http://unlicense.org).
  
 requires:
-  - LSD.Application
+  - Widgets/LSD.Widget.Window.Application
   - Widgets/LSD.Widget.Section
   - Widgets/LSD.Widget.Menu.List
   - Widgets/LSD.Widget.Menu.Toolbar
   - Widgets/LSD.Widget.Select
   - Widgets/LSD.Widget.Form
-  - Widgets/LSD.Widget.Panel
   - Widgets/LSD.Widget.Input.Checkbox
   - Widgets/LSD.Widget.Input.Radio
   - Widgets/LSD.Widget.Input.Range
   - Widgets/LSD.Widget.Button
-  - Widgets/LSD.Widget.Glyph
   - Widgets/LSD.Widget.Container
   - LSD/LSD.Module.Container
   - LSD/LSD.Module.Layout
