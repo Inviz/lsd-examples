@@ -413,7 +413,7 @@ form.two-column .lsd.input[type=text], form.two-column .lsd.input[type=range] {
 form.two-column .lsd.input[type=checkbox] {
       margin-top: 3px; }
 form.two-column .lsd.input[type=range], form.two-column .lsd.input[type=text] {
-      width: calculate("width", "parent - 150"); }
+      width: calc(100% - 150px); }
 form.two-column .lsd.select {
     float: left; }
 form.two-column .field {
@@ -551,28 +551,6 @@ menu[type=toolbar] menu {
 -lsd-corner-radius-top-left: 0;
 -lsd-corner-radius-top-right: 0; }
 
-section.panel {
-float: left;
--lsd-fill-color: hsb(0, 0, 100);
-margin-bottom: 10px; }
-html body section.panel.id-left {
-  width: 158px;
-  height: 198px;
-  border: 1px solid #b8b8b8; }
-html body section.panel.id-right {
-  -lsd-min-width: 290px;
-  width: auto;
-  margin-left: 10px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  height: 180px;
-  -lsd-fill-color: hsb(0, 0, 90);
-  -lsd-corner-radius: 5;
-  -lsd-inner-shadow-blur: 2;
-  -lsd-inner-shadow-offset-y: 2;
-  -lsd-inner-shadow-offset-x: 0;
-  -lsd-inner-shadow-color: hsb(0, 0, 0, 0.5); }
-
 .lsd.scrollbar {
 height: 16px;
 width: 16px;
@@ -620,6 +598,29 @@ section.lsd:after, header.lsd:after, footer.lsd:after {
   visibility: hidden;
   _display: block;
   zoom: 1; }
+
+section.panel {
+clear: none;
+float: left;
+-lsd-fill-color: hsb(0, 0, 100);
+margin-bottom: 10px; }
+html body section.panel.id-left {
+  width: 158px;
+  height: 198px;
+  border: 1px solid #b8b8b8; }
+html body section.panel.id-right {
+  -lsd-min-width: 290px;
+  width: auto;
+  margin-left: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  height: 180px;
+  -lsd-fill-color: hsb(0, 0, 90);
+  -lsd-corner-radius: 5;
+  -lsd-inner-shadow-blur: 2;
+  -lsd-inner-shadow-offset-y: 2;
+  -lsd-inner-shadow-offset-x: 0;
+  -lsd-inner-shadow-color: hsb(0, 0, 0, 0.5); }
 
 .lsd.select {
 -lsd-corner-radius: 3;
@@ -901,7 +902,7 @@ html body .lsd.window.id-network {
 html body .lsd.window.id-network.is-minified .lsd.id-toolbar {
   display: none; }
 html body .lsd.window.id-network .lsd.id-right {
-  width: calculate("width", "parent - left - 14"); }
+  width: calc(100% - 172px); }
 html body .lsd.window.id-network .lsd.id-content {
   height: auto;
   display: block;
@@ -921,7 +922,7 @@ html body .lsd.window.id-network .lsd.id-content form > menu[type=toolbar] .lsd.
       -lsd-reflection-offset: 1px 3px 40%;
       -lsd-reflection-corner-radius: 60%; }
 html body .lsd.window.id-network menu[kind=networks] {
-  height: calculate("height", "parent - hub - 1"); }
+  height: calc(100% - 2em); }
 html body .lsd.window.id-network menu[kind=networks] .lsd.option {
     width: auto;
     display: block;

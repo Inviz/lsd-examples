@@ -5,8 +5,9 @@ window#network
   &:minified #toolbar
     :display none
     
+    
   #right
-    :width calculate("width", "parent - left - 14")
+    :width calc(100% - 172px)
     
   #content    
     :height auto
@@ -28,7 +29,8 @@ window#network
         :reflection-corner-radius 60%
         
   menu[kind=networks]
-    :height calculate("height", "parent - hub - 1")
+    :height calc(100% - 2em)
+    
     option
       :width auto
       :display block
