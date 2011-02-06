@@ -1,6 +1,9 @@
 button
-  .container:element
+  > .container:element
     +dark-emboss
+    :font-family Helvetica
+    :font-size 12px
+    :line-height 1.5em
   :padding 0px
   :float left
   
@@ -31,10 +34,7 @@ button
     :reflection-offset 1px 1px 40%
     :reflection-corner-radius 60%
   
-  :line-height 1.7em
   :vertical-align middle
-  :font-family Helvetica
-  :font-size 12px
   
   &[shape=arrow]
     :width 30px

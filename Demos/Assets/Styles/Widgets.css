@@ -348,13 +348,13 @@ float: left;
 -lsd-corner-radius-top-left: 3;
 -lsd-corner-radius-top-right: 3;
 -lsd-background-color: gradient(hsb(0, 0, 100), hsb(0, 0, 72));
-line-height: 1.7em;
-vertical-align: middle;
-font-family: Helvetica;
-font-size: 12px; }
-.lsd.button .container {
+vertical-align: middle; }
+.lsd.button > .container {
   text-shadow: 0 1px 0 #e5e5ee;
-  -lsd-filter: dropshadow(color=#e5e5ee, offX=0, offY=1px); }
+  -lsd-filter: dropshadow(color=#e5e5ee, offX=0, offY=1px);
+  font-family: Helvetica;
+  font-size: 12px;
+  line-height: 1.5em; }
 .lsd.button.is-text {
   -lsd-glyph-position: left; }
 html body .lsd.window .lsd.id-content .lsd.button {
@@ -457,14 +457,14 @@ display: block; }
 menu[type=toolbar] {
 width: inherit; }
 
-.lsd.panel menu[type=toolbar] {
+section.panel menu[type=toolbar] {
 height: 20px;
 line-height: 30;
 vertical-align: middle;
 border-top: 1px solid #d4d4d4;
 -lsd-fill-color: hsb(0, 0, 92);
 -lsd-reflection-color: gradient(hsb(0, 0, 100, 0.5), hsb(0, 0, 100, 0)); }
-.lsd.panel menu[type=toolbar] .lsd.button {
+section.panel menu[type=toolbar] .lsd.button {
   height: 20px;
   width: 24px;
   vertical-align: middle;
@@ -475,14 +475,12 @@ border-top: 1px solid #d4d4d4;
   -lsd-shadow-blur: 0;
   -lsd-shadow-offset-y: 0;
   -lsd-stroke-width: 0;
-  -lsd-glyph-top: 4;
-  -lsd-glyph-left: 6;
   -lsd-glyph-color: hsb(0, 0, 0, 0.7); }
-html body .lsd.panel menu[type=toolbar] .lsd.button.id-add {
-    -lsd-glyph-shape: glyph("smallPlus"); }
-html body .lsd.panel menu[type=toolbar] .lsd.button.id-remove {
-    -lsd-glyph-shape: glyph("smallMinus"); }
-html body .lsd.panel menu[type=toolbar] .lsd.button.id-configure {
+html body section.panel menu[type=toolbar] .lsd.button.id-add {
+    -lsd-glyph-shape: glyph("plus"); }
+html body section.panel menu[type=toolbar] .lsd.button.id-remove {
+    -lsd-glyph-shape: glyph("minus"); }
+html body section.panel menu[type=toolbar] .lsd.button.id-configure {
     -lsd-glyph-shape: glyph("wrench"); }
 
 menu[type=list] {
@@ -994,8 +992,9 @@ html body header.id-top menu[type=toolbar] .lsd.button {
   display: -moz-inline-box;
   display: inline-block;
   -lsd-*display: inline;
-  vertical-align: top;
-  line-height: 24px; }
+  vertical-align: top; }
+html body header.id-top menu[type=toolbar] .lsd.button > .container {
+    line-height: 24px; }
 html body header.id-top menu[type=toolbar] .lsd.button.is-active, html body header.id-top menu[type=toolbar] .lsd.button.is-selected, html body header.id-top menu[type=toolbar] .lsd.option.is-active, html body header.id-top menu[type=toolbar] .lsd.option.is-selected {
   -lsd-background-color: gradient(hsb(232, 55, 96), hsb(234, 74, 94));
   -lsd-glyph-color: hsb(0, 0, 100);

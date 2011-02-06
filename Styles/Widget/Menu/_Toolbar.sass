@@ -1,6 +1,6 @@
 menu[type=toolbar]    
   :width inherit
-panel 
+section.panel 
   menu[type=toolbar]    
     :height 20px
     :line-height 30
@@ -19,12 +19,10 @@ panel
       :shadow-blur 0
       :shadow-offset-y 0
       :stroke-width 0
-      :glyph-top 4
-      :glyph-left 6
       :glyph-color hsb(0, 0, 0, 0.7)
       &#add
-        :glyph-shape glyph("smallPlus")
+        :glyph-shape glyph("plus")
       &#remove
-        :glyph-shape glyph("smallMinus")
+        :glyph-shape glyph("minus")
       &#configure
         :glyph-shape glyph("wrench")
