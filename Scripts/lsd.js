@@ -589,244 +589,86 @@ Object.extend({
 /*
 ---
 
-name: Object
+name: String
 
-description: Object generic methods
+description: Contains String Prototypes like camelCase, capitalize, test, and toInt.
 
 license: MIT-style license.
 
 requires: Type
 
-provides: [Object, Hash]
+provides: String
 
 ...
 */
 
+String.implement({
 
-Object.extend({
-
-	subset: function(object, keys){
-		var results = {};
-		for (var i = 0, l = keys.length; i < l; i++){
-			var k = keys[i];
-			results[k] = object[k];
-		}
-		return results;
+	test: function(regex, params){
+		return ((typeOf(regex) == 'regexp') ? regex : new RegExp('' + regex, params)).test(this);
 	},
 
-	map: function(object, fn, bind){
-		var results = {};
-		for (var key in object){
-			if (object.hasOwnProperty(key)) results[key] = fn.call(bind, object[key], key, object);
-		}
-		return results;
+	contains: function(string, separator){
+		return (separator) ? (separator + this + separator).indexOf(separator + string + separator) > -1 : this.indexOf(string) > -1;
 	},
 
-	filter: function(object, fn, bind){
-		var results = {};
-		Object.each(object, function(value, key){
-			if (fn.call(bind, value, key, object)) results[key] = value;
+	trim: function(){
+		return this.replace(/^\s+|\s+$/g, '');
+	},
+
+	clean: function(){
+		return this.replace(/\s+/g, ' ').trim();
+	},
+
+	camelCase: function(){
+		return this.replace(/-\D/g, function(match){
+			return match.charAt(1).toUpperCase();
 		});
-		return results;
 	},
 
-	every: function(object, fn, bind){
-		for (var key in object){
-			if (object.hasOwnProperty(key) && !fn.call(bind, object[key], key)) return false;
-		}
-		return true;
-	},
-
-	some: function(object, fn, bind){
-		for (var key in object){
-			if (object.hasOwnProperty(key) && fn.call(bind, object[key], key)) return true;
-		}
-		return false;
-	},
-
-	keys: function(object){
-		var keys = [];
-		for (var key in object){
-			if (object.hasOwnProperty(key)) keys.push(key);
-		}
-		return keys;
-	},
-
-	values: function(object){
-		var values = [];
-		for (var key in object){
-			if (object.hasOwnProperty(key)) values.push(object[key]);
-		}
-		return values;
-	},
-
-	getLength: function(object){
-		return Object.keys(object).length;
-	},
-
-	keyOf: function(object, value){
-		for (var key in object){
-			if (object.hasOwnProperty(key) && object[key] === value) return key;
-		}
-		return null;
-	},
-
-	contains: function(object, value){
-		return Object.keyOf(object, value) != null;
-	},
-
-	toQueryString: function(object, base){
-		var queryString = [];
-
-		Object.each(object, function(value, key){
-			if (base) key = base + '[' + key + ']';
-			var result;
-			switch (typeOf(value)){
-				case 'object': result = Object.toQueryString(value, key); break;
-				case 'array':
-					var qs = {};
-					value.each(function(val, i){
-						qs[i] = val;
-					});
-					result = Object.toQueryString(qs, key);
-				break;
-				default: result = key + '=' + encodeURIComponent(value);
-			}
-			if (value != null) queryString.push(result);
+	hyphenate: function(){
+		return this.replace(/[A-Z]/g, function(match){
+			return ('-' + match.charAt(0).toLowerCase());
 		});
+	},
 
-		return queryString.join('&');
+	capitalize: function(){
+		return this.replace(/\b[a-z]/g, function(match){
+			return match.toUpperCase();
+		});
+	},
+
+	escapeRegExp: function(){
+		return this.replace(/([-.*+?^${}()|[\]\/\\])/g, '\\$1');
+	},
+
+	toInt: function(base){
+		return parseInt(this, base || 10);
+	},
+
+	toFloat: function(){
+		return parseFloat(this);
+	},
+
+	hexToRgb: function(array){
+		var hex = this.match(/^#?(\w{1,2})(\w{1,2})(\w{1,2})$/);
+		return (hex) ? hex.slice(1).hexToRgb(array) : null;
+	},
+
+	rgbToHex: function(array){
+		var rgb = this.match(/\d{1,3}/g);
+		return (rgb) ? rgb.rgbToHex(array) : null;
+	},
+
+	substitute: function(object, regexp){
+		return this.replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name){
+			if (match.charAt(0) == '\\') return match.slice(1);
+			return (object[name] != null) ? object[name] : '';
+		});
 	}
 
 });
 
-
-//<1.2compat>
-
-Hash.implement({
-
-	has: Object.prototype.hasOwnProperty,
-
-	keyOf: function(value){
-		return Object.keyOf(this, value);
-	},
-
-	hasValue: function(value){
-		return Object.contains(this, value);
-	},
-
-	extend: function(properties){
-		Hash.each(properties || {}, function(value, key){
-			Hash.set(this, key, value);
-		}, this);
-		return this;
-	},
-
-	combine: function(properties){
-		Hash.each(properties || {}, function(value, key){
-			Hash.include(this, key, value);
-		}, this);
-		return this;
-	},
-
-	erase: function(key){
-		if (this.hasOwnProperty(key)) delete this[key];
-		return this;
-	},
-
-	get: function(key){
-		return (this.hasOwnProperty(key)) ? this[key] : null;
-	},
-
-	set: function(key, value){
-		if (!this[key] || this.hasOwnProperty(key)) this[key] = value;
-		return this;
-	},
-
-	empty: function(){
-		Hash.each(this, function(value, key){
-			delete this[key];
-		}, this);
-		return this;
-	},
-
-	include: function(key, value){
-		if (this[key] == null) this[key] = value;
-		return this;
-	},
-
-	map: function(fn, bind){
-		return new Hash(Object.map(this, fn, bind));
-	},
-
-	filter: function(fn, bind){
-		return new Hash(Object.filter(this, fn, bind));
-	},
-
-	every: function(fn, bind){
-		return Object.every(this, fn, bind);
-	},
-
-	some: function(fn, bind){
-		return Object.some(this, fn, bind);
-	},
-
-	getKeys: function(){
-		return Object.keys(this);
-	},
-
-	getValues: function(){
-		return Object.values(this);
-	},
-
-	toQueryString: function(base){
-		return Object.toQueryString(this, base);
-	}
-
-});
-
-Hash.extend = Object.append;
-
-Hash.alias({indexOf: 'keyOf', contains: 'hasValue'});
-
-//</1.2compat>
-
-/*
----
- 
-script: Base.js
- 
-description: Speedy function that checks equality of objects (doing some nasty type assumption)
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
-
-extends: Core/Object
-
-*/
-
-
-
-Object.equals = function(one, another) {
-  if (one == another) return true;
-  if ((!one) ^ (!another)) return false;
-  if (typeof one == 'undefined') return false;
-  
-  if ((one instanceof Array) || one.callee) {
-    var j = one.length;
-    if (j != another.length) return false;
-    for (var i = 0; i < j; i++) if (!Object.equals(one[i], another[i])) return false;
-    return true;
-  } else if (one instanceof Color) {
-    return (one.red == another.red) && (one.green == another.green) && (one.blue == another.blue) && (one.alpha == another.alpha)
-  } else if (typeof one == 'object') {
-    if (one.equals) return one.equals(another)
-    for (var i in one) if (!Object.equals(one[i], another[i])) return false;
-    return true;
-  }
-  return false;
-};
 /*
 ---
 
@@ -1175,32 +1017,244 @@ if (this.Type) new Type('Color', Color);
 /*
 ---
 
-script: More.js
+name: Object
 
-name: More
+description: Object generic methods
 
-description: MooTools More
+license: MIT-style license.
 
-license: MIT-style license
+requires: Type
 
-authors:
-  - Guillermo Rauch
-  - Thomas Aylott
-  - Scott Kyle
-
-requires:
-  - Core/MooTools
-
-provides: [MooTools.More]
+provides: [Object, Hash]
 
 ...
 */
 
-MooTools.More = {
-	'version': '1.3.0.1dev',
-	'build': '%build%'
-};
 
+Object.extend({
+
+	subset: function(object, keys){
+		var results = {};
+		for (var i = 0, l = keys.length; i < l; i++){
+			var k = keys[i];
+			results[k] = object[k];
+		}
+		return results;
+	},
+
+	map: function(object, fn, bind){
+		var results = {};
+		for (var key in object){
+			if (object.hasOwnProperty(key)) results[key] = fn.call(bind, object[key], key, object);
+		}
+		return results;
+	},
+
+	filter: function(object, fn, bind){
+		var results = {};
+		Object.each(object, function(value, key){
+			if (fn.call(bind, value, key, object)) results[key] = value;
+		});
+		return results;
+	},
+
+	every: function(object, fn, bind){
+		for (var key in object){
+			if (object.hasOwnProperty(key) && !fn.call(bind, object[key], key)) return false;
+		}
+		return true;
+	},
+
+	some: function(object, fn, bind){
+		for (var key in object){
+			if (object.hasOwnProperty(key) && fn.call(bind, object[key], key)) return true;
+		}
+		return false;
+	},
+
+	keys: function(object){
+		var keys = [];
+		for (var key in object){
+			if (object.hasOwnProperty(key)) keys.push(key);
+		}
+		return keys;
+	},
+
+	values: function(object){
+		var values = [];
+		for (var key in object){
+			if (object.hasOwnProperty(key)) values.push(object[key]);
+		}
+		return values;
+	},
+
+	getLength: function(object){
+		return Object.keys(object).length;
+	},
+
+	keyOf: function(object, value){
+		for (var key in object){
+			if (object.hasOwnProperty(key) && object[key] === value) return key;
+		}
+		return null;
+	},
+
+	contains: function(object, value){
+		return Object.keyOf(object, value) != null;
+	},
+
+	toQueryString: function(object, base){
+		var queryString = [];
+
+		Object.each(object, function(value, key){
+			if (base) key = base + '[' + key + ']';
+			var result;
+			switch (typeOf(value)){
+				case 'object': result = Object.toQueryString(value, key); break;
+				case 'array':
+					var qs = {};
+					value.each(function(val, i){
+						qs[i] = val;
+					});
+					result = Object.toQueryString(qs, key);
+				break;
+				default: result = key + '=' + encodeURIComponent(value);
+			}
+			if (value != null) queryString.push(result);
+		});
+
+		return queryString.join('&');
+	}
+
+});
+
+
+//<1.2compat>
+
+Hash.implement({
+
+	has: Object.prototype.hasOwnProperty,
+
+	keyOf: function(value){
+		return Object.keyOf(this, value);
+	},
+
+	hasValue: function(value){
+		return Object.contains(this, value);
+	},
+
+	extend: function(properties){
+		Hash.each(properties || {}, function(value, key){
+			Hash.set(this, key, value);
+		}, this);
+		return this;
+	},
+
+	combine: function(properties){
+		Hash.each(properties || {}, function(value, key){
+			Hash.include(this, key, value);
+		}, this);
+		return this;
+	},
+
+	erase: function(key){
+		if (this.hasOwnProperty(key)) delete this[key];
+		return this;
+	},
+
+	get: function(key){
+		return (this.hasOwnProperty(key)) ? this[key] : null;
+	},
+
+	set: function(key, value){
+		if (!this[key] || this.hasOwnProperty(key)) this[key] = value;
+		return this;
+	},
+
+	empty: function(){
+		Hash.each(this, function(value, key){
+			delete this[key];
+		}, this);
+		return this;
+	},
+
+	include: function(key, value){
+		if (this[key] == null) this[key] = value;
+		return this;
+	},
+
+	map: function(fn, bind){
+		return new Hash(Object.map(this, fn, bind));
+	},
+
+	filter: function(fn, bind){
+		return new Hash(Object.filter(this, fn, bind));
+	},
+
+	every: function(fn, bind){
+		return Object.every(this, fn, bind);
+	},
+
+	some: function(fn, bind){
+		return Object.some(this, fn, bind);
+	},
+
+	getKeys: function(){
+		return Object.keys(this);
+	},
+
+	getValues: function(){
+		return Object.values(this);
+	},
+
+	toQueryString: function(base){
+		return Object.toQueryString(this, base);
+	}
+
+});
+
+Hash.extend = Object.append;
+
+Hash.alias({indexOf: 'keyOf', contains: 'hasValue'});
+
+//</1.2compat>
+
+/*
+---
+ 
+script: Base.js
+ 
+description: Speedy function that checks equality of objects (doing some nasty type assumption)
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+
+extends: Core/Object
+
+*/
+
+
+
+Object.equals = function(one, another) {
+  if (one == another) return true;
+  if ((!one) ^ (!another)) return false;
+  if (typeof one == 'undefined') return false;
+  
+  if ((one instanceof Array) || one.callee) {
+    var j = one.length;
+    if (j != another.length) return false;
+    for (var i = 0; i < j; i++) if (!Object.equals(one[i], another[i])) return false;
+    return true;
+  } else if (one instanceof Color) {
+    return (one.red == another.red) && (one.green == another.green) && (one.blue == another.blue) && (one.alpha == another.alpha)
+  } else if (typeof one == 'object') {
+    if (one.equals) return one.equals(another)
+    for (var i in one) if (!Object.equals(one[i], another[i])) return false;
+    return true;
+  }
+  return false;
+};
 /*
 ---
 
@@ -1370,89 +1424,6 @@ Function.implement({
 var $try = Function.attempt;
 
 //</1.2compat>
-
-/*
----
-
-name: String
-
-description: Contains String Prototypes like camelCase, capitalize, test, and toInt.
-
-license: MIT-style license.
-
-requires: Type
-
-provides: String
-
-...
-*/
-
-String.implement({
-
-	test: function(regex, params){
-		return ((typeOf(regex) == 'regexp') ? regex : new RegExp('' + regex, params)).test(this);
-	},
-
-	contains: function(string, separator){
-		return (separator) ? (separator + this + separator).indexOf(separator + string + separator) > -1 : this.indexOf(string) > -1;
-	},
-
-	trim: function(){
-		return this.replace(/^\s+|\s+$/g, '');
-	},
-
-	clean: function(){
-		return this.replace(/\s+/g, ' ').trim();
-	},
-
-	camelCase: function(){
-		return this.replace(/-\D/g, function(match){
-			return match.charAt(1).toUpperCase();
-		});
-	},
-
-	hyphenate: function(){
-		return this.replace(/[A-Z]/g, function(match){
-			return ('-' + match.charAt(0).toLowerCase());
-		});
-	},
-
-	capitalize: function(){
-		return this.replace(/\b[a-z]/g, function(match){
-			return match.toUpperCase();
-		});
-	},
-
-	escapeRegExp: function(){
-		return this.replace(/([-.*+?^${}()|[\]\/\\])/g, '\\$1');
-	},
-
-	toInt: function(base){
-		return parseInt(this, base || 10);
-	},
-
-	toFloat: function(){
-		return parseFloat(this);
-	},
-
-	hexToRgb: function(array){
-		var hex = this.match(/^#?(\w{1,2})(\w{1,2})(\w{1,2})$/);
-		return (hex) ? hex.slice(1).hexToRgb(array) : null;
-	},
-
-	rgbToHex: function(array){
-		var rgb = this.match(/\d{1,3}/g);
-		return (rgb) ? rgb.rgbToHex(array) : null;
-	},
-
-	substitute: function(object, regexp){
-		return this.replace(regexp || (/\\?\{([^{}]+)\}/g), function(match, name){
-			if (match.charAt(0) == '\\') return match.slice(1);
-			return (object[name] != null) ? object[name] : '';
-		});
-	}
-
-});
 
 /*
 ---
@@ -2484,709 +2455,66 @@ Class.Mutators = {
 
 /*
 ---
-
-script: Class.Binds.js
-
-name: Class.Binds
-
-description: Automagically binds specified methods in a class to the instance of the class.
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Class
-  - /MooTools.More
-
-provides: [Class.Binds]
-
-...
-*/
-
-Class.Mutators.Binds = function(binds){
-    return binds;
-};
-
-Class.Mutators.initialize = function(initialize){
-	return function(){
-		Array.from(this.Binds).each(function(name){
-			var original = this[name];
-			if (original) this[name] = original.bind(this);
-		}, this);
-		return initialize.apply(this, arguments);
-	};
-};
-
-
-/*
----
-
-script: Class.Binds.js
-
-description: Removes mutators added by Class.Binds that breaks multiple inheritance
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-
-extends: More/Class.Binds
-...
-*/
-
-//empty
-
-delete Class.Mutators.Binds;
-delete Class.Mutators.initialize;
-/*
----
-
-name: Class.Extras
-
-description: Contains Utility Classes that can be implemented into your own Classes to ease the execution of many common tasks.
-
-license: MIT-style license.
-
-requires: Class
-
-provides: [Class.Extras, Chain, Events, Options]
-
-...
-*/
-
-(function(){
-
-this.Chain = new Class({
-
-	$chain: [],
-
-	chain: function(){
-		this.$chain.append(Array.flatten(arguments));
-		return this;
-	},
-
-	callChain: function(){
-		return (this.$chain.length) ? this.$chain.shift().apply(this, arguments) : false;
-	},
-
-	clearChain: function(){
-		this.$chain.empty();
-		return this;
-	}
-
-});
-
-var removeOn = function(string){
-	return string.replace(/^on([A-Z])/, function(full, first){
-		return first.toLowerCase();
-	});
-};
-
-this.Events = new Class({
-
-	$events: {},
-
-	addEvent: function(type, fn, internal){
-		type = removeOn(type);
-
-		/*<1.2compat>*/
-		if (fn == $empty) return this;
-		/*</1.2compat>*/
-
-		this.$events[type] = (this.$events[type] || []).include(fn);
-		if (internal) fn.internal = true;
-		return this;
-	},
-
-	addEvents: function(events){
-		for (var type in events) this.addEvent(type, events[type]);
-		return this;
-	},
-
-	fireEvent: function(type, args, delay){
-		type = removeOn(type);
-		var events = this.$events[type];
-		if (!events) return this;
-		args = Array.from(args);
-		events.each(function(fn){
-			if (delay) fn.delay(delay, this, args);
-			else fn.apply(this, args);
-		}, this);
-		return this;
-	},
-	
-	removeEvent: function(type, fn){
-		type = removeOn(type);
-		var events = this.$events[type];
-		if (events && !fn.internal){
-			var index =  events.indexOf(fn);
-			if (index != -1) delete events[index];
-		}
-		return this;
-	},
-
-	removeEvents: function(events){
-		var type;
-		if (typeOf(events) == 'object'){
-			for (type in events) this.removeEvent(type, events[type]);
-			return this;
-		}
-		if (events) events = removeOn(events);
-		for (type in this.$events){
-			if (events && events != type) continue;
-			var fns = this.$events[type];
-			for (var i = fns.length; i--;) if (i in fns){
-				this.removeEvent(type, fns[i]);
-			}
-		}
-		return this;
-	}
-
-});
-
-this.Options = new Class({
-
-	setOptions: function(){
-		var options = this.options = Object.merge.apply(null, [{}, this.options].append(arguments));
-		if (this.addEvent) for (var option in options){
-			if (typeOf(options[option]) != 'function' || !(/^on[A-Z]/).test(option)) continue;
-			this.addEvent(option, options[option]);
-			delete options[option];
-		}
-		return this;
-	}
-
-});
-
-})();
-
-/*
----
-
-name: Class.Extras
-
-description: Contains Utility Classes that can be implemented into your own Classes to ease the execution of many common tasks.
-
-license: MIT-style license.
-
-requires: Class
-
-extends: Core/Class.Extras
-...
-*/
-
-//dont use typeOf in loop :)
-
-(function(apply) {
-  
-  Options.prototype.setOptions = function(){
-  	var options = this.options = Object.merge.apply(null, [{}, this.options].append(arguments));
-  	if (this.addEvent) for (var option in options){
-  	  var value = options[option];
-  		if (!value || (value.apply != apply) || !(/^on[A-Z]/).test(option)) continue;
-  		this.addEvent(option, options[option]);
-  		delete options[option];
-  	}
-  	return this;
-  }
-
-})(Function.prototype.apply);
-/*
----
  
-script: Class.Includes.js
+script: FastArray.js
  
-description: Multiple inheritance in mootools, chained Extend basically.
+description: Array with fast lookup (based on object)
  
 license: MIT-style license.
  
 requires:
-- Core/Options
-- Core/Events
 - Core/Class
-
-provides: [Class.Mutators.Includes, Class.include, Class.flatten]
+ 
+provides: [FastArray]
  
 ...
 */
 
-(function() {
-  
-  var getInstance = function(klass){
-    klass.$prototyping = true;
-    var proto = new klass;
-    delete klass.$prototyping;
-    return proto;
-  };
-  
-  Class.include = function(klass, klasses) {
-    return new Class({
-      Includes: Array.from(arguments).flatten()
-    });
-  };
-  
-  Class.flatten = function(items) {
-    return Array.from(items).clean().map(function(item, i) {
-      if (item.parent) {
-        return [Class.flatten(item.parent), item];
-      } else {
-        return item;
-      }
-    }).flatten();
-  };
+FastArray = function() {
+  this.push.apply(this, arguments);
+}
 
-  Class.Mutators.Includes = function(items) {
-    items = Array.from(items);
-    var instance = this.parent ? this.parent : items.shift();
-    Class.flatten(items).each(function(parent){
-      var baked = new Class;
-      if (instance) {
-        baked.parent = instance;
-        baked.prototype = getInstance(instance);
-      }
-      var proto = Object.append({}, parent.prototype);
-      delete proto.$caller;
-      delete proto.$constructor;
-      delete proto.parent;
-      delete proto.caller;
-      for (var i in proto) {
-        var fn = proto[i];
-        if (fn && fn.$owner && (fn.$owner != parent) && fn.$owner.parent) delete proto[i];
-      }
-      baked.implement(proto);
-      instance = baked;
+FastArray.from = function(ary) {
+  var array = new FastArray;
+  FastArray.prototype.push.apply(array, ary)
+  return array;
+}
+FastArray.prototype = {
+  push: function() {
+    Array.each(arguments, function(argument) {
+      this[argument] = true;
     }, this);
-    this.parent = instance;
-    this.prototype = getInstance(instance);
-  };
-})();
-/*
----
- 
-script: Class.States.js
- 
-description: A mutator that adds some basic state definition capabilities.
- 
-license: MIT-style license.
- 
-requires:
-- Core/Options
-- Core/Events
-- Core/Class
-- Core/Class.Extras
-- Class.Mutators.Includes
+  },
 
-provides: 
-  - Class.Mutators.States
-  - Class.Stateful
- 
-...
-*/
-
-
-Class.Stateful = function(states) {
-  var proto = {
-    options: {
-      states: {}
-    },
-    setStateTo: function(state, to) {
-      return this[this.options.states[state][to ? 'enabler' : 'disabler']]();
+  contains: function(argument) {
+    return this[argument];
+  },
+  
+  concat: function(array) {
+    this.push.apply(this, array);
+    return this;
+  },
+  
+  each: function(callback, bound) {
+    for (var key in this) {
+      if (this.hasOwnProperty(key)) callback.call(bound || this, key, this[key]);
     }
-  };
+  },
 
-  Object.each(states, function(methods, state) {
-    var options = Array.link(methods, {
-      enabler: Type.isString,
-      disabler: Type.isString,
-      toggler: Type.isString,
-      reflect: function(value){ return value != null; }
-    });
-    
-    //enable reflection by default
-    if (options.reflect == null) options.reflect = true;
+  include: function(value) {
+    this[value] = true;
+  },
 
-    proto.options.states[state] = options;
-
-    proto[options.enabler] = function() {
-      if (this[state]) return false;
-      this[state] = true; 
-      if (Class.hasParent(this)) this.parent.apply(this, arguments);
-
-      this.fireEvent(options.enabler, arguments);
-      if (this.onStateChange && options.reflect) this.onStateChange(state, true, arguments);
-      return true;
-    };
-
-    proto[options.disabler] = function() {
-      if (!this[state]) return false;
-      this[state] = false;
-
-  	  if (Class.hasParent(this)) this.parent.apply(this, arguments);
-
-      this.fireEvent(options.disabler, arguments);
-      if (this.onStateChange && options.reflect) this.onStateChange(state, false, arguments);
-      return true;
-    };
-
-    if (options.toggler) proto[options.toggler] = function() {
-      return this[this[state] ? options.disabler : options.enabler].apply(this, arguments);
-    };
-  });
-
-  return new Class(proto);
+  erase: function(value) {
+    delete this[value];
+  },
+  
+  join: function(delimeter) {
+    var bits = [];
+    for (var key in this) if (this.hasOwnProperty(key)) bits.push(key);
+    return bits.join(delimeter)
+  }
 };
-
-Class.Mutators.States = function(states) {
-  this.implement('Includes', Class.Stateful(states));
-};
-Class.Mutators.Stateful = function(states) {
-  this.implement('Implements', Class.Stateful(states));
-};
-/*
----
- 
-script: Observer.js
- 
-description: A class that tracks updates in input periodically and fires onChange event
- 
-license: MIT-style license.
- 
-requires:
-- Core/Options
-- Core/Events
-
-provides: [Observer]
- 
-...
-*/
-
-
-Observer = new Class({
-
-	Implements: [Options, Events],
-
-	options: {
-		periodical: false,
-		delay: 1000
-	},
-
-	initialize: function(el, onFired, options){
-		this.element = $(el) || $$(el);
-		this.addEvent('onFired', onFired);
-		this.setOptions(options);
-		this.bound = this.changed.bind(this);
-		this.resume();
-	},
-
-	changed: function() {
-		var value = this.element.get('value');
-		if (Object.equals(this.value, value)) return;
-		this.clear();
-		this.value = value;
-		this.timeout = this.onFired.delay(this.options.delay, this);
-	},
-
-	setValue: function(value) {
-		this.value = value;
-		this.element.set('value', value);
-		return this.clear();
-	},
-
-	onFired: function() {
-		this.fireEvent('onFired', [this.value, this.element]);
-	},
-
-	clear: function() {
-		$clear(this.timeout || null);
-		return this;
-	},
-
-	pause: function(){
-		if (this.timer) $clear(this.timer);
-		else this.element.removeEvent('keyup', this.bound);
-		return this.clear();
-	},
-
-	resume: function(){
-		this.value = this.element.get('value');
-		if (this.options.periodical) this.timer = this.changed.periodical(this.options.periodical, this);
-		else this.element.addEvent('keyup', this.bound);
-		return this;
-	}
-
-});
-/*
----
- 
-script: Class.Macros.js
- 
-description: A few functions that simplify definition of everyday methods with common logic
- 
-license: MIT-style license.
- 
-requires:
-- Core/Options
-- Core/Events
-- Core/Class.Extras
-
-provides: [Macro, Class.hasParent]
- 
-...
-*/
-
-Class.hasParent = function(klass) {
-  var caller = klass.$caller;
-  return !!(caller.$owner.parent && caller.$owner.parent.prototype[caller.$name]);
-};
-
-Macro = {};
-
-/*
-Make stackable function what executes it's parent before itself
-*/
-Macro.onion = function(callback) {
-  return function() {
-    if (!this.parent.apply(this, arguments)) return;
-    return callback.apply(this, arguments) !== false;
-  };
-};
-
-/*
-Make getter-function with cache. Returned function alculates values on first call, after return this[name].
-To reset cache use:
-
-  delete this[name];
-
-*/
-Macro.getter = function(name, callback) {
-  return function() {
-    if (!this[name]) this[name] = callback.apply(this, arguments);
-    return this[name];
-  };
-};
-
-
-/*
-Make function that runs it's parent if it exists, and runs itself if does not
-*/
-Macro.defaults = function(callback) {
-  return function() {
-    if (Class.hasParent(this)) {
-      return this.parent.apply(this, arguments);
-    } else {
-      return callback.apply(this, arguments);
-    }
-  };
-};
-
-/*
-Make function what returns property 'name' of passed argument
-*/
-Macro.map = function(name) {
-  return function(item) {
-    return item[name];
-  };
-};
-
-/*
-Make function Macro.map but diference that Macro.proc calls 'name' method
-*/
-Macro.proc = function(name, args) {
-  return function(item) {
-    return item[name].apply(item, args || arguments);
-  };
-};
-
-/*
-Make function what call method 'method' of property this[name] with passed arguments
-*/
-Macro.delegate = function(name, method) {
-  return function() {
-    if (this[name]) return this[name][method].apply(this[name], arguments);
-  };
-};
-/*
----
-
-name: Fx
-
-description: Contains the basic animation logic to be extended by all other Fx Classes.
-
-license: MIT-style license.
-
-requires: [Chain, Events, Options]
-
-provides: Fx
-
-...
-*/
-
-(function(){
-
-var Fx = this.Fx = new Class({
-
-	Implements: [Chain, Events, Options],
-
-	options: {
-		/*
-		onStart: nil,
-		onCancel: nil,
-		onComplete: nil,
-		*/
-		fps: 60,
-		unit: false,
-		duration: 500,
-		frames: null,
-		frameSkip: true,
-		link: 'ignore'
-	},
-
-	initialize: function(options){
-		this.subject = this.subject || this;
-		this.setOptions(options);
-	},
-
-	getTransition: function(){
-		return function(p){
-			return -(Math.cos(Math.PI * p) - 1) / 2;
-		};
-	},
-
-	step: function(now){
-		if (this.options.frameSkip){
-			var diff = (this.time != null) ? (now - this.time) : 0, frames = diff / this.frameInterval;
-			this.time = now;
-			this.frame += frames;
-		} else {
-			this.frame++;
-		}
-		
-		if (this.frame < this.frames){
-			var delta = this.transition(this.frame / this.frames);
-			this.set(this.compute(this.from, this.to, delta));
-		} else {
-			this.frame = this.frames;
-			this.set(this.compute(this.from, this.to, 1));
-			this.stop();
-		}
-	},
-
-	set: function(now){
-		return now;
-	},
-
-	compute: function(from, to, delta){
-		return Fx.compute(from, to, delta);
-	},
-
-	check: function(){
-		if (!this.isRunning()) return true;
-		switch (this.options.link){
-			case 'cancel': this.cancel(); return true;
-			case 'chain': this.chain(this.caller.pass(arguments, this)); return false;
-		}
-		return false;
-	},
-
-	start: function(from, to){
-		if (!this.check(from, to)) return this;
-		this.from = from;
-		this.to = to;
-		this.frame = (this.options.frameSkip) ? 0 : -1;
-		this.time = null;
-		this.transition = this.getTransition();
-		var frames = this.options.frames, fps = this.options.fps, duration = this.options.duration;
-		this.duration = Fx.Durations[duration] || duration.toInt();
-		this.frameInterval = 1000 / fps;
-		this.frames = frames || Math.round(this.duration / this.frameInterval);
-		this.fireEvent('start', this.subject);
-		pushInstance.call(this, fps);
-		return this;
-	},
-	
-	stop: function(){
-		if (this.isRunning()){
-			this.time = null;
-			pullInstance.call(this, this.options.fps);
-			if (this.frames == this.frame){
-				this.fireEvent('complete', this.subject);
-				if (!this.callChain()) this.fireEvent('chainComplete', this.subject);
-			} else {
-				this.fireEvent('stop', this.subject);
-			}
-		}
-		return this;
-	},
-	
-	cancel: function(){
-		if (this.isRunning()){
-			this.time = null;
-			pullInstance.call(this, this.options.fps);
-			this.frame = this.frames;
-			this.fireEvent('cancel', this.subject).clearChain();
-		}
-		return this;
-	},
-	
-	pause: function(){
-		if (this.isRunning()){
-			this.time = null;
-			pullInstance.call(this, this.options.fps);
-		}
-		return this;
-	},
-	
-	resume: function(){
-		if ((this.frame < this.frames) && !this.isRunning()) pushInstance.call(this, this.options.fps);
-		return this;
-	},
-	
-	isRunning: function(){
-		var list = instances[this.options.fps];
-		return list && list.contains(this);
-	}
-
-});
-
-Fx.compute = function(from, to, delta){
-	return (to - from) * delta + from;
-};
-
-Fx.Durations = {'short': 250, 'normal': 500, 'long': 1000};
-
-// global timers
-
-var instances = {}, timers = {};
-
-var loop = function(){
-	var now = Date.now();
-	for (var i = this.length; i--;){
-		var instance = this[i];
-		if (instance) instance.step(now);
-	}
-};
-
-var pushInstance = function(fps){
-	var list = instances[fps] || (instances[fps] = []);
-	list.push(this);
-	if (!timers[fps]) timers[fps] = loop.periodical(Math.round(1000 / fps), list);
-};
-
-var pullInstance = function(fps){
-	var list = instances[fps];
-	if (list){
-		list.erase(this);
-		if (!list.length && timers[fps]){
-			delete instances[fps];
-			timers[fps] = clearInterval(timers[fps]);
-		}
-	}
-};
-
-})();
-
 /*
 ---
  
@@ -3269,2042 +2597,6 @@ Class.implement('mixin', function(klass) {
 
 Class.implement('unmix', function(klass) {
   Class.unmix(this, klass)
-})
-/*
----
- 
-script: FastArray.js
- 
-description: Array with fast lookup (based on object)
- 
-license: MIT-style license.
- 
-requires:
-- Core/Class
- 
-provides: [FastArray]
- 
-...
-*/
-
-FastArray = function() {
-  this.push.apply(this, arguments);
-}
-
-FastArray.from = function(ary) {
-  var array = new FastArray;
-  FastArray.prototype.push.apply(array, ary)
-  return array;
-}
-FastArray.prototype = {
-  push: function() {
-    Array.each(arguments, function(argument) {
-      this[argument] = true;
-    }, this);
-  },
-
-  contains: function(argument) {
-    return this[argument];
-  },
-  
-  concat: function(array) {
-    this.push.apply(this, array);
-    return this;
-  },
-  
-  each: function(callback, bound) {
-    for (var key in this) {
-      if (this.hasOwnProperty(key)) callback.call(bound || this, key, this[key]);
-    }
-  },
-
-  include: function(value) {
-    this[value] = true;
-  },
-
-  erase: function(value) {
-    delete this[value];
-  },
-  
-  join: function(delimeter) {
-    var bits = [];
-    for (var key in this) if (this.hasOwnProperty(key)) bits.push(key);
-    return bits.join(delimeter)
-  }
-};
-/*
----
- 
-script: LSD.js
- 
-description: LSD namespace definition
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - Core/Class
-  - Core/Events
-  - Core/Options
-  - Core/Browser
-  - Core/Object
-  - Ext/Macro
-  - Ext/Class.Stateful
-  - Ext/Class.mixin
-  - Ext/FastArray
- 
-provides: 
-  - LSD
- 
-...
-*/
-
-if (!window.console) window.console = {};
-if (!window.console.log) window.console.log = function() {};
-
-var LSD = new Events;
-Object.append(LSD, {
-  Module: {},  // must-have stuff for all widgets 
-  Trait: {},   // some widgets may use those
-  Mixin: {},   // these may be applied in runtime
-  
-  // Conventions
-  Events: {},
-  Attributes: {
-    Ignore: new FastArray,
-    Numeric: new FastArray('tabindex', 'width', 'height')
-  },
-  Styles: {},
-  States: {
-    Known: {
-      'hidden':   ['hide',    'show'],
-      'disabled': ['disable', 'enable'],
-      'focused':  ['focus',   'blur']
-    },
-    Positive: {
-      disabled: 'disabled',
-      focused: 'focused'
-    },
-    Negative: {
-      enabled: 'disabled',
-      blured: 'focused'
-    },
-    Attributes: new FastArray
-  }
-});
-
-LSD.start = function() {
-  if (LSD.started) return;
-  LSD.started = true;
-  LSD.fireEvent('before');
-  LSD.fireEvent('ready');
-};
-/*
----
- 
-script: Position.js
- 
-description: Easily reposition element by positioning widget absolutely and one of the edges
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD
-
-provides: 
-  - LSD.Mixin.Position
- 
-...
-*/
-
-LSD.Mixin.Position = new Class({
-  behaviour: "[at], [position]",
-  
-  initialize: function() {
-    this.parent.apply(this, arguments);
-    this.positionAt(this.attributes.at || this.attributes.position);
-  },
-  
-  positionAt: function(position) {
-    position.split(/\s+/).each(function(property) {
-      this.element.setStyle(property, 0)
-    }, this);
-    this.element.setStyle('position', 'absolute');
-    return true;
-  }
-  
-});
-/*
----
- 
-script: Container.js
- 
-description: A container class that swallows all kind of a content
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD
- 
-provides: [LSD.Container]
- 
-...
-*/
-
-LSD.Container = new Class({
-  
-  Implements: [Events, Options],
-  
-  options: {
-    data: null,
-    request: null,
-
-    element: null,
-    iframe: null,
-    attributes: null,
-    container: null,
-    content: null,
-
-    padding: null
-  },
-  
-  initialize: function(element, options) {
-    this.element = $(element);
-    
-    if (!this.element) return
-    
-    this.set(options)
-    return this
-  },
-  
-  toElement: function() {
-    return this.element;
-  },
-  
-  set: function() {
-    var params = Array.link(arguments, {options: Object.type, content: String.type, fn: Function.type, element: Element.type});
-    if (!Hash.getLength(params)) return;
-    if (!params.options) params.options = {};
-    if (params.fn) this.set(params.fn());
-    if (params.element) params.options.element = params.element;
-    if (params.element && params.element.get('iframe')) {
-      params.iframe = params.element;
-      delete params.element
-    }
-    
-    if (params.content) params.options = $merge(params.options, {content: params.content});
-
-    return this.act($merge(this.options, params.options));
-  },
-  
-  load: function() {
-    this.set.apply(this, arguments)
-    return this.options
-  },
-  
-  act: function(options) {
-    //first set static stuff
-    var result = this.append(options.element || options.content) || this.build(options.attributes) || this.render(options.content);
-    //second do a request if needed
-    return this.request(options.request) || this.browse(options.iframe) || result
-  },
-  
-  browse: function(iframe) {
-    if (!iframe) return false;
-    switch(typeOf(this.options.iframe)) {
-      case "string": 
-        this.options.iframe = {src: this.options.iframe};
-      case "element":
-        this.iframe = this.options.iframe;
-      default:
-        if (!this.iframe) {
-          this.iframe = new IFrame($merge({
-            styles: {
-              border: 0, 
-              display: 'block',
-              width: "100%",
-              height: this.element.scrollHeight
-            }
-          }, this.options.iframe))
-        } else {
-          var options = $merge(this.options.iframe) || {}
-          if (options.src == this.iframe.src) delete options.src //do not set same src to avoid refreshing
-          this.iframe.set(this.options.iframe)
-        }
-    }
-    
-    if (this.iframe.getParent() != this.element) this.iframe.inject(this.empty());
-    return this.iframe;
-  },
-  
-  append: function(element) {
-    if (!$(element)) return false;
-    this.element.adopt(element);
-    this.update();
-    return element;
-  },
-  
-  request: function(options) {  
-    if (!options || !options.url) return false;
-    this.xhr = new Request($merge({method: "get"}, options));
-    this.xhr.addEvent('success', this.recieve.bind(this));
-    return this.xhr.send();
-  },
-  
-  render: function(html) {
-    if (!String.type(html) || !html.length) return false;
-    this.empty().set('html', html);
-    return html;
-  },
-  
-  build: function(attributes) {
-    if (!Object.type(attributes)) return false;
-    return this.element.adopt(new Element(attributes.tag || 'div', attributes));
-  },
-  
-  recieve: function(html) {
-    this.render(html);
-    this.fireEvent('update', this.element);
-  },
-
-  update: function() {
-    this.fireEvent('update', this.element);
-  },
-  
-  empty: function() {
-    this.element.empty();
-    return this.element;
-  }
-  
-});
-
-
-Moo = {};
-Moo.Container = new Class({
-  Extends: LSD.Container,
-  
-  initialize: function(widget, options) {
-    this.widget = widget;
-    //TODO: Remove the need for this container
-    this.container = new Element('div', {'class': 'container'}).inject($(this.widget));
-    this.parent(this.container, options);
-  },
-  
-  empty: function() { //skip LSD widgets
-    this.element.getChildren().each(function(child) {
-      if (!child.retrieve('widget')) child.destroy();
-    });
-    return this.element;
-  },
-  
-  update: function() {
-    this.parent.apply(this, arguments);
-    this.widget.fireEvent('contentChanged', arguments)
-  }
-});
-/*
----
- 
-script: Container.js
- 
-description: Makes widget use container - wrapper around content setting
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD
-  - LSD.Container
-
-provides:
-  - LSD.Module.Container
- 
-...
-*/
-
-LSD.Module.Container = new Class({
-  options: {
-    container: false,
-    
-    proxies: {
-      container: {
-        container: function() {
-          return $(this.getContainer()) //creates container, once condition is true
-        },
-        condition: $lambda(false),      //turned off by default
-        priority: -1,                   //lowest priority
-        rewrite: false                  //does not rewrite parent
-      }
-    }
-  },
-  
-  setContent: function(item) {
-    if (item.title) item = item.title;
-    return this.getContainer().set.apply(this.container, arguments);
-  },
-  
-  getContainer: Macro.getter('container', function() {
-    return new Moo.Container(this, this.options.container);
-  }),
-  
-  getWrapper: function() {
-    return this.getContainer().toElement()
-  }
-});
-/*
----
- 
-script: Observer.js
- 
-description: A wrapper around Observer to look for changes in input values
- 
-license: Public domain (http://unlicense.org).
- 
-requires:
-  - LSD
-  - Ext/Observer
- 
-provides: 
-  - LSD.Trait.Observer
-  - Class.Mutators.States
- 
-...
-*/
-
-
-LSD.Trait.Observer = new Class({
-  
-  options: {
-    observer: {
-      periodical: 200,
-      delay: 50
-    },
-    events: {
-      _observer: {
-        self: {
-          focus: function() {
-            this.getObserver().resume()
-          },
-          blur: function() {
-            this.getObserver().pause()
-          }
-        }
-      }
-    }
-  },
-  
-  getObserver: Macro.getter('observer', function() {
-    return new Observer(this.getObservedElement(), this.onChange.bind(this), this.options.observer)
-  }),
-  
-  getObservedElement: Macro.defaults(function() {
-    return this.element;
-  }),
-  
-  onChange: function(value) {
-    if (value.match(/^\s*$/)) {
-      this.empty();
-    } else {
-      this.fill.apply(this, arguments);
-    }
-  }
-});
-
-LSD.Trait.Observer.State = Class.Stateful({
-  'filled': ['fill', 'empty']
-});
-LSD.Trait.Observer.Stateful = [
-  LSD.Trait.Observer.State,
-  LSD.Trait.Observer
-];
-/*
----
- 
-script: Layout.js
- 
-description: A logic to render (and nest) a few widgets out of the key-value hash
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD
-
-provides: [LSD.Layout]
- 
-...
-*/
-
-LSD.Layout = new Class({
-  
-  Implements: [Options],
-    
-  initialize: function(widget, layout, options) {
-    if (LSD.Layout.isConvertable(widget)) widget = LSD.Layout.build(widget)
-    this.widget = widget;
-    this.layout = layout;
-    this.setOptions(options);
-    this.reset();
-  }, 
-  
-  reset: function() {
-    this.render(this.layout, this.widget);
-  },
-  
-  materialize: function(selector, layout, parent) {
-    var widget = LSD.Layout.build(selector, parent);
-    if (!Element.type(widget)) {
-      if (!String.type(layout)) this.render(layout, widget);
-      else widget.setContent(layout)
-    }
-    return widget;
-  },
-  
-  render: function(layout, parent) {
-    var widgets = [];
-    switch (typeOf(layout)) {
-      case "string": 
-        widgets.push(this.materialize(layout, {}, parent));
-        break;
-      case "array": case "elements":
-        layout.each(function(widget) {
-          widgets.push.apply(widgets, this.render(widget, parent))
-        }, this)
-        break;
-      case "element":
-        widgets.push(this.materialize(layout, LSD.Layout.getFromElement(layout), parent));
-        break;
-      case "object":
-        for (var selector in layout) widgets.push(this.materialize(selector, layout[selector], parent));
-        break;
-    }
-    return widgets;
-  }
-});
-
-(function(cache) {
-  LSD.Layout.findTraitByAttributeName = function(name) {
-    if (typeof cache[name] == 'undefined') {
-      switch (name) {
-        case 'tabindex':
-          name = 'Focus';
-          break;
-        case 'at':
-          name = 'Position';
-          break;
-      };
-      var base = LSD.Trait;
-      for (var bits = name.split('-'), bit, i = 0; (bit = bits[i++]) && (base = base[bit.capitalize()]););
-      var klass = cache[name] = base || null;
-      if (klass && klass.Stateful) cache[name] = klass.Stateful;
-    }
-    return cache[name];
-  }
-})(LSD.Layout.traitByAttribute = {});
-
-LSD.Layout.getFromElement = function(element) {
-  var children = element.getChildren();
-  if (children.length) return children;
-  var text = element.get('text');
-  if (text.length) return text;
-}
-
-LSD.Layout.Plain = new FastArray('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'strong', 'i', 'em', 'ul', 'ol', 'li', 'span', 'table', 'thead', 'tfoot', 'tbody', 'tr', 'td', 'colgroup')
-
-LSD.Layout.isConvertable = function(element) {
-  return Element.type(element) && !LSD.Layout.Plain[element.get('tag')];
-}
-
-LSD.Layout.convert = function(element) {
-  var options = {
-    attributes: {},
-    origin: element
-  };
-  var tag = element.get('tag');
-  if (tag != 'div') options.source = tag;
-  if (element.id) options.id = element.id;
-  for (var i = 0, attribute; attribute = element.attributes[i++];) {
-    options.attributes[attribute.name] = ((attribute.value != attribute.name) && attribute.value) || true;
-  }
-  if (options.attributes && options.attributes.inherit) {
-    options.inherit = options.attributes.inherit;
-    delete options.attributes.inherit;
-  }
-  var klass = options.attributes['class'];
-  if (klass) {
-    klass = klass.replace(/^lsd (?:tag-)?([a-zA-Z0-9-_]+)\s?/, function(m, tag) {
-      options.source = tag;
-      return '';
-    })
-    options.classes = klass.split(' ').filter(function(name) {
-      var match = /^(is|id)-(.*?)$/.exec(name)
-      if (match) {
-        switch (match[1]) {
-          case "is":
-            if (!options.pseudos) options.pseudos = [];
-            options.pseudos.push(match[2]);
-            break;
-          case "id":
-            options.id = match[2];
-        }
-      }
-      return !match;
-    })
-    delete options.attributes['class'];
-  }
-  return options;
-}
-
-LSD.Layout.replace = function(element) {
-  var layout = new LSD.Layout(element, element.getChildren());
-  if (element.parentNode) {
-    layout.widget.inject(element.parentNode);
-    if (layout.widget.element.previousSibling != element) $(layout.widget).inject(element, 'after');
-    element.dispose();
-  }
-  return layout.widget;
-}
-
-LSD.Layout.parse = function(selector) {
-  var parsed = Slick.parse(selector).expressions[0][0]
-  var options = {}
-  if (parsed.tag != '*') options.source = parsed.tag;
-  if (parsed.id) options.id = parsed.id
-  if (parsed.attributes) parsed.attributes.each(function(attribute) {
-    if (!options.attributes) options.attributes = {};
-    options.attributes[attribute.key] = attribute.value || true;
-  });
-  if (parsed.classes) options.classes = parsed.classes.map(Macro.map('value'));
-  if (parsed.pseudos) options.pseudos = parsed.pseudos.map(Macro.map('key'));
-  switch (parsed.combinator) {
-    case '^':
-      options.inherit = 'full';
-      break;
-    case '>':
-      options.inherit = 'partial';
-  }
-  return options;
-}
-
-LSD.Layout.build = function(item, parent, element) {
-  var options;
-  if (Element.type(item)) {
-    if (LSD.Layout.isConvertable(item)) {
-      options = LSD.Layout.convert(item);
-    } else {
-      var result = item.inject(parent);
-      if (result && parent.getContainer) $(item).inject(parent.getContainer());
-      return result;
-    }
-  } else options = LSD.Layout.parse(item);
-  var mixins = [];
-  var tag = options.source || options.tag || 'container'
-  if (options.attributes) {
-    if ('type' in options.attributes) tag += "-" + options.attributes.type;
-    if ('kind' in options.attributes) tag += "-" + options.attributes.kind;
-    for (var name in options.attributes) {
-      var value = options.attributes[name];
-      var bits = name.split('-');
-      for (var i = bits.length - 1; i > -1; i--) {
-        var obj = {};
-        obj[bits[i]] = value;
-        if (i == 0) $mixin(options, obj);
-        else value = obj;
-      }
-      var trait = LSD.Layout.findTraitByAttributeName(name);
-      if (trait) mixins.push(trait);
-    }
-  }
-  if (options.inherit) {
-    var source = parent.options.source;
-    if (!source) {
-      var bits = [parent.options.tag, parent.getAttribute('type')]
-      if (options.inherit == 'full') bits.push(parent.getAttribute('kind'))
-      source = bits.filter(function(bit) { return bit }).join('-');
-    }
-    tag = source + '-' + tag
-  }
-  
-  mixins.unshift(tag);
-  
-  options.source = tag;
-  var widget = LSD.Widget.create(mixins, options);
-  widget.build();
-  
-  if (element !== false && (element || parent)) widget.inject(element || parent, 'bottom', true)
-  
-  return widget;
-};
-/*
----
- 
-script: Expression.js
- 
-description: Adds layout capabilities to widget (parse and render widget trees from objects)
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD
-- LSD.Layout
-
-provides: [LSD.Module.Layout]
- 
-...
-*/
-
-LSD.Module.Layout = new Class({
-  options: {
-    layout: {}
-  },
-  
-  initialize: function(options) {
-    if (options && LSD.Layout.isConvertable(options)) options = LSD.Layout.convert(options);
-    this.parent.apply(this, arguments);
-    var origin = options && options.origin;
-    var layout = Array.from(this.options.layout.children);
-    if (origin && !options.source) {
-      var children = origin.getChildren();
-      if (!children.length) {
-        var text = origin.get('html').trim();
-        if (text.length) this.setContent(text)
-      } else layout.push.apply(layout, Array.from(children));
-    }
-    if (layout.length) this.setLayout(layout);
-    if (this.options.layout.self) this.applySelector(this.options.layout.self);
-  },
-  
-  applySelector: function(selector) {
-    var parsed = Slick.parse(selector).expressions[0][0];
-    if (parsed.classes) {
-      var klasses = parsed.classes.map(function(klass) { return klass.value })
-      this.classes.push.apply(this.classes, klasses);
-      klasses.each(this.addClass.bind(this));
-    }
-    var options = {};
-    if (parsed.id) options.id = parsed.id;
-    if (parsed.attributes) {
-      if (parsed.attributes) parsed.attributes.each(function(attribute) {
-        options[attribute.key] = attribute.value || true;
-      });
-    }  
-    if (parsed.attributes || parsed.id) Object.append(this.options, options);
-    this.fireEvent('selector', [parsed, selector]);
-  },
-  
-  setLayout: function(layout) {
-    this.layout = layout;
-    this.tree = this.applyLayout(layout);
-    this.fireEvent('layout', [this.tree, this.layout])
-  },
-  
-  applyLayout: function(layout) {
-    return new LSD.Layout(this, layout)
-  },
-  
-  buildLayout: function(selector, layout, parent) {
-    return LSD.Layout.build(selector, layout, (parent === null) ? null : (parent || this))
-  },
-  
-  buildItem: function() {
-    if (!this.options.layout.item) return this.parent.apply(this, arguments);
-    return this.buildLayout(this.options.layout.item, null, this)
-  }
-});
-/*
----
- 
-script: Dimensions.js
- 
-description: Get and set dimensions of widget
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD
-
-provides: 
-  - LSD.Trait.Dimensions
- 
-...
-*/
-
-
-LSD.Trait.Dimensions = new Class({
-  initialize: function() {
-    this.size = {};
-    this.parent.apply(this, arguments);
-  },
-  
-  render: function() {
-    var old = $unlink(this.size);
-    if (!this.parent.apply(this, arguments)) return false;
-    this.setSize({height: this.getStyle('height'), width: this.getStyle('width')}, old);
-    return true;
-  },
-  
-  setSize: function(size) {
-    if (!(this.setHeight(size.height, true) + this.setWidth(size.width, true))) return false;
-    var element = this.element, padding = this.offset.padding;
-    if (size.height && this.style.expressed.height) element.style.height = size.height - padding.top - padding.bottom + 'px'
-    if (size.width && this.style.expressed.width) element.style.width = size.width - padding.left - padding.right + 'px';
-  },
-  
-  setHeight: function(value, light) {
-    value = Math.min(this.style.current.maxHeight || 1500, Math.max(this.style.current.minHeight || 0, value));
-    if (this.size.height == value) return false;
-    this.size.height = value;
-    if (!light) this.setStyle('height', value);
-    return value;
-  },
-    
-  setWidth: function(value, light) {
-    value = Math.min(this.style.current.maxWidth || 3500, Math.max(this.style.current.minWidth || 0, value));
-    if (this.size.width == value) return false;
-    this.size.width = value;
-    if (!light) this.setStyle('width', value);
-    return value;
-  },
-  
-  getClientHeight: function() {
-    var style = this.style.current, height = style.height, offset = this.offset, padding = offset.padding;
-    if (!height || (height == "auto")) {
-      height = this.element.clientHeight;
-      var inner = offset.inner || padding;
-      if (height > 0 && inner) height -= inner.top + inner.bottom;
-    }
-    if (height != 'auto' && padding) height += padding.top + padding.bottom;
-    return height;
-  },
-  
-  getClientWidth: function() {
-    var style = this.style.current, offset = this.offset, padding = offset.padding, width = style.width;
-    if (typeof width != 'number') { //auto, inherit, undefined
-      var inside = offset.inside, outside = offset.outside, shape = offset.shape;
-      width = this.element.clientWidth;
-      if (width > 0) {
-        if (shape) width -= shape.left + shape.right;
-        if (inside) width -= inside.left + inside.right;
-        if (outside) width -= outside.left + outside.right;
-      }
-    }
-    if (style.display != 'block' && padding && inside) width += padding.left + padding.right;
-    return width;
-  },
-  
-  getOffsetHeight: function(height) {
-    var style = this.style.current, inside = this.offset.inside, bottom = style.borderBottomWidth, top = style.borderTopWidth;
-    if (!height) height =  this.getClientHeight();
-    if (inside)  height += inside.top + inside.bottom;
-    if (top)     height += top;
-    if (bottom)  height += bottom;
-    return height;
-  },
-  
-  getOffsetWidth: function(width) {
-    var style = this.style.current, inside = this.offset.inside, left = style.borderLeftWidth, right = style.borderRightWidth;
-    if (!width) width =  this.getClientWidth();
-    if (inside) width += inside.left + inside.right;
-    if (left)   width += left;
-    if (right)  width += right
-    return width;
-  },
-  
-  getLayoutHeight: function(height) {
-    height = this.getOffsetHeight(height);
-    if (this.offset.margin)  height += this.offset.margin.top + this.offset.margin.bottom;
-    if (this.offset.outside) height += this.offset.outside.top + this.offset.outside.bottom;
-    return height;
-  },
-
-  getLayoutWidth: function(width) {
-    var width = this.getOffsetWidth(width), offset = this.offset, margin = offset.margin, outside = offset.outside
-    if (margin)  width += margin.right + margin.left;
-    if (outside) width += outside.right + outside.left;
-    return width;
-  }
-  
-});
-/*
----
- 
-script: Action.js
- 
-description: Action is a class that adds some feature to widget by mixing up in runtime
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires: 
-  - LSD
- 
-provides: 
-  - LSD.Action
- 
-...
-*/
-
-
-LSD.Action = function(options, name) {
-  var target, state;
-  var self = {
-    enable: function() {
-      if (self.enabled) return false;
-      if (state) target[state.enabler]();
-      options.enable.apply(target, arguments);
-      if (options.events) target.addEvents(target.events[options.events]);
-      if (self.enabled == null) target.addEvents(events);
-      self.enabled = true;
-      return true;
-    },
-
-    disable: function() {
-      if (!self.enabled) return false;
-      if (state) target[state.disabler]();
-      options.disable.apply(target, arguments);
-      if (options.events) target.removeEvents(target.events[options.events]);
-      if (self.enabled != null) target.removeEvents(events);
-      self.enabled = false;
-      return true;
-    },
-
-    use: function(widget, state) {
-      var widgets = Array.from(arguments);
-      var state = widgets.pop();
-      self[state ? 'enable' : 'disable'].apply(self, widgets);
-    },
-
-    watch: function(widget, state) {
-      if (!self[state ? 'enable' : 'disable'](widget)) //try enable the action
-        options[state ? 'enable' : 'disable'].call(target, widget); //just fire the callback 
-    },
-    
-    inject: function() {
-      self.enable();
-      if (state) self[state.disabler]();
-    },
-
-    attach: function(widget) {
-      target = widget;
-      state = widget.options.states && widget.options.states[name];
-      if (state) {
-        events[state.enabler] = options.enable.bind(target);
-        events[state.disabler] = options.disabler.bind(target);
-      }
-      target.addEvents(events);
-      if (options.uses) {
-        target.use(options.uses, self.use);
-      } else if (options.watches) {
-        target.watch(options.watches, self.watch);
-      } else if (!state || target[name]) target.onDOMInject(self.inject);
-    },
-
-    detach: function(widget) {
-      target.removeEvents(events);
-      if (options.watches) target.unwatch(options.watches, self.watch);
-      if (self.enabled) self.disable();
-      if (state) {
-        self[state.disabler]();
-        delete events[state.enabler], events[state.disabler];
-      }
-      target = state = null;
-    }
-  }
-  var events = {
-    enable:  self.enable,
-    disable: self.disable,
-    detach:  self.disable
-  };  
-  return self ;
-}
-/*
----
- 
-script: Expression.js
- 
-description: Compiled functions for user-defined style logic
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD
- 
-provides: [LSD.Expression]
- 
-...
-*/
-
-LSD.Expression = new Class({
-  
-  initialize: function(property, expression) {
-    this.property = property;
-    this.expression = expression;
-    this.environment = [];
-    this.environments = [];
-  },
-  
-  convert: Macro.getter('converted', function() {
-    return this.expression.replace(/([a-z]+)(?:\)|$|\s)/g, function(whole, name) {
-      this.environment.push(name);
-      var self = "environment." + name;
-      switch (this.property) {
-        case "height": case "width":
-          // parent.getOffsetHeight(parent.style.expressed.height && parent.style.calculateProperty(height, parent.style.expressed.height))
-          var method = 'get' + (name == 'parent' ? 'Offset' : 'Layout') + this.property.capitalize()
-          return self + "." + method + "(" + 
-            self + ".style.expressed." + this.property + " && " + 
-            self + ".calculateStyle('" + this.property + "', " + self + ".style.expressed." + this.property + ")" +
-          ")";
-        default:
-          return self + ".getStyle('" + this.property + "')";
-      }      
-    }.bind(this));
-  }),
-  
-  compile: Macro.getter('compiled', function() {
-    return new Function("environment", "/*console.log('"+this.converted+"'," +this.converted+");*/return " + this.converted);
-  }),
-  
-  call: function(widget) {
-    this.convert()
-    var key = $uid($(widget));
-    var environment = this.environments[key];
-    if (!environment) {
-      environment = this.environments[key] = {};
-      for (var i = 0, j = this.environment.length, item; item = this.environment[i++];) environment[item] = this.getByExpression(widget, item);
-    }
-    return this.compile()(environment);
-  },
-  
-  getByExpression: function(widget, name) {
-    switch(name) {
-      case "parent":
-        return widget.parentNode;
-      case "next":
-        var children = widget.parentNode.childNodes;
-        return children[children.indexOf(this) + 1];
-      case "previous":
-        var children = widget.parentNode.childNodes;
-        return children[children.indexOf(this) - 1];
-      default: 
-        while (widget && !widget[name]) widget = widget.parentNode;
-        if (widget && widget[name]) return widget[name];
-        else console.error('Widget named ', name, ' was not found', [this, widget, this.parentNode])
-    }
-  }
-});
-LSD.Expression.compiled = {};
-LSD.Expression.get = function(property, expression) {
-  var key = property + expression;
-  var compiled = this.compiled[key];
-  if (compiled) return compiled
-  this.compiled[key] = new LSD.Expression(property, expression)
-  return this.compiled[key];
-};
-
-/*
----
- 
-script: Node.js
- 
-description: Super lightweight base class for abstract elements (documents, commands, meta)
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD
-  
-provides:
-  - LSD.Node
-  
-...
-*/
-
-LSD.Node = new Class({
-  
-  Implements: [Events, Options],  
-  
-  options: {},
-
-  initialize: function(element, options) {
-    this.element = document.id(element);
-    this.setOptions(options);
-    var attributes = this.options.element;
-    if (attributes && element) this.element.set(attributes);
-  },
-  
-  toElement: function() {
-    return this.element;
-  }
-})
-/*
----
- 
-script: Item.js
- 
-description: Easy way to have a list of children (to select from) or something like that.
- 
-license: Public domain (http://unlicense.org).
- 
-requires:
-  - LSD
-  - Ext/Class.Stateful
-
-provides: 
-  - LSD.Trait.Item
-  - LSD.Trait.Item.State
-  - LSD.Trait.Item.Stateful
- 
-...
-*/
-
-LSD.Trait.Item = new Class({
-  options: {
-    events: {
-      self: {
-        setParent: 'setList'
-      }
-    }
-  },
-  
-  select: Macro.onion(function() {
-    this.listWidget.selectItem(this)
-  }),
-  
-  attach: Macro.onion(function() {
-    this.value = this.element.get('item') || $uid(this.element);
-  }),
-  
-  getValue: Macro.defaults(function() {
-    return this.value;
-  }),
-  
-  setList: function(widget) {
-    if (!widget.addItem) 
-      if (Element.type(widget))
-        for (var parent = widget, widget = null; parent && !widget; widget = parent.retrieve('widget'), parent = parent.parentNode);
-      else
-        while (!widget.addItem) widget = widget.parentNode;
-    if (widget.addItem) return widget.addItem(this)
-  }
-})
-
-LSD.Trait.Item.State = Class.Stateful({
-  selected: ['select', 'unselect']
-});
-LSD.Trait.Item.Stateful = [
-  LSD.Trait.Item.State,
-  LSD.Trait.Item
-]
-/*
----
- 
-script: Value.js
- 
-description: Make your widget have a real form value.
- 
-license: Public domain (http://unlicense.org).
- 
-requires:
-  - LSD
- 
-provides: 
-  - LSD.Trait.Value
- 
-...
-*/
-
-LSD.Trait.Value = new Class({
-
-  setValue: function(item) {
-    var value = this.value;
-    this.value = this.processValue(item);
-    if (value != this.value) {
-      var result = this.applyValue(this.value);
-      this.onChange(this.value);
-      return result;
-    }
-  },
-  
-  applyValue: function(item) {
-    //if (this.element.getProperty('itemprop')) this.element.set('itemvalue', item);
-    return this.setContent(item)
-  },
-
-  getValue: function() {
-    return this.formatValue(this.value);
-  },
-
-  formatValue: $arguments(0),
-  processValue: $arguments(0),
-  
-  onChange: function() {
-    this.fireEvent('change', arguments)
-    return true;
-  }
-});
-/*
----
- 
-script: Shape.js
- 
-description: Draw a widget with any SVG path you want
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - ART.Shape
-  - LSD
-  
-provides: 
-  - LSD.Trait.Shape
- 
-...
-*/
-
-LSD.Trait.Shape = new Class({
-  options: {
-    shape: 'rectangle'
-  },
-  
-  getShape: Macro.getter('shape', function(name) {
-    return this.setShape(name);
-  }),
-  
-  setShape: function(name) {    
-    if (!name) name = this.options.shape;
-    var shape = new ART.Shape[name.camelCase().capitalize()];
-    shape.name = name;
-    shape.widget = this;
-    this.shape = shape;
-    return shape;
-  }
-  
-});
-/*
----
- 
-script: Base.js
- 
-description: Lightweight base widget class to inherit from.
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD
-  - Core/Options
-  - Core/Events
- 
-provides:
-  - LSD.Base
-...
-*/
-
-LSD.Base = new Class({
-  
-  Implements: [Options, Events],
-  
-  initialize: function() {
-  },
-  
-  toElement: function(){
-    this.build();
-    return this.element;
-  },
-  
-  attach: function() {
-    this.toElement().store('widget', this);
-    return true;
-  },
-  
-  detach: function() {
-    this.toElement().eliminate('widget', this);
-    return true;
-  },
-  
-  setState: function(state) {
-    if (LSD.States.Attributes[state]) {
-      this.setAttribute(state, true)
-    } else {
-      this.addClass('is-' + state);
-    }
-    this.addPseudo(state);
-  },
-  
-  unsetState: function(state) {
-    if (LSD.States.Attributes[state]) {
-      this.removeAttribute(state)
-    } else {
-      this.removeClass('is-' + state);
-    }
-    this.removePseudo(state);
-  },
-
-  dispose: function() {
-    var parent = this.parentNode;
-    this.element.dispose();
-    delete this.parentNode;
-    this.fireEvent('dispose', parent);
-  },
-  
-  setParent: function(widget) {
-    this.parentNode = widget;
-    this.document = widget.document;
-  },
-  
-  setDocument: function(widget) {
-    var element = document.id(widget)
-    var isDocument = (widget.nodeType == 9)
-    if (isDocument || element.offsetParent) {
-      var document = isDocument ? widget : element.ownerDocument.body.retrieve('widget');
-      this.document = document;
-      this.fireEvent('dominject', element);
-      this.dominjected = true;
-    }
-  },
-  
-  inject: function(widget) {
-    if (this.parentNode) this.dispose();
-    this.toElement().inject(widget);
-    this.setDocument(widget);
-    this.setParent(widget);
-    this.fireEvent('inject', arguments);
-  },
-  
-  destroy: function() {
-    if (this.parentNode) this.dispose();
-    this.detach();
-    if (this.element) this.element.destroy();
-  },
-
-  onDOMInject: function(callback) {
-    if (this.document) callback.call(this, document.id(this.document)) 
-    else this.addEvent('dominject', callback.bind(this))
-  },
-  
-  onChange: function() {
-    this.fireEvent('change', arguments)
-    return true;
-  },
-  
-  build: Macro.onion(function() {
-    var attrs = $unlink(this.options.element);
-    var tag = attrs.tag;
-    delete attrs.tag;
-    var classes = ['lsd'];
-    if (this.options.tag != tag) classes.push(this.options.tag);
-    classes.push(this.classes.join(' '));
-    if (this.options.id) classes.push('id-' + this.options.id);
-    this.element = new Element(tag, attrs).addClass(classes.join(' '));
-    
-    if (this.attributes) 
-      for (var name in this.attributes) 
-        if (name != 'width' && name != 'height') this.element.setAttribute(name, this.attributes[name]);
-        
-    if (this.style) for (var property in this.style.element) this.element.setStyle(property, this.style.element[property]);
-    this.redraws = 0;
-    this.attach()
-  }),
-  
-  onStateChange: function(state, value, args) {
-    var args = Array.from(arguments);
-    args.splice(1, 2); //state + args
-    this[value ? 'setState' : 'unsetState'].apply(this, args);
-    if (this.redraws > 0) this.refresh(true);
-    return true;
-  },
-  
-  getSelector: function(){
-    var parent = this.parentNode;
-    var selector = (parent && parent.getSelector) ? parent.getSelector() + ' ' : '';
-    selector += this.options.tag;
-    if (this.options.id) selector += '#' + this.options.id;
-    for (var klass in this.classes)  if (this.classes.hasOwnProperty(klass))  selector += '.' + klass;
-    for (var pseudo in this.pseudos) if (this.pseudos.hasOwnProperty(pseudo)) selector += ':' + pseudo;
-    if (this.attributes) for (var name in this.attributes) selector += '[' + name + '=' + this.attributes[name] + ']';
-    return selector;
-  },
-  
-  render: Macro.onion(function(){
-    if (!this.built) this.build();
-    delete this.halted;
-    this.redraws++;
-    this.repaint.apply(this, arguments);
-  }),
-  
-  repaint: function(style) {
-    this.renderStyles(style);
-    this.childNodes.each(function(child){
-      child.render();
-    });
-  },
-
-  /*
-    Halt marks widget as failed to render.
-    
-    Possible use cases:
-    
-    - Dimensions depend on child widgets that are not
-      rendered yet
-    - Dont let the widget render when it is not in DOM
-  */ 
-  halt: function() {
-    if (this.halted) return false;
-    this.halted = true;
-    return true;
-  },
-  
-  /*
-    Update marks widget as willing to render. That
-    can be followed by a call to *render* to trigger
-    redrawing mechanism. Otherwise, the widget stay 
-    marked and can be rendered together with ascendant 
-    widget.
-  */
-  
-  update: function(recursive) {
-    if (recursive) {
-      this.walk(function(widget) {
-        widget.update();
-      });
-    }
-    return this.parent.apply(this, arguments);
-  },
-  
-  /*
-    Refresh updates and renders widget (or a widget tree 
-    if optional argument is true). It is a reliable way
-    to have all elements redrawn, but a costly too.
-    
-    Should be avoided when possible to let internals 
-    handle the rendering and avoid some unnecessary 
-    calculations.
-  */
-
-  refresh: function(recursive) {
-    this.update(recursive);
-    return this.render();
-  },
-  
-  $family: function() {
-    return "object"
-  },
-  
-  /*
-    Wrapper is where content nodes get appended. 
-    Defaults to this.element, but can be redefined
-    in other Modules or Traits (as seen in Container
-    module)
-  */
-  
-  getWrapper: function() {
-    return this.toElement();
-  }
-  
-});
-/*
----
- 
-script: DOM.js
- 
-description: Provides DOM-compliant interface to play around with other widgets
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
-
-requires:
-  - LSD
-
-provides:
-  - LSD.Module.DOM
-
-...
-*/
-
-
-(function() {
-  
-var inserters = {
-
-  before: function(context, element){
-    var parent = element.parentNode;
-    if (parent) return parent.insertBefore(context, element);
-  },
-
-  after: function(context, element){
-    var parent = element.parentNode;
-    if (parent) return parent.insertBefore(context, element.nextSibling);
-  },
-
-  bottom: function(context, element){
-    return element.appendChild(context);
-  },
-
-  top: function(context, element){
-    return element.insertBefore(context, element.firstChild);
-  }
-
-};
-
-
-LSD.Module.DOM = new Class({
-  initialize: function() {
-    this.childNodes = [];
-    this.nodeType = 1;
-    this.parentNode = this.nextSibling = this.previousSibling = null;
-    this.parent.apply(this, arguments);
-    this.nodeName = this.options.tag//.toUpperCase(); //Make slick happy
-    this.tagName = this.options.tag;
-  },
-  
-  //getElementsByTagName: function(tagName) {
-  //  var found = [];
-  //  var all = tagName == "*";
-  //  for (var i = 0, child; child = this.childNodes[i]; i++) {
-  //    if (all || tagName == child.tagName) found.push(child);
-  //    found.push.apply(found, child.getElementsByTagName(tagName))
-  //  }
-  //  return found;
-  //},
-  
-  getElements: function(selector) {
-    return Slick.search(this, selector)
-  },
-  
-  getElement: function(selector) {
-    return Slick.find(this, selector)
-  },
-  
-  contains: function(element) {
-    while (element = element.parentNode) if (element == this) return true;
-    return false;
-  },
-  
-  getChildren: function() {
-    return this.childNodes;
-  },
-
-  getRoot: function() {
-    var widget = this;
-    while (widget.parentNode) widget = widget.parentNode;
-    return widget;
-  },
-  
-  getHierarchy: function() {
-    var widgets = [this];
-    var widget = this;
-    while (widget.parentNode) {
-      widget = widget.parentNode;
-      widgets.unshift(widget)
-    }
-    return widgets;
-  },
-  
-  setParent: function(widget){
-    this.parent.apply(this, arguments);
-    this.fireEvent('setParent', [widget, widget.document])
-    var siblings = widget.childNodes;
-    var length = siblings.length;
-    if (length == 1) widget.firstChild = this;
-    widget.lastChild = this;
-    var previous = siblings[length - 2];
-    if (previous) {
-      previous.nextSibling = this;
-      this.previousSibling = previous;
-    }
-    widget.dispatchEvent('nodeInserted', this)
-  },
-  
-  /*
-    
-    %header
-      %section#top
-      %button
-      %button
-      %section Title
-    
-    var header = LSD.document.getElement('header');
-    header.top     //=> section#top
-    header.buttons //=> [button, button]
-    header.section //=> section 
-    
-    When widget is appended as child the semantic to that widget
-    is set. The name of the link is determined by these rules:
-    
-    - If widget has id, use id
-    - Use tag name
-      - If the link is not taken, write tag name link
-      - If the link is taken, append widget to a pluralized array link
-        - When pluralized link is added, original link is not removed
-  */
-  
-  appendChild: function(widget, adoption) {
-    if (!adoption && this.canAppendChild && !this.canAppendChild(widget)) return false;
-    var options = widget.options, id = options.id, tag = options.tag, tags = tag + 's', kind = widget.attributes['kind']
-    widget.identifier = id || tag;
-    if (id) {
-      if (this[id]) this[id].dispose();
-      this[id] = widget;
-    } else if (!this[tag]) this[tag] = widget;
-    else if (!this[tags]) this[tags] = [widget];
-    else if (typeof this[tags] == 'array') this[tags].push(widget);
-    else if (!this['_' + tags]) this['_' + tags] = [widget];
-    else this['_' + tags].push(widget);
-        
-    this.childNodes.push(widget);
-    if (this.nodeType != 9) widget.setParent(this);
-    (adoption || function() {
-      this.toElement().appendChild(document.id(widget));
-    }).apply(this, arguments);
-    
-    this.fireEvent('adopt', [widget, id])
-    widget.walk(function(node) {
-      this.dispatchEvent('nodeInserted', node);
-    }.bind(this));
-    return true;
-  },
-  
-  insertBefore: function(insertion, element) {
-    return this.appendChild(insertion, function() {
-      document.id(insertion).inject(document.id(element), 'before')
-    });
-  },
-  
-  grab: function(el, where){
-    inserters[where || 'bottom'](document.id(el, true), this);
-    return this;
-  },
-  
-  setDocument: function(widget) {
-    var element = document.id(widget);
-    var doc;
-    var isDocument = (widget.nodeType == 9);
-    var isBody = element.get('tag') == 'body';
-    if (isDocument || isBody || element.offsetParent) {
-      if (!isDocument) {
-        var body = (isBody ? element : element.ownerDocument.body);
-        doc = body.retrieve('widget') || new LSD.Document(body);
-      } else doc = widget;
-      var halted = [];
-      //this.render();
-      this.walk(function(child) {
-        //if (child.halted) halted.push(child);
-        child.ownerDocument = child.document = doc;
-        child.fireEvent('dominject', element);
-        child.dominjected = true;
-      });
-      //halted.each(function(child) {
-      //  child.refresh();
-      //})
-    }
-  },
-  
-  inject: function(widget, where, quiet) {
-    var isElement = 'localName' in widget;
-    if (isElement) {
-      var instance = widget.retrieve('widget');
-      if (instance) {
-        widget = instance;
-        isElement = false;
-      }
-    }
-    var self = isElement ? this.toElement() : this;
-    if (!inserters[where || 'bottom'](self, widget) && !quiet) return false;
-    this.fireEvent('inject', arguments);
-    if (quiet !== true) this.setDocument(widget);
-    return true;
-  },
-  
-  dispose: function() {
-    var parent = this.parentNode;
-    if (parent) {
-      parent.childNodes.erase(this);
-      if (parent.firstChild == this) delete parent.firstChild;
-      if (parent.lastChild == this) delete parent.lastChild;
-    }
-    return this.parent.apply(this, arguments);
-  },
-  
-  dispatchEvent: function(type, args){
-    args = Array.from(args);
-    var node = this;
-    type = type.replace(/^on([A-Z])/, function(match, letter) {
-      return letter.toLowerCase();
-    });
-    while (node) {
-      var events = node.$events;
-      if (events && events[type]) events[type].each(function(fn){
-        return fn.apply(node, args);
-      }, node);
-      node = node.parentNode;
-    }
-    return this;
-  },
-  
-  walk: function(callback) {
-    callback(this);
-    this.childNodes.each(function(child) {
-      child.walk(callback)
-    });
-  },
-  
-  collect: function(callback) {
-    var result = [];
-    this.walk(function(child) {
-      if (!callback || callback(child)) result.push(child);
-    });
-    return result;
-  },
-  
-  compareDocumentPosition: function(node) {
-    var context =  (Element.type(node)) ? this.toElement() : this;
-		if (node) do {
-			if (node === context) return true;
-		} while ((node = node.parentNode));
-		return false;
-	}
-});
-
-})();
-/*
----
- 
-script: Document.js
- 
-description: Provides a virtual root to all the widgets. DOM-Compatible for Slick traversals.
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires: 
-  - LSD.Node
-  - LSD.Module.DOM
- 
-provides:
-  - LSD.Document
- 
-...
-*/
-
-
-/*
-  Document is a big disguise proxy class that contains the tree
-  of widgets and a link to document element.
-  
-  It is DOM-compatible (to some degree), so tools that crawl DOM
-  tree (we use Slick) can work with the widget tree like it usually
-  does with the real DOM so we get selector engine for free.
-  
-  The class contains a few hacks that allows Slick to initialize.
-*/
-
-LSD.Document = new Class({
-
-  Includes: [
-    LSD.Node,
-    LSD.Module.DOM
-  ],
-  
-  States: {
-    built: ['build', 'destroy', false]
-  },
-  
-  options: {
-    tag: '#document',
-    selector: ':not(.lsd)', //convert unconvered elements
-    root: false // topmost widget's parentNode is the document if set to true
-  },
-  
-  initialize: function(options) {
-    if (!LSD.document.body) LSD.document = Object.append(this, LSD.document);
-    this.parent.apply(this, Element.type(options) ? [options] : [options.origin, options]);
-    this.body = this.element.store('widget', this);
-    this.document = this.documentElement = this;
-    
-    this.xml = true;
-    this.navigator = {};
-    this.attributes = {};
-    
-    this.childNodes = [];
-    this.nodeType = 9;
-    this.events = this.options.events;
-  },
-  
-  build: Macro.onion(function() {
-    this.element.getChildren(this.options.selector).each(LSD.Layout.replace);
-    if (this.stylesheets) this.stylesheets.each(this.addStylesheet.bind(this))
-  }),
-
-	attach: $lambda(true),
-	detach: $lambda(true),
-  
-  /*
-    Slick.Finder tries to probe document it was given to determine
-    capabilities of the engine and possible quirks that will alter
-    the desired results. 
-    
-    We try to emulate XML-tree (simple built-in querying capabilities),
-    so all of the traversing work happens inside of Slick except 
-    getElementsByTagName which is provided by LSD.Module.DOM.
-    
-    So the problem is that Slick creates element and tries to 
-    append it to the document which is unacceptable (because every node
-    in LSD.Document means widget instance, and we dont want that for 
-    dummy elements). The solution is to ignore those elements.
-  */
-  createElement: function(tag) {
-    return {
-      innerText: '',
-      mock: true
-    }
-  },
-  
-  appendChild: function(widget) {
-    if (widget.mock) return false;
-    if (this.options.root) widget.parentNode = this; 
-    return this.parent.apply(this, arguments);
-  },
-  
-  removeChild: function(widget) {
-    if (widget.mock) return false;
-    return this.parent.apply(this, arguments);
-  },
-  
-  getAttribute: function(name) {
-    return this.attributes[name]
-  },
-  
-  setAttribute: function(name, value) {
-    return this.attributes[name] = value;
-  },
-  
-  id: function(item) {
-    if (item.render) return item;
-  },
-  
-  addStylesheet: function(sheet) {
-    if (!this.stylesheets) this.stylesheets = [];
-    this.stylesheets.include(sheet);
-    sheet.attach(this);
-  },
-  
-  removeStylesheet: function(sheet) {
-    if (!this.stylesheets) return;
-    this.stylesheets.erase(sheet);
-    sheet.detach(this);
-  }
-});
-
-// Properties set here will be picked up by first document
-LSD.document = {}; 
-
-// Queue up stylesheets before document is loaded
-LSD.Document.addStylesheet = function(sheet) {
-  var instance = LSD.document, stylesheets = instance.stylesheets
-  if (instance.addStylesheet) return instance.addStylesheet(sheet)
-  if (!stylesheets) stylesheets = instance.stylesheets = [];
-  instance.stylesheets.push(sheet);
-}
-/*
----
- 
-script: Checkbox.js
- 
-description: Abstract command
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD
- 
-provides: 
-  - LSD.Command
-  - LSD.Command.Command
- 
-...
-*/
-
-LSD.Command = new Class({
-  Stateful: {
-    disabled: ['disable', 'enable']
-  },
-  
-  options: {
-    id: null
-  },
-  
-  Implements: [Options, Events],
-  
-  initialize: function(document, options) {
-    this.setOptions(options);
-    if (document) {
-      this.document = document;
-      if (!this.document.commands) this.document.commands = {};
-      this.document.commands[this.options.id] = this;
-    }
-  },
-  
-  click: function() {
-    this.fireEvent('click', arguments);
-  },
-  
-  attach: function(widget) {
-    var states = this.options.states;
-    var events = widget.events._command = {}, self = this;
-    Object.each(states, function(state, name) {
-      events[state.enabler] = function() {
-        self[state.enabler].apply(widget, arguments)
-      }
-      events[state.disabler] = function() {
-        self[state.disabler].apply(widget, arguments)
-      }
-    });
-    if (widget.options.events.command) this.addEvents(widget.options.events.command);
-    this.addEvents(events);
-  },
-  
-  detach: function(widget) {
-    if (widget.options.events.command) this.removeEvents(widget.options.events.command);
-    this.removeEvents(events);
-  }
-})
-
-LSD.Command.Command = LSD.Command;
-/*
----
- 
-script: Radio.js
- 
-description: A command that is linked with others by name (one of many)
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Command
- 
-provides: 
-  - LSD.Command.Radio
- 
-...
-*/
-
-/*
-  Radio groupping is a way to links commands together to allow
-  only one in the group be active at the moment of time.
-  
-  Activation (*check*ing) of the commands deactivates all 
-  other commands in a radiogroup.
-  
-  Examples: 
-    - Tabs on top of a content window
-    - List of currently open documents in a context menu that
-      shows which of them is the one you edit now and an 
-      ability to switch between documents
-*/
-
-LSD.Command.Radio = new Class({
-  Extends: LSD.Command,
-  
-  Stateful: {
-    checked: ['check', 'uncheck']
-  },
-
-  options: {
-    radiogroup: false
-  },
-  
-  initialize: function() {
-    this.parent.apply(this, arguments);
-    var name = this.options.radiogroup || this.options.name;
-    if (name) {
-      var groups = this.document.radiogroups;
-      if (!groups) groups = this.document.radiogroups = {};
-      var group = groups[name];
-      if (!group) group = groups[name] = [];
-      group.push(this);
-      this.group = group;
-    }
-    this.addEvent('check', function() {
-      group.each(function(command) {
-        if (command != this) command.uncheck()
-      }, this);
-    }.bind(this))
-  },
-  
-  click: function() {
-    this.parent.apply(this, arguments);
-    this.check();
-  }
-});
-/*
----
- 
-script: Checkbox.js
- 
-description: Two-state command (can be on and off)
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Command
- 
-provides: 
-  - LSD.Command.Checkbox
- 
-...
-*/
-
-/*
-  Checkbox commands are useful when you need to track and toggle
-  state of some linked object. 
-  
-  Provide your custom logic hooking on *check* and *uncheck*
-  state transitions. Use *checked* property to get the current state.
-  
-  Examples:
-    - Button that toggles visibility of a sidebar
-    - Context menu item that shows or hides line numbers in editor
-*/
-
-LSD.Command.Checkbox = new Class({
-  Extends: LSD.Command,
-  
-  Stateful: {
-    checked: ['check', 'uncheck', 'toggle']
-  },
-
-  click: function() {
-    this.parent.apply(this, arguments);
-    this.toggle();
-  }
 })
 /*
 ---
@@ -5560,54 +2852,6 @@ ART.Element.implement({
 });
 
 })();
-/*
----
- 
-script: Glyphs.js
- 
-description: Glyph library
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- ART/ART
- 
-provides: [ART.Glyphs]
- 
-...
-*/
-
-ART.Glyphs = {
-  
-  wrench: 'M11.414,11.415c-0.781,0.78-2.048,0.78-2.829,0L3.17,5.999C3.112,6.002,3.058,6.016,3,6.016c-1.657,0-3-1.347-3-3.008c0-0.464,0.114-0.899,0.302-1.292l1.987,1.988c0.391,0.39,1.023,0.39,1.414,0c0.391-0.391,0.391-1.023,0-1.414L1.715,0.3C2.105,0.113,2.538,0,3,0c1.657,0,3,1.347,3,3.008c0,0.051-0.012,0.099-0.015,0.149l5.429,5.429C12.195,9.368,12.195,10.634,11.414,11.415z M11,9.501c0-0.276-0.224-0.5-0.5-0.5h-1c-0.277,0-0.501,0.224-0.501,0.5v1c0,0.275,0.224,0.5,0.501,0.5h1c0.276,0,0.5-0.225,0.5-0.5V9.501z',
-  
-  refresh: 'M0,0M5.142,6.504l-2,1.174c1.07,1.899,3.709,2.232,5.203,0.661l1.603,0.688c-2.096,2.846-6.494,2.559-8.234-0.508L0,9.524c0.199-1.665,0.398-3.329,0.597-4.993C2.112,5.189,3.626,5.847,5.142,6.504M6.858,5.51L6.844,5.505l0.013-0.008L6.858,5.51 M5.142,6.491C5.16,6.494,5.16,6.498,5.143,6.503L5.142,6.491 M11.402,7.466L12,2.477l-1.714,1.007C8.549,0.411,4.147,0.131,2.054,2.971L3.655,3.66C5.156,2.089,7.78,2.425,8.857,4.322l-2,1.175L11.402,7.466M12,12z',
-  
-  search: 'M0,0M11.707,11.707c-0.391,0.391-1.024,0.391-1.415,0L7.759,9.174c-0.791,0.523-1.736,0.832-2.755,0.832C2.24,10.006,0,7.766,0,5.003S2.24,0,5.003,0s5.003,2.24,5.003,5.003c0,1.02-0.309,1.966-0.833,2.755l2.533,2.533C12.098,10.683,12.098,11.315,11.707,11.707z M5.003,2.002c-1.658,0-3.002,1.344-3.002,3.001c0,1.658,1.344,3.002,3.002,3.002c1.657,0,3.001-1.344,3.001-3.002C8.005,3.346,6.66,2.002,5.003,2.002M12,12z',
-  
-  smallCross: 'M0,0M8.708,4.706L7.414,6l1.294,1.294c0.391,0.391,0.391,1.023,0,1.414s-1.023,0.391-1.414,0L6,7.414L4.706,8.708c-0.391,0.391-1.023,0.391-1.415,0c-0.39-0.391-0.39-1.023,0-1.414L4.586,6L3.292,4.706c-0.39-0.391-0.39-1.024,0-1.415c0.391-0.391,1.024-0.39,1.415,0L6,4.586l1.294-1.294c0.391-0.391,1.023-0.39,1.414,0C9.099,3.683,9.099,4.315,8.708,4.706M12,12z',
-  
-  smallPlus: 'M0,0M7,3.17V5h1.83c0.552,0,1,0.448,1,1c0,0.553-0.448,1-1,1H7v1.83c0,0.553-0.448,1-1,1.001c-0.552-0.001-1-0.448-1-1V7L3.17,7c-0.552,0-1-0.448-1-1c0-0.553,0.448-1,1-1H5v-1.83c0-0.552,0.448-1,1-1C6.552,2.17,7,2.617,7,3.17M12,12z',
-  
-  smallMinus: 'M0,0M8.83,5c0.553,0,1,0.448,1,1l0,0c0,0.552-0.447,1-1,1H3.17c-0.552,0-1-0.448-1-1l0,0c0-0.552,0.448-1,1-1H8.83M12,12z',
-  
-  resize: 'M0,0M8.299,12L12,8.299v1.414L9.713,12H8.299z M4.244,12L12,4.244v1.414L5.658,12H4.244z M0.231,12L12,0.231v1.414L1.646,12H0.231M12,12z',
-  
-  checkMark: 'M8.277,0.046L6.301,0L2.754,4.224L0.967,2.611L0,3.633l3.464,3.51L8.277,0.046z',
-  radio: 'M2.5,0C3.881,0,5,1.119,5,2.5S3.881,5,2.5,5S0,3.881,0,2.5S1.119,0,2.5,0z',
-  
-  //triangles
-  
-  triangleUp: "M0,8L4,0L8,8L0,8",
-  triangleDown: "M0,0L8,0L4,8L0,0",
-  triangleLeft: "M0,4L8,0L8,8L0,4",
-  triangleRight: "M0,0L8,4L0,8L0,0",
-  
-  shutdown: "M21.816,3.999c-0.993-0.481-2.189-0.068-2.673,0.927c-0.482,0.995-0.066,2.191,0.927,2.673c3.115,1.516,5.265,4.705,5.263,8.401c-0.01,5.154-4.18,9.324-9.333,9.333c-5.154-0.01-9.324-4.18-9.334-9.333c-0.002-3.698,2.149-6.89,5.267-8.403c0.995-0.482,1.408-1.678,0.927-2.673c-0.482-0.993-1.676-1.409-2.671-0.927C5.737,6.152,2.667,10.72,2.665,16C2.667,23.364,8.634,29.332,16,29.334c7.365-0.002,13.333-5.97,13.334-13.334C29.332,10.722,26.266,6.157,21.816,3.999z M16,13.833c1.104,0,1.999-0.894,1.999-2V2.499C17.999,1.394,17.104,0.5,16,0.5c-1.106,0-2,0.895-2,1.999v9.333C14,12.938,14.894,13.833,16,13.833z"
-  
-};
 /*
 ---
 name: ART.Path
@@ -6027,721 +3271,6 @@ ART.Path = new Class({
 });
 
 ART.Path.prototype.toString = ART.Path.prototype.toSVG;
-
-})();
-/*
----
-name: ART.SVG
-description: "SVG implementation for ART"
-provides: [ART.SVG, ART.SVG.Group, ART.SVG.Shape, ART.SVG.Image, ART.SVG.Text]
-requires: [ART, ART.Element, ART.Container, ART.Transform, ART.Path]
-...
-*/
-
-(function(){
-	
-var NS = 'http://www.w3.org/2000/svg', XLINK = 'http://www.w3.org/1999/xlink', XML = 'http://www.w3.org/XML/1998/namespace',
-    UID = 0,
-    createElement = function(tag){
-        return document.createElementNS(NS, tag);
-    };
-
-var ua = navigator && navigator.userAgent,
-    hasBaseline = !(/opera|safari|ie/i).test(ua) || (/chrome/i).test(ua);
-
-// SVG Base Class
-
-ART.SVG = new Class({
-
-	Extends: ART.Element,
-	Implements: ART.Container,
-
-	initialize: function(width, height){
-		var element = this.element = createElement('svg');
-		element.setAttribute('xmlns', NS);
-		element.setAttribute('version', 1.1);
-		var defs = this.defs = createElement('defs');
-		element.appendChild(defs);
-		if (width != null && height != null) this.resize(width, height);
-	},
-
-	resize: function(width, height){
-		var element = this.element;
-		element.setAttribute('width', width);
-		element.setAttribute('height', height);
-		this.width = width;
-		this.height = height;
-		return this;
-	},
-	
-	toElement: function(){
-		return this.element;
-	}
-
-});
-
-// SVG Element Class
-
-ART.SVG.Element = new Class({
-	
-	Extends: ART.Element,
-	
-	Implements: ART.Transform,
-
-	initialize: function(tag){
-		this.uid = String.uniqueID();
-		var element = this.element = createElement(tag);
-		element.setAttribute('id', 'e' + this.uid);
-	},
-	
-	/* transforms */
-	
-	_transform: function(){
-		var m = this;
-		this.element.setAttribute('transform', 'matrix(' + [m.xx, m.yx, m.xy, m.yy, m.x, m.y] + ')');
-	},
-	
-	blend: function(opacity){
-		this.element.setAttribute('opacity', opacity);
-		return this;
-	},
-	
-	// visibility
-	
-	hide: function(){
-		this.element.setAttribute('display', 'none');
-		return this;
-	},
-	
-	show: function(){
-		this.element.setAttribute('display', '');
-		return this;
-	},
-	
-	// interaction
-	
-	indicate: function(cursor, tooltip){
-		var element = this.element;
-		if (cursor) this.element.style.cursor = cursor;
-		if (tooltip){
-			var title = this.titleElement; 
-			if (title){
-				title.firstChild.nodeValue = tooltip;
-			} else {
-				this.titleElement = title = createElement('title');
-				title.appendChild(document.createTextNode(tooltip));
-				element.insertBefore(title, element.firstChild);
-			}
-		}
-		return this;
-	}
-
-});
-
-// SVG Group Class
-
-ART.SVG.Group = new Class({
-	
-	Extends: ART.SVG.Element,
-	Implements: ART.Container,
-	
-	initialize: function(width, height){
-		this.parent('g');
-		this.width = width;
-		this.height = height;
-		this.defs = createElement('defs');
-		this.element.appendChild(this.defs);
-	}
-	
-});
-
-// SVG Base Shape Class
-
-ART.SVG.Base = new Class({
-	
-	Extends: ART.SVG.Element,
-
-	initialize: function(tag){
-		this.parent(tag);
-		this.fill();
-		this.stroke();
-	},
-	
-	/* insertions */
-	
-	inject: function(container){
-		this.eject();
-		this.container = container;
-		this._injectBrush('fill');
-		this._injectBrush('stroke');
-		this.parent(container);
-		return this;
-	},
-	
-	eject: function(){
-		if (this.container){
-			this.parent();
-			this._ejectBrush('fill');
-			this._ejectBrush('stroke');
-			this.container = null;
-		}
-		return this;
-	},
-	
-	_injectBrush: function(type){
-		if (!this.container) return;
-		var brush = this[type + 'Brush'];
-		if (brush) this.container.defs.appendChild(brush);
-	},
-	
-	_ejectBrush: function(type){
-		if (!this.container) return;
-		var brush = this[type + 'Brush'];
-		if (brush) this.container.defs.removeChild(brush);
-	},
-	
-	/* styles */
-	
-	_createBrush: function(type, tag){
-		this._ejectBrush(type);
-
-		var brush = createElement(tag);
-		this[type + 'Brush'] = brush;
-
-		var id = type + '-brush-e' + this.uid;
-		brush.setAttribute('id', id);
-
-		this._injectBrush(type);
-
-		this.element.setAttribute(type, 'url(#' + id + ')');
-
-		return brush;
-	},
-
-	_createGradient: function(type, style, stops){
-		var gradient = this._createBrush(type, style);
-
-		var addColor = function(offset, color){
-			color = Color.detach(color);
-			var stop = createElement('stop');
-			stop.setAttribute('offset', offset);
-			stop.setAttribute('stop-color', color[0]);
-			stop.setAttribute('stop-opacity', color[1]);
-			gradient.appendChild(stop);
-		};
-
-		// Enumerate stops, assumes offsets are enumerated in order
-		// TODO: Sort. Chrome doesn't always enumerate in expected order but requires stops to be specified in order.
-		if ('length' in stops) for (var i = 0, l = stops.length - 1; i <= l; i++) addColor(i / l, stops[i]);
-		else for (var offset in stops) addColor(offset, stops[offset]);
-
-		gradient.setAttribute('spreadMethod', 'reflect'); // Closer to the VML gradient
-
-
-		this.element.removeAttribute('fill-opacity');
-		return gradient;
-	},
-	
-	_setColor: function(type, color){
-		this._ejectBrush(type);
-		this[type + 'Brush'] = null;
-		var element = this.element;
-		if (color == null){
-			element.setAttribute(type, 'none');
-			element.removeAttribute(type + '-opacity');
-		} else {
-			color = Color.detach(color);
-			element.setAttribute(type, color[0]);
-			element.setAttribute(type + '-opacity', color[1]);
-		}
-	},
-
-	fill: function(color){
-		if (arguments.length > 1) this.fillLinear(arguments);
-		else this._setColor('fill', color);
-		return this;
-	},
-
-	fillRadial: function(stops, focusX, focusY, radiusX, radiusY, centerX, centerY){
-		var gradient = this._createGradient('fill', 'radialGradient', stops);
-
-		gradient.setAttribute('gradientUnits', 'userSpaceOnUse');
-		
-
-		if (focusX == null) focusX = (this.left || 0) + (this.width || 0) * 0.5;
-		if (focusY == null) focusY = (this.top || 0) + (this.height || 0) * 0.5;
-		if (radiusY == null) radiusY = radiusX || (this.height * 0.5) || 0;
-		if (radiusX == null) radiusX = (this.width || 0) * 0.5;
-		if (centerX == null) centerX = focusX;
-		if (centerY == null) centerY = focusY;
-		
-		var ys = radiusY / radiusX;
-
-		gradient.setAttribute('fx', focusX);
-		gradient.setAttribute('fy', focusY / ys);
-
-		gradient.setAttribute('r', radiusX);
-		if (ys != 1) gradient.setAttribute('gradientTransform', 'scale(1,' + ys + ')');
-
-		gradient.setAttribute('cx', centerX);
-		gradient.setAttribute('cy', centerY / ys);
-		
-		return this;
-	},
-
-	fillLinear: function(stops, x1, y1, x2, y2){
-		var gradient = this._createGradient('fill', 'linearGradient', stops);
-		
-		if (arguments.length == 5){
-			gradient.setAttribute('gradientUnits', 'userSpaceOnUse');
-		} else {
-			var angle = ((x1 == null) ? 270 : x1) * Math.PI / 180;
-
-			var x = Math.cos(angle), y = -Math.sin(angle),
-				l = (Math.abs(x) + Math.abs(y)) / 2;
-
-			x *= l; y *= l;
-
-			x1 = 0.5 - x;
-			x2 = 0.5 + x;
-			y1 = 0.5 - y;
-			y2 = 0.5 + y;
-		}
-
-		gradient.setAttribute('x1', x1);
-		gradient.setAttribute('y1', y1);
-		gradient.setAttribute('x2', x2);
-		gradient.setAttribute('y2', y2);
-
-		return this;
-	},
-
-	fillImage: function(url, width, height, left, top, color1, color2){
-		var pattern = this._createBrush('fill', 'pattern');
-
-		var image = createElement('image');
-		image.setAttributeNS(XLINK, 'href', url);
-		image.setAttribute('width', width);
-		image.setAttribute('height', height);
-		image.setAttribute('preserveAspectRatio', 'none'); // none, xMidYMid slice, xMidYMid meet
-
-		if (color1 != null){
-			color1 = new Color(color1);
-			if (color2 == null){
-				color2 = new Color(color1);
-				color2.alpha = 0;
-			} else {
-				color2 = new Color(color2);
-			}
-
-			var r = (color1.red - color2.red) / (255 * 3),
-				g = (color1.green - color2.green) / (255 * 3),
-				b = (color1.blue - color2.blue) / (255 * 3),
-				a = (color1.alpha - color2.alpha) / 3;
-			
-			var matrix = [
-				r, r, r, 0, color2.red / 255,
-				g, g, g, 0, color2.green / 255,
-				b, b, b, 0, color2.blue / 255,
-				a, a, a, 0, color2.alpha
-			];
-
-			var filter = createElement('filter');
-			filter.setAttribute('id', 'testfilter' + this.uid);
-
-			var cm = createElement('feColorMatrix');
-			cm.setAttribute('type', 'matrix');
-			cm.setAttribute('values', matrix.join(' '));
-
-			image.setAttribute('fill', '#000');
-			image.setAttribute('filter', 'url(#testfilter' + this.uid + ')');
-
-			filter.appendChild(cm);
-			pattern.appendChild(filter);
-		}
-
-		pattern.appendChild(image);
-		
-		pattern.setAttribute('patternUnits', 'userSpaceOnUse');
-		pattern.setAttribute('patternContentsUnits', 'userSpaceOnUse');
-		
-		pattern.setAttribute('x', left || 0);
-		pattern.setAttribute('y', top || 0);
-		
-		pattern.setAttribute('width', width);
-		pattern.setAttribute('height', height);
-
-		//pattern.setAttribute('viewBox', '0 0 75 50');
-		//pattern.setAttribute('preserveAspectRatio', 'xMidYMid slice');
-
-		return this;
-	},
-
-	stroke: function(color, width, cap, join){
-		var element = this.element;
-		element.setAttribute('stroke-width', (width != null) ? width : 1);
-		element.setAttribute('stroke-linecap', (cap != null) ? cap : 'round');
-		element.setAttribute('stroke-linejoin', (join != null) ? join : 'round');
-
-		this._setColor('stroke', color);
-		return this;
-	}
-	
-});
-
-// SVG Shape Class
-
-ART.SVG.Shape = new Class({
-	
-	Extends: ART.SVG.Base,
-	
-	initialize: function(path, width, height){
-		this.parent('path');
-		this.element.setAttribute('fill-rule', 'evenodd');
-		this.width = width;
-		this.height = height;
-		if (path != null) this.draw(path);
-	},
-	
-	draw: function(path, width, height){
-		if (!(path instanceof ART.Path)) path = new ART.Path(path);
-		this.element.setAttribute('d', path.toSVG());
-		if (width != null) this.width = width;
-		if (height != null) this.height = height;
-		return this;
-	}
-
-});
-
-ART.SVG.Image = new Class({
-	
-	Extends: ART.SVG.Base,
-	
-	initialize: function(src, width, height){
-		this.parent('image');
-		if (arguments.length == 3) this.draw.apply(this, arguments);
-	},
-	
-	draw: function(src, width, height){
-		var element = this.element;
-		element.setAttributeNS(XLINK, 'href', src);
-		element.setAttribute('width', width);
-		element.setAttribute('height', height);
-		this.width = width;
-		this.height = height;
-		return this;
-	}
-	
-});
-
-var fontAnchors = { left: 'start', center: 'middle', right: 'end' },
-    fontAnchorOffsets = { middle: '50%', end: '100%' };
-
-/* split each continuous line into individual paths */
-
-var splitPaths, splitPath;
-
-function splitMove(sx, sy, x, y){
-	if (splitPath.length > 3) splitPaths.push(splitPath);
-	splitPath = ['M', x, y];
-};
-
-function splitLine(sx, sy, x, y){
-	splitPath.push('L', x, y);
-};
-
-function splitCurve(sx, sy, p1x, p1y, p2x, p2y, x, y){
-	splitPath.push('C', p1x, p1y, p2x, p2y, x, y);
-};
-
-ART.SVG.Text = new Class({
-
-	Extends: ART.SVG.Base,
-
-	initialize: function(text, font, alignment, path){
-		this.parent('text');
-		this.draw.apply(this, arguments);
-	},
-	
-	draw: function(text, font, alignment, path){
-		var element = this.element;
-	
-		if (font){
-			if (typeof font == 'string'){
-				element.style.font = font;
-			} else {
-				for (var key in font){
-					var ckey = key.camelCase ? key.camelCase() : key;
-					// NOT UNIVERSALLY SUPPORTED OPTIONS
-					// if (ckey == 'kerning') element.setAttribute('kerning', font[key] ? 'auto' : '0');
-					// else if (ckey == 'letterSpacing') element.setAttribute('letter-spacing', Number(font[key]) + 'ex');
-					// else if (ckey == 'rotateGlyphs') element.setAttribute('glyph-orientation-horizontal', font[key] ? '270deg' : '');
-					// else
-					element.style[ckey] = font[key];
-				}
-				element.style.lineHeight = '0.5em';
-			}
-		}
-		
-		if (alignment) element.setAttribute('text-anchor', this.textAnchor = (fontAnchors[alignment] || alignment));
-
-		if (path && typeof path != 'number'){
-			this._createPaths(new ART.Path(path));
-		} else if (path === false){
-			this._ejectPaths();
-			this.pathElements = null;
-		}
-		
-		var paths = this.pathElements, child;
-		
-		while ((child = element.firstChild)){
-			element.removeChild(child);
-		}
-		
-		// Note: Gecko will (incorrectly) align gradients for each row, while others applies one for the entire element
-		
-		var lines = String(text).split(/\r?\n/), l = lines.length,
-		    baseline = 'central';
-		
-		if (paths && l > paths.length) l = paths.length;
-		
-		if (hasBaseline) element.setAttribute('dominant-baseline', baseline);
-
-		element.setAttributeNS(XML, 'space', 'preserve');
-		
-		for (var i = 0; i < l; i++){
-			var line = lines[i], row, content;
-			if (paths){
-				row = createElement('textPath');
-				row.setAttributeNS(XLINK, 'href', '#' + paths[i].getAttribute('id'));
-				row.setAttribute('startOffset', fontAnchorOffsets[this.textAnchor] || 0);
-			} else {
-				row = createElement('tspan');
-				row.setAttribute('x', 0);
-				row.setAttribute('y', (i * 1.1 + 0.5) + 'em');
-			}
-			if (hasBaseline){
-				row.setAttribute('dominant-baseline', baseline);
-				content = row;
-			} else if (paths){
-				content = createElement('tspan');
-				content.setAttribute('dy', '0.35em');
-				row.appendChild(content);
-			} else {
-				content = row;
-				row.setAttribute('y', (i * 1.1 + 0.85) + 'em');
-			}
-			content.setAttributeNS(XML, 'space', 'preserve');
-			content.appendChild(document.createTextNode(line));
-			element.appendChild(row);
-		}
-		
-		// Measure
-		// TODO: Move to lazy ES5 left/top/width/height/bottom/right property getters
-		var bb;
-		try { bb = element.getBBox(); } catch (x){ }
-		if (!bb || !bb.width) bb = this._whileInDocument(element.getBBox, element);
-		
-		this.left = bb.x;
-		this.top = bb.y;
-		this.width = bb.width;
-		this.height = bb.height;
-		this.right = bb.x + bb.width;
-		this.bottom = bb.y + bb.height;
-		return this;
-	},
-	
-	// TODO: Unify path injection with gradients and imagefills
-
-	inject: function(container){
-		this.parent(container);
-		this._injectPaths();
-		return this;
-	},
-	
-	eject: function(){
-		if (this.container){
-			this._ejectPaths();
-			this.parent();
-			this.container = null;
-		}
-		return this;
-	},
-	
-	_injectPaths: function(){
-		var paths = this.pathElements;
-		if (!this.container || !paths) return;
-		var defs = this.container.defs;
-		for (var i = 0, l = paths.length; i < l; i++)
-			defs.appendChild(paths[i]);
-	},
-	
-	_ejectPaths: function(){
-		var paths = this.pathElements;
-		if (!this.container || !paths) return;
-		var defs = this.container.defs;
-		for (var i = 0, l = paths; i < l; i++)
-			defs.removeChild(paths[i]);
-	},
-	
-	_createPaths: function(path){
-		this._ejectPaths();
-		var id = 'p' + String.uniqueID() + '-';
-		
-		splitPaths = []; splitPath = ['M', 0, 0];
-		path.visit(splitLine, splitCurve, null, splitMove);
-		splitPaths.push(splitPath);
-		
-		var result = [];
-		for (var i = 0, l = splitPaths.length; i < l; i++){
-			var p = createElement('path');
-			p.setAttribute('d', splitPaths[i].join(' '));
-			p.setAttribute('id', id + i);
-			result.push(p);
-		}
-		this.pathElements = result;
-		this._injectPaths();
-	},
-	
-	_whileInDocument: function(fn, bind){
-		// Temporarily inject into the document
-		var element = this.element,
-		    container = this.container,
-			parent = element.parentNode,
-			sibling = element.nextSibling,
-			body = element.ownerDocument.body,
-			canvas = new ART.SVG(1, 1).inject(body);
-		this.inject(canvas);
-		var result = fn.call(bind);
-		canvas.eject();
-		if (container) this.inject(container);
-		if (parent) parent.insertBefore(element, sibling);
-		return result;
-	}
-
-});
-
-})();
-/*
----
- 
-script: ART.SVG.js
- 
-description: Some extensions (filters, dash, shadow blur)
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
-
-extends: ART/ART.SVG
-
-provides: [ART.SVG.prototype.dash, ART.SVG.prototype.strokeLinear, ART.SVG.prototype.fillRadial]
- 
-...
-*/
-
-(function() {
-var NS = 'http://www.w3.org/2000/svg', XLINK = 'http://www.w3.org/1999/xlink', UID = 0, createElement = function(tag){
-  return document.createElementNS(NS, tag);
-};
-  
-ART.SVG.Base.implement({
-  dash: function(dash) {
-    if (dash) {
-      this.dashed = true;
-      this.element.setAttribute('stroke-dasharray', dash);
-    } else if (this.dashed) {
-      this.dashed = false;
-      this.element.removeAttribute('stroke-dasharray')
-    }
-  },
-  
-  
-  inject: function(container){
-    this.eject();
-    if (container instanceof ART.SVG.Group) container.children.push(this);
-    this.parent.apply(this, arguments);
-    this.container = container.defs ? container : container.container;
-		this._injectBrush('fill');
-		this._injectBrush('stroke');
-    this._injectFilter('blur');
-    return this;
-  },
-  
-  strokeLinear: function(stops, angle){
-    var gradient = this._createGradient('stroke', 'linear', stops);
-
-    angle = ((angle == null) ? 270 : angle) * Math.PI / 180;
-
-    var x = Math.cos(angle), y = -Math.sin(angle),
-      l = (Math.abs(x) + Math.abs(y)) / 2;
-
-    x *= l; y *= l;
-
-    gradient.setAttribute('x1', 0.5 - x);
-    gradient.setAttribute('x2', 0.5 + x);
-    gradient.setAttribute('y1', 0.5 - y);
-    gradient.setAttribute('y2', 0.5 + y);
-
-    return this;
-  },
-  
-  _writeTransform: function(){
-    if (Object.equals(this.transformed, this.transform)) return;
-    this.transformed = $unlink(this.transform);
-    var transforms = [];
-    for (var transform in this.transform) transforms.push(transform + '(' + this.transform[transform].join(',') + ')');
-    this.element.setAttribute('transform', transforms.join(' '));
-  },
-
-  blur: function(radius){
-    if (radius == null) radius = 4;
-    if (radius == this.blurred) return;
-    this.blurred = radius;
-    
-    var filter = this._createFilter();
-    var blur = createElement('feGaussianBlur');
-    blur.setAttribute('stdDeviation', radius * 0.25);
-    blur.setAttribute('result', 'blur');
-    filter.appendChild(blur);
-    //in=SourceGraphic
-    //stdDeviation="4" result="blur"
-    return this;
-  },
-
-  unblur: function() {
-    delete this.blurred;
-    this._ejectFilter();
-  },
-  
-  _injectFilter: function(type){
-    if (!this.container) return;
-    var filter = this.filter;
-    if (filter) this.container.defs.appendChild(filter);
-  },
-  
-  _ejectFilter: function(type){
-    if (!this.container) return;
-    var filter = this.filter;
-    delete this.filter;
-    if (filter) this.container.defs.removeChild(filter);
-  },
-  
-  _createFilter: function(){
-    this._ejectFilter();
-  
-    var filter = this.filter = createElement('filter');
-  
-    var id = 'filter-e' + this.uid;
-    filter.setAttribute('id', id);
-  
-    this._injectFilter();
-  
-    this.element.setAttribute('filter', 'url(#' + id + ')');
-  
-    return filter;
-  },
-});
 
 })();
 /*
@@ -7518,6 +4047,721 @@ ART.Path.implement({
 })();
 /*
 ---
+name: ART.SVG
+description: "SVG implementation for ART"
+provides: [ART.SVG, ART.SVG.Group, ART.SVG.Shape, ART.SVG.Image, ART.SVG.Text]
+requires: [ART, ART.Element, ART.Container, ART.Transform, ART.Path]
+...
+*/
+
+(function(){
+	
+var NS = 'http://www.w3.org/2000/svg', XLINK = 'http://www.w3.org/1999/xlink', XML = 'http://www.w3.org/XML/1998/namespace',
+    UID = 0,
+    createElement = function(tag){
+        return document.createElementNS(NS, tag);
+    };
+
+var ua = navigator && navigator.userAgent,
+    hasBaseline = !(/opera|safari|ie/i).test(ua) || (/chrome/i).test(ua);
+
+// SVG Base Class
+
+ART.SVG = new Class({
+
+	Extends: ART.Element,
+	Implements: ART.Container,
+
+	initialize: function(width, height){
+		var element = this.element = createElement('svg');
+		element.setAttribute('xmlns', NS);
+		element.setAttribute('version', 1.1);
+		var defs = this.defs = createElement('defs');
+		element.appendChild(defs);
+		if (width != null && height != null) this.resize(width, height);
+	},
+
+	resize: function(width, height){
+		var element = this.element;
+		element.setAttribute('width', width);
+		element.setAttribute('height', height);
+		this.width = width;
+		this.height = height;
+		return this;
+	},
+	
+	toElement: function(){
+		return this.element;
+	}
+
+});
+
+// SVG Element Class
+
+ART.SVG.Element = new Class({
+	
+	Extends: ART.Element,
+	
+	Implements: ART.Transform,
+
+	initialize: function(tag){
+		this.uid = String.uniqueID();
+		var element = this.element = createElement(tag);
+		element.setAttribute('id', 'e' + this.uid);
+	},
+	
+	/* transforms */
+	
+	_transform: function(){
+		var m = this;
+		this.element.setAttribute('transform', 'matrix(' + [m.xx, m.yx, m.xy, m.yy, m.x, m.y] + ')');
+	},
+	
+	blend: function(opacity){
+		this.element.setAttribute('opacity', opacity);
+		return this;
+	},
+	
+	// visibility
+	
+	hide: function(){
+		this.element.setAttribute('display', 'none');
+		return this;
+	},
+	
+	show: function(){
+		this.element.setAttribute('display', '');
+		return this;
+	},
+	
+	// interaction
+	
+	indicate: function(cursor, tooltip){
+		var element = this.element;
+		if (cursor) this.element.style.cursor = cursor;
+		if (tooltip){
+			var title = this.titleElement; 
+			if (title){
+				title.firstChild.nodeValue = tooltip;
+			} else {
+				this.titleElement = title = createElement('title');
+				title.appendChild(document.createTextNode(tooltip));
+				element.insertBefore(title, element.firstChild);
+			}
+		}
+		return this;
+	}
+
+});
+
+// SVG Group Class
+
+ART.SVG.Group = new Class({
+	
+	Extends: ART.SVG.Element,
+	Implements: ART.Container,
+	
+	initialize: function(width, height){
+		this.parent('g');
+		this.width = width;
+		this.height = height;
+		this.defs = createElement('defs');
+		this.element.appendChild(this.defs);
+	}
+	
+});
+
+// SVG Base Shape Class
+
+ART.SVG.Base = new Class({
+	
+	Extends: ART.SVG.Element,
+
+	initialize: function(tag){
+		this.parent(tag);
+		this.fill();
+		this.stroke();
+	},
+	
+	/* insertions */
+	
+	inject: function(container){
+		this.eject();
+		this.container = container;
+		this._injectBrush('fill');
+		this._injectBrush('stroke');
+		this.parent(container);
+		return this;
+	},
+	
+	eject: function(){
+		if (this.container){
+			this.parent();
+			this._ejectBrush('fill');
+			this._ejectBrush('stroke');
+			this.container = null;
+		}
+		return this;
+	},
+	
+	_injectBrush: function(type){
+		if (!this.container) return;
+		var brush = this[type + 'Brush'];
+		if (brush) this.container.defs.appendChild(brush);
+	},
+	
+	_ejectBrush: function(type){
+		if (!this.container) return;
+		var brush = this[type + 'Brush'];
+		if (brush) this.container.defs.removeChild(brush);
+	},
+	
+	/* styles */
+	
+	_createBrush: function(type, tag){
+		this._ejectBrush(type);
+
+		var brush = createElement(tag);
+		this[type + 'Brush'] = brush;
+
+		var id = type + '-brush-e' + this.uid;
+		brush.setAttribute('id', id);
+
+		this._injectBrush(type);
+
+		this.element.setAttribute(type, 'url(#' + id + ')');
+
+		return brush;
+	},
+
+	_createGradient: function(type, style, stops){
+		var gradient = this._createBrush(type, style);
+
+		var addColor = function(offset, color){
+			color = Color.detach(color);
+			var stop = createElement('stop');
+			stop.setAttribute('offset', offset);
+			stop.setAttribute('stop-color', color[0]);
+			stop.setAttribute('stop-opacity', color[1]);
+			gradient.appendChild(stop);
+		};
+
+		// Enumerate stops, assumes offsets are enumerated in order
+		// TODO: Sort. Chrome doesn't always enumerate in expected order but requires stops to be specified in order.
+		if ('length' in stops) for (var i = 0, l = stops.length - 1; i <= l; i++) addColor(i / l, stops[i]);
+		else for (var offset in stops) addColor(offset, stops[offset]);
+
+		gradient.setAttribute('spreadMethod', 'reflect'); // Closer to the VML gradient
+
+
+		this.element.removeAttribute('fill-opacity');
+		return gradient;
+	},
+	
+	_setColor: function(type, color){
+		this._ejectBrush(type);
+		this[type + 'Brush'] = null;
+		var element = this.element;
+		if (color == null){
+			element.setAttribute(type, 'none');
+			element.removeAttribute(type + '-opacity');
+		} else {
+			color = Color.detach(color);
+			element.setAttribute(type, color[0]);
+			element.setAttribute(type + '-opacity', color[1]);
+		}
+	},
+
+	fill: function(color){
+		if (arguments.length > 1) this.fillLinear(arguments);
+		else this._setColor('fill', color);
+		return this;
+	},
+
+	fillRadial: function(stops, focusX, focusY, radiusX, radiusY, centerX, centerY){
+		var gradient = this._createGradient('fill', 'radialGradient', stops);
+
+		gradient.setAttribute('gradientUnits', 'userSpaceOnUse');
+		
+
+		if (focusX == null) focusX = (this.left || 0) + (this.width || 0) * 0.5;
+		if (focusY == null) focusY = (this.top || 0) + (this.height || 0) * 0.5;
+		if (radiusY == null) radiusY = radiusX || (this.height * 0.5) || 0;
+		if (radiusX == null) radiusX = (this.width || 0) * 0.5;
+		if (centerX == null) centerX = focusX;
+		if (centerY == null) centerY = focusY;
+		
+		var ys = radiusY / radiusX;
+
+		gradient.setAttribute('fx', focusX);
+		gradient.setAttribute('fy', focusY / ys);
+
+		gradient.setAttribute('r', radiusX);
+		if (ys != 1) gradient.setAttribute('gradientTransform', 'scale(1,' + ys + ')');
+
+		gradient.setAttribute('cx', centerX);
+		gradient.setAttribute('cy', centerY / ys);
+		
+		return this;
+	},
+
+	fillLinear: function(stops, x1, y1, x2, y2){
+		var gradient = this._createGradient('fill', 'linearGradient', stops);
+		
+		if (arguments.length == 5){
+			gradient.setAttribute('gradientUnits', 'userSpaceOnUse');
+		} else {
+			var angle = ((x1 == null) ? 270 : x1) * Math.PI / 180;
+
+			var x = Math.cos(angle), y = -Math.sin(angle),
+				l = (Math.abs(x) + Math.abs(y)) / 2;
+
+			x *= l; y *= l;
+
+			x1 = 0.5 - x;
+			x2 = 0.5 + x;
+			y1 = 0.5 - y;
+			y2 = 0.5 + y;
+		}
+
+		gradient.setAttribute('x1', x1);
+		gradient.setAttribute('y1', y1);
+		gradient.setAttribute('x2', x2);
+		gradient.setAttribute('y2', y2);
+
+		return this;
+	},
+
+	fillImage: function(url, width, height, left, top, color1, color2){
+		var pattern = this._createBrush('fill', 'pattern');
+
+		var image = createElement('image');
+		image.setAttributeNS(XLINK, 'href', url);
+		image.setAttribute('width', width);
+		image.setAttribute('height', height);
+		image.setAttribute('preserveAspectRatio', 'none'); // none, xMidYMid slice, xMidYMid meet
+
+		if (color1 != null){
+			color1 = new Color(color1);
+			if (color2 == null){
+				color2 = new Color(color1);
+				color2.alpha = 0;
+			} else {
+				color2 = new Color(color2);
+			}
+
+			var r = (color1.red - color2.red) / (255 * 3),
+				g = (color1.green - color2.green) / (255 * 3),
+				b = (color1.blue - color2.blue) / (255 * 3),
+				a = (color1.alpha - color2.alpha) / 3;
+			
+			var matrix = [
+				r, r, r, 0, color2.red / 255,
+				g, g, g, 0, color2.green / 255,
+				b, b, b, 0, color2.blue / 255,
+				a, a, a, 0, color2.alpha
+			];
+
+			var filter = createElement('filter');
+			filter.setAttribute('id', 'testfilter' + this.uid);
+
+			var cm = createElement('feColorMatrix');
+			cm.setAttribute('type', 'matrix');
+			cm.setAttribute('values', matrix.join(' '));
+
+			image.setAttribute('fill', '#000');
+			image.setAttribute('filter', 'url(#testfilter' + this.uid + ')');
+
+			filter.appendChild(cm);
+			pattern.appendChild(filter);
+		}
+
+		pattern.appendChild(image);
+		
+		pattern.setAttribute('patternUnits', 'userSpaceOnUse');
+		pattern.setAttribute('patternContentsUnits', 'userSpaceOnUse');
+		
+		pattern.setAttribute('x', left || 0);
+		pattern.setAttribute('y', top || 0);
+		
+		pattern.setAttribute('width', width);
+		pattern.setAttribute('height', height);
+
+		//pattern.setAttribute('viewBox', '0 0 75 50');
+		//pattern.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+
+		return this;
+	},
+
+	stroke: function(color, width, cap, join){
+		var element = this.element;
+		element.setAttribute('stroke-width', (width != null) ? width : 1);
+		element.setAttribute('stroke-linecap', (cap != null) ? cap : 'round');
+		element.setAttribute('stroke-linejoin', (join != null) ? join : 'round');
+
+		this._setColor('stroke', color);
+		return this;
+	}
+	
+});
+
+// SVG Shape Class
+
+ART.SVG.Shape = new Class({
+	
+	Extends: ART.SVG.Base,
+	
+	initialize: function(path, width, height){
+		this.parent('path');
+		this.element.setAttribute('fill-rule', 'evenodd');
+		this.width = width;
+		this.height = height;
+		if (path != null) this.draw(path);
+	},
+	
+	draw: function(path, width, height){
+		if (!(path instanceof ART.Path)) path = new ART.Path(path);
+		this.element.setAttribute('d', path.toSVG());
+		if (width != null) this.width = width;
+		if (height != null) this.height = height;
+		return this;
+	}
+
+});
+
+ART.SVG.Image = new Class({
+	
+	Extends: ART.SVG.Base,
+	
+	initialize: function(src, width, height){
+		this.parent('image');
+		if (arguments.length == 3) this.draw.apply(this, arguments);
+	},
+	
+	draw: function(src, width, height){
+		var element = this.element;
+		element.setAttributeNS(XLINK, 'href', src);
+		element.setAttribute('width', width);
+		element.setAttribute('height', height);
+		this.width = width;
+		this.height = height;
+		return this;
+	}
+	
+});
+
+var fontAnchors = { left: 'start', center: 'middle', right: 'end' },
+    fontAnchorOffsets = { middle: '50%', end: '100%' };
+
+/* split each continuous line into individual paths */
+
+var splitPaths, splitPath;
+
+function splitMove(sx, sy, x, y){
+	if (splitPath.length > 3) splitPaths.push(splitPath);
+	splitPath = ['M', x, y];
+};
+
+function splitLine(sx, sy, x, y){
+	splitPath.push('L', x, y);
+};
+
+function splitCurve(sx, sy, p1x, p1y, p2x, p2y, x, y){
+	splitPath.push('C', p1x, p1y, p2x, p2y, x, y);
+};
+
+ART.SVG.Text = new Class({
+
+	Extends: ART.SVG.Base,
+
+	initialize: function(text, font, alignment, path){
+		this.parent('text');
+		this.draw.apply(this, arguments);
+	},
+	
+	draw: function(text, font, alignment, path){
+		var element = this.element;
+	
+		if (font){
+			if (typeof font == 'string'){
+				element.style.font = font;
+			} else {
+				for (var key in font){
+					var ckey = key.camelCase ? key.camelCase() : key;
+					// NOT UNIVERSALLY SUPPORTED OPTIONS
+					// if (ckey == 'kerning') element.setAttribute('kerning', font[key] ? 'auto' : '0');
+					// else if (ckey == 'letterSpacing') element.setAttribute('letter-spacing', Number(font[key]) + 'ex');
+					// else if (ckey == 'rotateGlyphs') element.setAttribute('glyph-orientation-horizontal', font[key] ? '270deg' : '');
+					// else
+					element.style[ckey] = font[key];
+				}
+				element.style.lineHeight = '0.5em';
+			}
+		}
+		
+		if (alignment) element.setAttribute('text-anchor', this.textAnchor = (fontAnchors[alignment] || alignment));
+
+		if (path && typeof path != 'number'){
+			this._createPaths(new ART.Path(path));
+		} else if (path === false){
+			this._ejectPaths();
+			this.pathElements = null;
+		}
+		
+		var paths = this.pathElements, child;
+		
+		while ((child = element.firstChild)){
+			element.removeChild(child);
+		}
+		
+		// Note: Gecko will (incorrectly) align gradients for each row, while others applies one for the entire element
+		
+		var lines = String(text).split(/\r?\n/), l = lines.length,
+		    baseline = 'central';
+		
+		if (paths && l > paths.length) l = paths.length;
+		
+		if (hasBaseline) element.setAttribute('dominant-baseline', baseline);
+
+		element.setAttributeNS(XML, 'space', 'preserve');
+		
+		for (var i = 0; i < l; i++){
+			var line = lines[i], row, content;
+			if (paths){
+				row = createElement('textPath');
+				row.setAttributeNS(XLINK, 'href', '#' + paths[i].getAttribute('id'));
+				row.setAttribute('startOffset', fontAnchorOffsets[this.textAnchor] || 0);
+			} else {
+				row = createElement('tspan');
+				row.setAttribute('x', 0);
+				row.setAttribute('y', (i * 1.1 + 0.5) + 'em');
+			}
+			if (hasBaseline){
+				row.setAttribute('dominant-baseline', baseline);
+				content = row;
+			} else if (paths){
+				content = createElement('tspan');
+				content.setAttribute('dy', '0.35em');
+				row.appendChild(content);
+			} else {
+				content = row;
+				row.setAttribute('y', (i * 1.1 + 0.85) + 'em');
+			}
+			content.setAttributeNS(XML, 'space', 'preserve');
+			content.appendChild(document.createTextNode(line));
+			element.appendChild(row);
+		}
+		
+		// Measure
+		// TODO: Move to lazy ES5 left/top/width/height/bottom/right property getters
+		var bb;
+		try { bb = element.getBBox(); } catch (x){ }
+		if (!bb || !bb.width) bb = this._whileInDocument(element.getBBox, element);
+		
+		this.left = bb.x;
+		this.top = bb.y;
+		this.width = bb.width;
+		this.height = bb.height;
+		this.right = bb.x + bb.width;
+		this.bottom = bb.y + bb.height;
+		return this;
+	},
+	
+	// TODO: Unify path injection with gradients and imagefills
+
+	inject: function(container){
+		this.parent(container);
+		this._injectPaths();
+		return this;
+	},
+	
+	eject: function(){
+		if (this.container){
+			this._ejectPaths();
+			this.parent();
+			this.container = null;
+		}
+		return this;
+	},
+	
+	_injectPaths: function(){
+		var paths = this.pathElements;
+		if (!this.container || !paths) return;
+		var defs = this.container.defs;
+		for (var i = 0, l = paths.length; i < l; i++)
+			defs.appendChild(paths[i]);
+	},
+	
+	_ejectPaths: function(){
+		var paths = this.pathElements;
+		if (!this.container || !paths) return;
+		var defs = this.container.defs;
+		for (var i = 0, l = paths; i < l; i++)
+			defs.removeChild(paths[i]);
+	},
+	
+	_createPaths: function(path){
+		this._ejectPaths();
+		var id = 'p' + String.uniqueID() + '-';
+		
+		splitPaths = []; splitPath = ['M', 0, 0];
+		path.visit(splitLine, splitCurve, null, splitMove);
+		splitPaths.push(splitPath);
+		
+		var result = [];
+		for (var i = 0, l = splitPaths.length; i < l; i++){
+			var p = createElement('path');
+			p.setAttribute('d', splitPaths[i].join(' '));
+			p.setAttribute('id', id + i);
+			result.push(p);
+		}
+		this.pathElements = result;
+		this._injectPaths();
+	},
+	
+	_whileInDocument: function(fn, bind){
+		// Temporarily inject into the document
+		var element = this.element,
+		    container = this.container,
+			parent = element.parentNode,
+			sibling = element.nextSibling,
+			body = element.ownerDocument.body,
+			canvas = new ART.SVG(1, 1).inject(body);
+		this.inject(canvas);
+		var result = fn.call(bind);
+		canvas.eject();
+		if (container) this.inject(container);
+		if (parent) parent.insertBefore(element, sibling);
+		return result;
+	}
+
+});
+
+})();
+/*
+---
+ 
+script: ART.SVG.js
+ 
+description: Some extensions (filters, dash, shadow blur)
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+
+extends: ART/ART.SVG
+
+provides: [ART.SVG.prototype.dash, ART.SVG.prototype.strokeLinear, ART.SVG.prototype.fillRadial]
+ 
+...
+*/
+
+(function() {
+var NS = 'http://www.w3.org/2000/svg', XLINK = 'http://www.w3.org/1999/xlink', UID = 0, createElement = function(tag){
+  return document.createElementNS(NS, tag);
+};
+  
+ART.SVG.Base.implement({
+  dash: function(dash) {
+    if (dash) {
+      this.dashed = true;
+      this.element.setAttribute('stroke-dasharray', dash);
+    } else if (this.dashed) {
+      this.dashed = false;
+      this.element.removeAttribute('stroke-dasharray')
+    }
+  },
+  
+  
+  inject: function(container){
+    this.eject();
+    if (container instanceof ART.SVG.Group) container.children.push(this);
+    this.parent.apply(this, arguments);
+    this.container = container.defs ? container : container.container;
+		this._injectBrush('fill');
+		this._injectBrush('stroke');
+    this._injectFilter('blur');
+    return this;
+  },
+  
+  strokeLinear: function(stops, angle){
+    var gradient = this._createGradient('stroke', 'linear', stops);
+
+    angle = ((angle == null) ? 270 : angle) * Math.PI / 180;
+
+    var x = Math.cos(angle), y = -Math.sin(angle),
+      l = (Math.abs(x) + Math.abs(y)) / 2;
+
+    x *= l; y *= l;
+
+    gradient.setAttribute('x1', 0.5 - x);
+    gradient.setAttribute('x2', 0.5 + x);
+    gradient.setAttribute('y1', 0.5 - y);
+    gradient.setAttribute('y2', 0.5 + y);
+
+    return this;
+  },
+  
+  _writeTransform: function(){
+    if (Object.equals(this.transformed, this.transform)) return;
+    this.transformed = $unlink(this.transform);
+    var transforms = [];
+    for (var transform in this.transform) transforms.push(transform + '(' + this.transform[transform].join(',') + ')');
+    this.element.setAttribute('transform', transforms.join(' '));
+  },
+
+  blur: function(radius){
+    if (radius == null) radius = 4;
+    if (radius == this.blurred) return;
+    this.blurred = radius;
+    
+    var filter = this._createFilter();
+    var blur = createElement('feGaussianBlur');
+    blur.setAttribute('stdDeviation', radius * 0.25);
+    blur.setAttribute('result', 'blur');
+    filter.appendChild(blur);
+    //in=SourceGraphic
+    //stdDeviation="4" result="blur"
+    return this;
+  },
+
+  unblur: function() {
+    delete this.blurred;
+    this._ejectFilter();
+  },
+  
+  _injectFilter: function(type){
+    if (!this.container) return;
+    var filter = this.filter;
+    if (filter) this.container.defs.appendChild(filter);
+  },
+  
+  _ejectFilter: function(type){
+    if (!this.container) return;
+    var filter = this.filter;
+    delete this.filter;
+    if (filter) this.container.defs.removeChild(filter);
+  },
+  
+  _createFilter: function(){
+    this._ejectFilter();
+  
+    var filter = this.filter = createElement('filter');
+  
+    var id = 'filter-e' + this.uid;
+    filter.setAttribute('id', id);
+  
+    this._injectFilter();
+  
+    this.element.setAttribute('filter', 'url(#' + id + ')');
+  
+    return filter;
+  },
+});
+
+})();
+/*
+---
 name: ART.Base
 description: "Implements ART, ART.Shape and ART.Group based on the current browser."
 provides: [ART.Base, ART.Group, ART.Shape, ART.Text]
@@ -7553,6 +4797,244 @@ ART.implement({Extends: ART[MODE]});
 /*
 ---
  
+script: Star.js
+ 
+description: A star with variable number of edges
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - ART/ART.Shape
+ 
+provides: 
+  - ART.Shape.Star
+ 
+...
+*/
+
+ART.Shape.Star = new Class({
+  
+  Extends: ART.Shape,
+  
+  properties: {
+    size:       [['rays', 'radius']],
+    rays:       ['number'],
+    radus:      ['length', 'percentage']
+  },
+  
+  draw: function(width, rays, radius, offset){
+    if (rays == null) rays = 5;
+    var path = new ART.Path;
+    var outer = width / 2;
+    var angle = Math.PI / rays;
+    offset = angle / (offset || 2.1);
+    if (radius == null) radius = outer *.582;
+    var lx = 0, ly = 0;
+    for (var i = 0; i < rays * 2; i++) { 
+      var r = i % 2 ? outer : radius; 
+      var x = r * Math.cos(i * angle + offset);
+      var y = r * Math.sin(i * angle + offset);
+      if (i == 0) {
+        path.move(x - lx + outer, y - ly + outer)
+      } else {
+        path.line(x - lx, y - ly);
+      }
+      lx = x;
+      ly = y;
+    }
+    return this.parent(path.close());
+  },
+
+  render: function(context) {
+    var radius = context.radius;     
+    if (radius && radius.length == 4) radius = [radius[0], radius[2], radius[3], radius[1]]       
+    return this.draw(context.size.width, context.style.starRays)
+  }
+
+});
+
+(function() {
+  var Properties = {
+    starRays: ['number'],
+    starRadius: ['length', 'percentage']
+  }
+})();
+/*
+---
+ 
+script: Ellipse.js
+ 
+description: Draw ellipses and circles without a hassle
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - ART/ART.Shape
+ 
+provides: 
+  - ART.Shape.Ellipse
+ 
+...
+*/
+
+ART.Shape.Ellipse = new Class({
+  
+  Extends: ART.Shape,
+  
+  draw: function(width, height){
+    var path = new ART.Path;
+    var rx = width / 2, ry = height / 2;
+    path.move(0, ry).arc(width, 0, rx, ry).arc(-width, 0, rx, ry);
+    return this.parent(path);
+  },
+  
+  produce: function(delta) {
+    return new ART.Shapes.Ellipse(this.style.width + delta * 2, this.style.height + delta * 2)
+  },
+  
+  render: function(context) {   
+    return this.draw(context.size.width, context.size.height)
+  }
+
+});
+/*
+---
+ 
+script: Rectangle.js
+ 
+description: Rectangles with rounded corners
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - ART/ART.Shape
+ 
+provides: 
+  - ART.Shape.Rectangle
+ 
+...
+*/
+
+ART.Shape.Rectangle = new Class({
+
+  Extends: ART.Shape,
+  
+  draw: function(width, height, radius) {
+    var path = new ART.Path;
+    if (!radius){
+
+      path.move(0, 0).line(width, 0).line(0, height).line(-width, 0).line(0, -height);
+
+    } else {
+
+      if (typeof radius == 'number') radius = [radius, radius, radius, radius];
+
+      var tl = radius[0], tr = radius[1], br = radius[2], bl = radius[3];
+
+      if (tl < 0) tl = 0;
+      if (tr < 0) tr = 0;
+      if (bl < 0) bl = 0;
+      if (br < 0) br = 0;
+
+      path.move(0, tl);
+
+      if (width < 0) path.move(width, 0);
+      if (height < 0) path.move(0, height);
+
+      if (tl > 0) path.arc(tl, -tl);
+      path.line(Math.abs(width) - (tr + tl), 0);
+
+      if (tr > 0) path.arc(tr, tr);
+      path.line(0, Math.abs(height) - (tr + br));
+
+      if (br > 0) path.arc(-br, br);
+      path.line(- Math.abs(width) + (br + bl), 0);
+
+      if (bl > 0) path.arc(-bl, -bl);
+      path.line(0, - Math.abs(height) + (bl + tl));
+    }
+    
+    return this.parent(path);
+  },
+  
+  render: function(context) {
+    var radius = context.radius;     
+    if (radius && radius.length == 4) radius = [radius[0], radius[2], radius[3], radius[1]]       
+    return this.draw(context.size.width, context.size.height, radius)
+  }
+});
+/*
+---
+ 
+script: Flower.js
+ 
+description: Ever wanted a flower button? Here you go
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - ART/ART.Shape
+ 
+provides: 
+  - ART.Shape.Flower
+ 
+...
+*/
+
+ART.Shape.Flower = new Class({
+  
+  Extends: ART.Shape,
+  
+  properties: {
+    size:       [['leaves', 'radius']],
+    leaves:     ['number'],
+    radus:      ['length', 'percentage']
+  },
+  
+  draw: function(width, leaves, radius){
+     var path = new ART.Path,
+         outside = width / 2,
+         cx = width / 2,
+         cy = cx,
+         inside = outside * (radius || 0.5);
+     
+    leaves = Math.max(leaves || 0, 5);
+    path.move(0, inside);
+    var points = ["M", cx, cy + rin, "Q"],
+        R;
+    for (var i = 1; i < leaves * 2 + 1; i++) {
+        R = i % 2 ? rout : rin;
+        points = points.concat([+(cx + R * Math.sin(i * Math.PI / n)).toFixed(3), +(cy + R * Math.cos(i * Math.PI / n)).toFixed(3)]);
+    }
+    points.push("z");
+    return this.path(points);
+    
+    
+    return this.parent(path.close());
+  },
+
+  getOffset: function(styles, offset) {
+    var stroke = (styles.strokeWidth || 0);
+    return {
+      left: ((styles.width == 'auto') ? Math.max(stroke - offset.left, 0) : stroke),
+      top: 0,
+      right: ((styles.width == 'auto') ? Math.max(stroke - offset.right, 0) : stroke),
+      bottom: stroke
+    }
+  }
+
+});
+/*
+---
+ 
 script: Arrow.js
  
 description: An arrow shape. Useful for all the chat bubbles and validation errors.
@@ -7562,9 +5044,10 @@ license: Public domain (http://unlicense.org).
 authors: Yaroslaff Fedin
  
 requires:
-- ART/ART.Shape
+  - ART/ART.Shape
  
-provides: [ART.Shape.Arrow]
+provides: 
+  - ART.Shape.Arrow
  
 ...
 */
@@ -7573,9 +5056,15 @@ ART.Shape.Arrow = new Class({
 
   Extends: ART.Shape,
   
-  properties: ['width', 'height', 'radius', 'arrowWidth', 'arrowHeight', 'arrowSide', 'arrowPosition', 'arrowX', 'arrowY'],
+  properties: {
+    arrow: [['width', 'height', 'side', 'position']],
+    width: ['length', 'percentage'],
+    height: ['length', 'percentage'],
+    side: ['top', 'right', 'bottom', 'left'],
+    position: ['center', 'length', 'percentage']
+  },
   
-  draw: function(width, height, radius, aw, ah, as, ap, ax, ay){
+  draw: function(width, height, radius, aw, ah, as, ap){
 
     var path = new ART.Path;
     
@@ -7649,7 +5138,13 @@ ART.Shape.Arrow = new Class({
   },
   
   render: function(context) {
-    return this.draw(context.size.width, context.size.height, context.radius)
+    var style = context.style;
+    return this.draw(context.size.width, context.size.height, context.radius, style.arrowWidth, style.arrowHeight, style.arrowSide, style.arrowPosition)
+  },
+  
+  invoke: function() {
+    
+    this.render
   }
 
 });
@@ -7657,184 +5152,3404 @@ ART.Shape.Arrow = new Class({
 /*
 ---
  
-script: Rectangle.js
+script: Glyphs.js
  
-description: Rectangles with rounded corners
+description: Glyph library
  
 license: Public domain (http://unlicense.org).
 
 authors: Yaroslaff Fedin
  
 requires:
-- ART/ART.Shape
+  - ART/ART
  
-provides: [ART.Shape.Rectangle]
+provides: 
+  - ART.Glyphs
  
 ...
 */
 
-ART.Shape.Rectangle = new Class({
-
-  Extends: ART.Shape,
+ART.Glyphs = {
   
-  draw: function(width, height, radius) {
-    var path = new ART.Path;
-    if (!radius){
+  wrench: 'M11.414,11.415c-0.781,0.78-2.048,0.78-2.829,0L3.17,5.999C3.112,6.002,3.058,6.016,3,6.016c-1.657,0-3-1.347-3-3.008c0-0.464,0.114-0.899,0.302-1.292l1.987,1.988c0.391,0.39,1.023,0.39,1.414,0c0.391-0.391,0.391-1.023,0-1.414L1.715,0.3C2.105,0.113,2.538,0,3,0c1.657,0,3,1.347,3,3.008c0,0.051-0.012,0.099-0.015,0.149l5.429,5.429C12.195,9.368,12.195,10.634,11.414,11.415z M11,9.501c0-0.276-0.224-0.5-0.5-0.5h-1c-0.277,0-0.501,0.224-0.501,0.5v1c0,0.275,0.224,0.5,0.501,0.5h1c0.276,0,0.5-0.225,0.5-0.5V9.501z',
+  
+  refresh: 'M0,0M5.142,6.504l-2,1.174c1.07,1.899,3.709,2.232,5.203,0.661l1.603,0.688c-2.096,2.846-6.494,2.559-8.234-0.508L0,9.524c0.199-1.665,0.398-3.329,0.597-4.993C2.112,5.189,3.626,5.847,5.142,6.504M6.858,5.51L6.844,5.505l0.013-0.008L6.858,5.51 M5.142,6.491C5.16,6.494,5.16,6.498,5.143,6.503L5.142,6.491 M11.402,7.466L12,2.477l-1.714,1.007C8.549,0.411,4.147,0.131,2.054,2.971L3.655,3.66C5.156,2.089,7.78,2.425,8.857,4.322l-2,1.175L11.402,7.466M12,12z',
+  
+  search: 'M0,0M11.707,11.707c-0.391,0.391-1.024,0.391-1.415,0L7.759,9.174c-0.791,0.523-1.736,0.832-2.755,0.832C2.24,10.006,0,7.766,0,5.003S2.24,0,5.003,0s5.003,2.24,5.003,5.003c0,1.02-0.309,1.966-0.833,2.755l2.533,2.533C12.098,10.683,12.098,11.315,11.707,11.707z M5.003,2.002c-1.658,0-3.002,1.344-3.002,3.001c0,1.658,1.344,3.002,3.002,3.002c1.657,0,3.001-1.344,3.001-3.002C8.005,3.346,6.66,2.002,5.003,2.002M12,12z',
+  
+  smallCross: 'M0,0M8.708,4.706L7.414,6l1.294,1.294c0.391,0.391,0.391,1.023,0,1.414s-1.023,0.391-1.414,0L6,7.414L4.706,8.708c-0.391,0.391-1.023,0.391-1.415,0c-0.39-0.391-0.39-1.023,0-1.414L4.586,6L3.292,4.706c-0.39-0.391-0.39-1.024,0-1.415c0.391-0.391,1.024-0.39,1.415,0L6,4.586l1.294-1.294c0.391-0.391,1.023-0.39,1.414,0C9.099,3.683,9.099,4.315,8.708,4.706M12,12z',
+  
+  smallPlus: 'M0,0M7,3.17V5h1.83c0.552,0,1,0.448,1,1c0,0.553-0.448,1-1,1H7v1.83c0,0.553-0.448,1-1,1.001c-0.552-0.001-1-0.448-1-1V7L3.17,7c-0.552,0-1-0.448-1-1c0-0.553,0.448-1,1-1H5v-1.83c0-0.552,0.448-1,1-1C6.552,2.17,7,2.617,7,3.17M12,12z',
+  
+  smallMinus: 'M0,0M8.83,5c0.553,0,1,0.448,1,1l0,0c0,0.552-0.447,1-1,1H3.17c-0.552,0-1-0.448-1-1l0,0c0-0.552,0.448-1,1-1H8.83M12,12z',
+  
+  resize: 'M0,0M8.299,12L12,8.299v1.414L9.713,12H8.299z M4.244,12L12,4.244v1.414L5.658,12H4.244z M0.231,12L12,0.231v1.414L1.646,12H0.231M12,12z',
+  
+  checkMark: 'M8.277,0.046L6.301,0L2.754,4.224L0.967,2.611L0,3.633l3.464,3.51L8.277,0.046z',
+  radio: 'M2.5,0C3.881,0,5,1.119,5,2.5S3.881,5,2.5,5S0,3.881,0,2.5S1.119,0,2.5,0z',
+  
+  //triangles
+  
+  triangleUp: "M0,8L4,0L8,8L0,8",
+  triangleDown: "M0,0L8,0L4,8L0,0",
+  triangleLeft: "M0,4L8,0L8,8L0,4",
+  triangleRight: "M0,0L8,4L0,8L0,0",
+  triangles: "M0,6L3,0L6,6L0,6M0,10L6,10L3,16L0,10",
+  
+  plus: "M3,0L6,0L6,3L9,3L9,6L6,6L6,9L3,9L3,6L0,6L0,3L3,3Z",
+  minus: "M9,9M0,1.5L9,1.5L9,4.5L0,4.5Z",
+  shutdown: "M21.816,3.999c-0.993-0.481-2.189-0.068-2.673,0.927c-0.482,0.995-0.066,2.191,0.927,2.673c3.115,1.516,5.265,4.705,5.263,8.401c-0.01,5.154-4.18,9.324-9.333,9.333c-5.154-0.01-9.324-4.18-9.334-9.333c-0.002-3.698,2.149-6.89,5.267-8.403c0.995-0.482,1.408-1.678,0.927-2.673c-0.482-0.993-1.676-1.409-2.671-0.927C5.737,6.152,2.667,10.72,2.665,16C2.667,23.364,8.634,29.332,16,29.334c7.365-0.002,13.333-5.97,13.334-13.334C29.332,10.722,26.266,6.157,21.816,3.999z M16,13.833c1.104,0,1.999-0.894,1.999-2V2.499C17.999,1.394,17.104,0.5,16,0.5c-1.106,0-2,0.895-2,1.999v9.333C14,12.938,14.894,13.833,16,13.833z"
+  
+};
+/*
+---
 
-      path.move(0, 0).line(width, 0).line(0, height).line(-width, 0).line(0, -height);
+name: Class.Extras
 
+description: Contains Utility Classes that can be implemented into your own Classes to ease the execution of many common tasks.
+
+license: MIT-style license.
+
+requires: Class
+
+provides: [Class.Extras, Chain, Events, Options]
+
+...
+*/
+
+(function(){
+
+this.Chain = new Class({
+
+	$chain: [],
+
+	chain: function(){
+		this.$chain.append(Array.flatten(arguments));
+		return this;
+	},
+
+	callChain: function(){
+		return (this.$chain.length) ? this.$chain.shift().apply(this, arguments) : false;
+	},
+
+	clearChain: function(){
+		this.$chain.empty();
+		return this;
+	}
+
+});
+
+var removeOn = function(string){
+	return string.replace(/^on([A-Z])/, function(full, first){
+		return first.toLowerCase();
+	});
+};
+
+this.Events = new Class({
+
+	$events: {},
+
+	addEvent: function(type, fn, internal){
+		type = removeOn(type);
+
+		/*<1.2compat>*/
+		if (fn == $empty) return this;
+		/*</1.2compat>*/
+
+		this.$events[type] = (this.$events[type] || []).include(fn);
+		if (internal) fn.internal = true;
+		return this;
+	},
+
+	addEvents: function(events){
+		for (var type in events) this.addEvent(type, events[type]);
+		return this;
+	},
+
+	fireEvent: function(type, args, delay){
+		type = removeOn(type);
+		var events = this.$events[type];
+		if (!events) return this;
+		args = Array.from(args);
+		events.each(function(fn){
+			if (delay) fn.delay(delay, this, args);
+			else fn.apply(this, args);
+		}, this);
+		return this;
+	},
+	
+	removeEvent: function(type, fn){
+		type = removeOn(type);
+		var events = this.$events[type];
+		if (events && !fn.internal){
+			var index =  events.indexOf(fn);
+			if (index != -1) delete events[index];
+		}
+		return this;
+	},
+
+	removeEvents: function(events){
+		var type;
+		if (typeOf(events) == 'object'){
+			for (type in events) this.removeEvent(type, events[type]);
+			return this;
+		}
+		if (events) events = removeOn(events);
+		for (type in this.$events){
+			if (events && events != type) continue;
+			var fns = this.$events[type];
+			for (var i = fns.length; i--;) if (i in fns){
+				this.removeEvent(type, fns[i]);
+			}
+		}
+		return this;
+	}
+
+});
+
+this.Options = new Class({
+
+	setOptions: function(){
+		var options = this.options = Object.merge.apply(null, [{}, this.options].append(arguments));
+		if (this.addEvent) for (var option in options){
+			if (typeOf(options[option]) != 'function' || !(/^on[A-Z]/).test(option)) continue;
+			this.addEvent(option, options[option]);
+			delete options[option];
+		}
+		return this;
+	}
+
+});
+
+})();
+
+/*
+---
+
+name: Class.Extras
+
+description: Contains Utility Classes that can be implemented into your own Classes to ease the execution of many common tasks.
+
+license: MIT-style license.
+
+requires: Class
+
+extends: Core/Class.Extras
+...
+*/
+
+//dont use typeOf in loop :)
+
+(function(apply) {
+  
+  Options.prototype.setOptions = function(){
+  	var options = this.options = Object.merge.apply(null, [{}, this.options].append(arguments));
+  	if (this.addEvent) for (var option in options){
+  	  var value = options[option];
+  		if (!value || (value.apply != apply) || !(/^on[A-Z]/).test(option)) continue;
+  		this.addEvent(option, options[option]);
+  		delete options[option];
+  	}
+  	return this;
+  }
+
+})(Function.prototype.apply);
+/*
+---
+ 
+script: Observer.js
+ 
+description: A class that tracks updates in input periodically and fires onChange event
+ 
+license: MIT-style license.
+ 
+requires:
+- Core/Options
+- Core/Events
+
+provides: [Observer]
+ 
+...
+*/
+
+
+Observer = new Class({
+
+	Implements: [Options, Events],
+
+	options: {
+		periodical: false,
+		delay: 1000
+	},
+
+	initialize: function(el, onFired, options){
+		this.element = $(el) || $$(el);
+		this.addEvent('onFired', onFired);
+		this.setOptions(options);
+		this.bound = this.changed.bind(this);
+		this.resume();
+	},
+
+	changed: function() {
+		var value = this.element.get('value');
+		if (Object.equals(this.value, value)) return;
+		this.clear();
+		this.value = value;
+		this.timeout = this.onFired.delay(this.options.delay, this);
+	},
+
+	setValue: function(value) {
+		this.value = value;
+		this.element.set('value', value);
+		return this.clear();
+	},
+
+	onFired: function() {
+		this.fireEvent('onFired', [this.value, this.element]);
+	},
+
+	clear: function() {
+		$clear(this.timeout || null);
+		return this;
+	},
+
+	pause: function(){
+		if (this.timer) $clear(this.timer);
+		else this.element.removeEvent('keyup', this.bound);
+		return this.clear();
+	},
+
+	resume: function(){
+		this.value = this.element.get('value');
+		if (this.options.periodical) this.timer = this.changed.periodical(this.options.periodical, this);
+		else this.element.addEvent('keyup', this.bound);
+		return this;
+	}
+
+});
+/*
+---
+
+name: Fx
+
+description: Contains the basic animation logic to be extended by all other Fx Classes.
+
+license: MIT-style license.
+
+requires: [Chain, Events, Options]
+
+provides: Fx
+
+...
+*/
+
+(function(){
+
+var Fx = this.Fx = new Class({
+
+	Implements: [Chain, Events, Options],
+
+	options: {
+		/*
+		onStart: nil,
+		onCancel: nil,
+		onComplete: nil,
+		*/
+		fps: 60,
+		unit: false,
+		duration: 500,
+		frames: null,
+		frameSkip: true,
+		link: 'ignore'
+	},
+
+	initialize: function(options){
+		this.subject = this.subject || this;
+		this.setOptions(options);
+	},
+
+	getTransition: function(){
+		return function(p){
+			return -(Math.cos(Math.PI * p) - 1) / 2;
+		};
+	},
+
+	step: function(now){
+		if (this.options.frameSkip){
+			var diff = (this.time != null) ? (now - this.time) : 0, frames = diff / this.frameInterval;
+			this.time = now;
+			this.frame += frames;
+		} else {
+			this.frame++;
+		}
+		
+		if (this.frame < this.frames){
+			var delta = this.transition(this.frame / this.frames);
+			this.set(this.compute(this.from, this.to, delta));
+		} else {
+			this.frame = this.frames;
+			this.set(this.compute(this.from, this.to, 1));
+			this.stop();
+		}
+	},
+
+	set: function(now){
+		return now;
+	},
+
+	compute: function(from, to, delta){
+		return Fx.compute(from, to, delta);
+	},
+
+	check: function(){
+		if (!this.isRunning()) return true;
+		switch (this.options.link){
+			case 'cancel': this.cancel(); return true;
+			case 'chain': this.chain(this.caller.pass(arguments, this)); return false;
+		}
+		return false;
+	},
+
+	start: function(from, to){
+		if (!this.check(from, to)) return this;
+		this.from = from;
+		this.to = to;
+		this.frame = (this.options.frameSkip) ? 0 : -1;
+		this.time = null;
+		this.transition = this.getTransition();
+		var frames = this.options.frames, fps = this.options.fps, duration = this.options.duration;
+		this.duration = Fx.Durations[duration] || duration.toInt();
+		this.frameInterval = 1000 / fps;
+		this.frames = frames || Math.round(this.duration / this.frameInterval);
+		this.fireEvent('start', this.subject);
+		pushInstance.call(this, fps);
+		return this;
+	},
+	
+	stop: function(){
+		if (this.isRunning()){
+			this.time = null;
+			pullInstance.call(this, this.options.fps);
+			if (this.frames == this.frame){
+				this.fireEvent('complete', this.subject);
+				if (!this.callChain()) this.fireEvent('chainComplete', this.subject);
+			} else {
+				this.fireEvent('stop', this.subject);
+			}
+		}
+		return this;
+	},
+	
+	cancel: function(){
+		if (this.isRunning()){
+			this.time = null;
+			pullInstance.call(this, this.options.fps);
+			this.frame = this.frames;
+			this.fireEvent('cancel', this.subject).clearChain();
+		}
+		return this;
+	},
+	
+	pause: function(){
+		if (this.isRunning()){
+			this.time = null;
+			pullInstance.call(this, this.options.fps);
+		}
+		return this;
+	},
+	
+	resume: function(){
+		if ((this.frame < this.frames) && !this.isRunning()) pushInstance.call(this, this.options.fps);
+		return this;
+	},
+	
+	isRunning: function(){
+		var list = instances[this.options.fps];
+		return list && list.contains(this);
+	}
+
+});
+
+Fx.compute = function(from, to, delta){
+	return (to - from) * delta + from;
+};
+
+Fx.Durations = {'short': 250, 'normal': 500, 'long': 1000};
+
+// global timers
+
+var instances = {}, timers = {};
+
+var loop = function(){
+	var now = Date.now();
+	for (var i = this.length; i--;){
+		var instance = this[i];
+		if (instance) instance.step(now);
+	}
+};
+
+var pushInstance = function(fps){
+	var list = instances[fps] || (instances[fps] = []);
+	list.push(this);
+	if (!timers[fps]) timers[fps] = loop.periodical(Math.round(1000 / fps), list);
+};
+
+var pullInstance = function(fps){
+	var list = instances[fps];
+	if (list){
+		list.erase(this);
+		if (!list.length && timers[fps]){
+			delete instances[fps];
+			timers[fps] = clearInterval(timers[fps]);
+		}
+	}
+};
+
+})();
+
+/*
+---
+ 
+script: Class.Includes.js
+ 
+description: Multiple inheritance in mootools, chained Extend basically.
+ 
+license: MIT-style license.
+ 
+requires:
+- Core/Options
+- Core/Events
+- Core/Class
+
+provides: [Class.Mutators.Includes, Class.include, Class.flatten]
+ 
+...
+*/
+
+(function() {
+  
+  var getInstance = function(klass){
+    klass.$prototyping = true;
+    var proto = new klass;
+    delete klass.$prototyping;
+    return proto;
+  };
+  
+  Class.include = function(klass, klasses) {
+    return new Class({
+      Includes: Array.from(arguments).flatten()
+    });
+  };
+  
+  Class.flatten = function(items) {
+    return Array.from(items).clean().map(function(item, i) {
+      if (item.parent) {
+        return [Class.flatten(item.parent), item];
+      } else {
+        return item;
+      }
+    }).flatten();
+  };
+
+  Class.Mutators.Includes = function(items) {
+    items = Array.from(items);
+    var instance = this.parent ? this.parent : items.shift();
+    Class.flatten(items).each(function(parent){
+      var baked = new Class;
+      if (instance) {
+        baked.parent = instance;
+        baked.prototype = getInstance(instance);
+      }
+      var proto = Object.append({}, parent.prototype);
+      delete proto.$caller;
+      delete proto.$constructor;
+      delete proto.parent;
+      delete proto.caller;
+      for (var i in proto) {
+        var fn = proto[i];
+        if (fn && fn.$owner && (fn.$owner != parent) && fn.$owner.parent) delete proto[i];
+      }
+      baked.implement(proto);
+      instance = baked;
+    }, this);
+    this.parent = instance;
+    this.prototype = getInstance(instance);
+  };
+})();
+/*
+---
+ 
+script: Class.States.js
+ 
+description: A mutator that adds some basic state definition capabilities.
+ 
+license: MIT-style license.
+ 
+requires:
+- Core/Options
+- Core/Events
+- Core/Class
+- Core/Class.Extras
+- Class.Mutators.Includes
+
+provides: 
+  - Class.Mutators.States
+  - Class.Stateful
+ 
+...
+*/
+
+
+Class.Stateful = function(states) {
+  var proto = {
+    options: {
+      states: {}
+    },
+    setStateTo: function(state, to) {
+      return this[this.options.states[state][to ? 'enabler' : 'disabler']]();
+    }
+  };
+
+  Object.each(states, function(methods, state) {
+    var options = Array.link(methods, {
+      enabler: Type.isString,
+      disabler: Type.isString,
+      toggler: Type.isString,
+      reflect: function(value){ return value != null; }
+    });
+    
+    //enable reflection by default
+    if (options.reflect == null) options.reflect = true;
+
+    proto.options.states[state] = options;
+
+    proto[options.enabler] = function() {
+      if (this[state]) return false;
+      this[state] = true; 
+      if (Class.hasParent(this)) this.parent.apply(this, arguments);
+
+      this.fireEvent(options.enabler, arguments);
+      if (this.onStateChange && options.reflect) this.onStateChange(state, true, arguments);
+      return true;
+    };
+
+    proto[options.disabler] = function() {
+      if (!this[state]) return false;
+      this[state] = false;
+
+  	  if (Class.hasParent(this)) this.parent.apply(this, arguments);
+
+      this.fireEvent(options.disabler, arguments);
+      if (this.onStateChange && options.reflect) this.onStateChange(state, false, arguments);
+      return true;
+    };
+
+    if (options.toggler) proto[options.toggler] = function() {
+      return this[this[state] ? options.disabler : options.enabler].apply(this, arguments);
+    };
+  });
+
+  return new Class(proto);
+};
+
+Class.Mutators.States = function(states) {
+  this.implement('Includes', Class.Stateful(states));
+};
+Class.Mutators.Stateful = function(states) {
+  this.implement('Implements', Class.Stateful(states));
+};
+/*
+---
+ 
+script: Class.Macros.js
+ 
+description: A few functions that simplify definition of everyday methods with common logic
+ 
+license: MIT-style license.
+ 
+requires:
+- Core/Options
+- Core/Events
+- Core/Class.Extras
+
+provides: [Macro, Class.hasParent]
+ 
+...
+*/
+
+Class.hasParent = function(klass) {
+  var caller = klass.$caller;
+  return !!(caller.$owner.parent && caller.$owner.parent.prototype[caller.$name]);
+};
+
+Macro = {};
+
+/*
+Make stackable function what executes it's parent before itself
+*/
+Macro.onion = function(callback) {
+  return function() {
+    if (!this.parent.apply(this, arguments)) return;
+    return callback.apply(this, arguments) !== false;
+  };
+};
+
+/*
+Make getter-function with cache. Returned function alculates values on first call, after return this[name].
+To reset cache use:
+
+  delete this[name];
+
+*/
+Macro.getter = function(name, callback) {
+  return function() {
+    if (!this[name]) this[name] = callback.apply(this, arguments);
+    return this[name];
+  };
+};
+
+
+/*
+Make function that runs it's parent if it exists, and runs itself if does not
+*/
+Macro.defaults = function(callback) {
+  return function() {
+    if (Class.hasParent(this)) {
+      return this.parent.apply(this, arguments);
     } else {
-
-      if (typeof radius == 'number') radius = [radius, radius, radius, radius];
-
-      var tl = radius[0], tr = radius[1], br = radius[2], bl = radius[3];
-
-      if (tl < 0) tl = 0;
-      if (tr < 0) tr = 0;
-      if (bl < 0) bl = 0;
-      if (br < 0) br = 0;
-
-      path.move(0, tl);
-
-      if (width < 0) path.move(width, 0);
-      if (height < 0) path.move(0, height);
-
-      if (tl > 0) path.arc(tl, -tl);
-      path.line(Math.abs(width) - (tr + tl), 0);
-
-      if (tr > 0) path.arc(tr, tr);
-      path.line(0, Math.abs(height) - (tr + br));
-
-      if (br > 0) path.arc(-br, br);
-      path.line(- Math.abs(width) + (br + bl), 0);
-
-      if (bl > 0) path.arc(-bl, -bl);
-      path.line(0, - Math.abs(height) + (bl + tl));
+      return callback.apply(this, arguments);
     }
-    
-    return this.parent(path);
-  },
-  
-  render: function(context) {
-    var radius = context.radius;     
-    if (radius && radius.length == 4) radius = [radius[0], radius[2], radius[3], radius[1]]       
-    return this.draw(context.size.width, context.size.height, radius)
-  }
-});
+  };
+};
+
+/*
+Make function what returns property 'name' of passed argument
+*/
+Macro.map = function(name) {
+  return function(item) {
+    return item[name];
+  };
+};
+
+/*
+Make function Macro.map but diference that Macro.proc calls 'name' method
+*/
+Macro.proc = function(name, args) {
+  return function(item) {
+    return item[name].apply(item, args || arguments);
+  };
+};
+
+/*
+Make function what call method 'method' of property this[name] with passed arguments
+*/
+Macro.delegate = function(name, method) {
+  return function() {
+    if (this[name]) return this[name][method].apply(this[name], arguments);
+  };
+};
 /*
 ---
  
-script: Flower.js
+script: LSD.js
  
-description: Ever wanted a flower button? Here you go
+description: LSD namespace definition
  
 license: Public domain (http://unlicense.org).
 
 authors: Yaroslaff Fedin
  
 requires:
-- ART/ART.Shape
+  - Core/Class
+  - Core/Events
+  - Core/Options
+  - Core/Browser
+  - Core/Object
+  - Ext/Macro
+  - Ext/Class.Stateful
+  - Ext/Class.mixin
+  - Ext/FastArray
  
-provides: [ART.Shape.Flower]
+provides: 
+  - LSD
  
 ...
 */
 
-ART.Shape.Flower = new Class({
+if (!window.console) window.console = {};
+if (!window.console.log) window.console.log = function() {};
+
+var LSD = new Events;
+Object.append(LSD, {
+  Module: {},  // must-have stuff for all widgets 
+  Trait: {},   // some widgets may use those
+  Mixin: {},   // these may be applied in runtime
   
-  Extends: ART.Shape,
+  // Conventions
+  Events: {},
+  Attributes: {
+    Ignore: new FastArray,
+    Numeric: new FastArray('tabindex', 'width', 'height')
+  },
+  Styles: {},
+  States: {
+    Known: {
+      'hidden':   ['hide',    'show'],
+      'disabled': ['disable', 'enable'],
+      'focused':  ['focus',   'blur']
+    },
+    Positive: {
+      disabled: 'disabled',
+      focused: 'focused'
+    },
+    Negative: {
+      enabled: 'disabled',
+      blured: 'focused'
+    },
+    Attributes: new FastArray
+  }
+});
+
+LSD.start = function() {
+  if (LSD.started) return;
+  LSD.started = true;
+  LSD.fireEvent('before');
+  LSD.fireEvent('ready');
+};
+/*
+---
+ 
+script: Position.js
+ 
+description: Easily reposition element by positioning widget absolutely and one of the edges
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD
+
+provides: 
+  - LSD.Mixin.Position
+ 
+...
+*/
+
+LSD.Mixin.Position = new Class({
+  behaviour: "[at], [position]",
   
-  properties: ['width', 'height', 'leaves', 'radius'],
+  initialize: function() {
+    this.parent.apply(this, arguments);
+    this.positionAt(this.attributes.at || this.attributes.position);
+  },
   
-  draw: function(width, height, leaves, radius){
-     var path = new ART.Path,
-         outside = width / 2,
-         cx = width / 2,
-         cy = cx,
-         inside = outside * (radius || 0.5);
-     
-    leaves = Math.max(leaves || 0, 5);
-    path.move(0, inside);
-    var points = ["M", cx, cy + rin, "Q"],
-        R;
-    for (var i = 1; i < leaves * 2 + 1; i++) {
-        R = i % 2 ? rout : rin;
-        points = points.concat([+(cx + R * Math.sin(i * Math.PI / n)).toFixed(3), +(cy + R * Math.cos(i * Math.PI / n)).toFixed(3)]);
+  positionAt: function(position) {
+    position.split(/\s+/).each(function(property) {
+      this.element.setStyle(property, 0)
+    }, this);
+    this.element.setStyle('position', 'absolute');
+    return true;
+  }
+  
+});
+/*
+---
+ 
+script: Base.js
+ 
+description: Lightweight base widget class to inherit from.
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD
+  - Core/Options
+  - Core/Events
+ 
+provides:
+  - LSD.Base
+...
+*/
+
+LSD.Base = new Class({
+  
+  Implements: [Options, Events],
+  
+  initialize: function() {
+  },
+  
+  toElement: function(){
+    this.build();
+    return this.element;
+  },
+  
+  attach: function() {
+    this.toElement().store('widget', this);
+    return true;
+  },
+  
+  detach: function() {
+    this.toElement().eliminate('widget', this);
+    return true;
+  },
+  
+  setState: function(state) {
+    if (LSD.States.Attributes[state]) {
+      this.setAttribute(state, true)
+    } else {
+      this.addClass('is-' + state);
     }
-    points.push("z");
-    return this.path(points);
-    
-    
-    return this.parent(path.close());
+    this.addPseudo(state);
+  },
+  
+  unsetState: function(state) {
+    if (LSD.States.Attributes[state]) {
+      this.removeAttribute(state)
+    } else {
+      this.removeClass('is-' + state);
+    }
+    this.removePseudo(state);
   },
 
-  getOffset: function(styles, offset) {
-    var stroke = (styles.strokeWidth || 0);
+  dispose: function() {
+    var parent = this.parentNode;
+    this.element.dispose();
+    delete this.parentNode;
+    this.fireEvent('dispose', parent);
+  },
+  
+  setParent: function(widget) {
+    this.parentNode = widget;
+    this.document = widget.document;
+  },
+  
+  setDocument: function(widget) {
+    var element = document.id(widget)
+    var isDocument = (widget.nodeType == 9)
+    if (isDocument || element.offsetParent) {
+      var document = isDocument ? widget : element.ownerDocument.body.retrieve('widget');
+      this.document = document;
+      this.fireEvent('dominject', element);
+      this.dominjected = true;
+    }
+  },
+  
+  inject: function(widget) {
+    if (this.parentNode) this.dispose();
+    this.toElement().inject(widget);
+    this.setDocument(widget);
+    this.setParent(widget);
+    this.fireEvent('inject', arguments);
+  },
+  
+  destroy: function() {
+    if (this.parentNode) this.dispose();
+    this.detach();
+    if (this.element) this.element.destroy();
+  },
+
+  onDOMInject: function(callback) {
+    if (this.document) callback.call(this, document.id(this.document)) 
+    else this.addEvent('dominject', callback.bind(this))
+  },
+  
+  onChange: function() {
+    this.fireEvent('change', arguments)
+    return true;
+  },
+  
+  build: Macro.onion(function() {
+    var attrs = $unlink(this.options.element);
+    var tag = attrs.tag;
+    delete attrs.tag;
+    var classes = ['lsd'];
+    if (this.options.tag != tag) classes.push(this.options.tag);
+    classes.push(this.classes.join(' '));
+    if (this.options.id) classes.push('id-' + this.options.id);
+    this.element = new Element(tag, attrs).addClass(classes.join(' '));
+    
+    if (this.attributes) 
+      for (var name in this.attributes) 
+        if (name != 'width' && name != 'height') this.element.setAttribute(name, this.attributes[name]);
+        
+    if (this.style) for (var property in this.style.element) this.element.setStyle(property, this.style.element[property]);
+    this.redraws = 0;
+    this.attach()
+  }),
+  
+  onStateChange: function(state, value, args) {
+    var args = Array.from(arguments);
+    args.splice(1, 2); //state + args
+    this[value ? 'setState' : 'unsetState'].apply(this, args);
+    if (this.redraws > 0) this.refresh(true);
+    return true;
+  },
+  
+  getSelector: function(){
+    var parent = this.parentNode;
+    var selector = (parent && parent.getSelector) ? parent.getSelector() + ' ' : '';
+    selector += this.options.tag;
+    if (this.options.id) selector += '#' + this.options.id;
+    for (var klass in this.classes)  if (this.classes.hasOwnProperty(klass))  selector += '.' + klass;
+    for (var pseudo in this.pseudos) if (this.pseudos.hasOwnProperty(pseudo)) selector += ':' + pseudo;
+    if (this.attributes) for (var name in this.attributes) selector += '[' + name + '=' + this.attributes[name] + ']';
+    return selector;
+  },
+  
+  render: Macro.onion(function(){
+    if (!this.built) this.build();
+    delete this.halted;
+    this.redraws++;
+    this.repaint.apply(this, arguments);
+  }),
+  
+  repaint: function(style) {
+    this.renderStyles(style);
+    this.childNodes.each(function(child){
+      child.render();
+    });
+  },
+
+  /*
+    Halt marks widget as failed to render.
+    
+    Possible use cases:
+    
+    - Dimensions depend on child widgets that are not
+      rendered yet
+    - Dont let the widget render when it is not in DOM
+  */ 
+  halt: function() {
+    if (this.halted) return false;
+    this.halted = true;
+    return true;
+  },
+  
+  /*
+    Update marks widget as willing to render. That
+    can be followed by a call to *render* to trigger
+    redrawing mechanism. Otherwise, the widget stay 
+    marked and can be rendered together with ascendant 
+    widget.
+  */
+  
+  update: function(recursive) {
+    if (recursive) {
+      this.walk(function(widget) {
+        widget.update();
+      });
+    }
+    return this.parent.apply(this, arguments);
+  },
+  
+  /*
+    Refresh updates and renders widget (or a widget tree 
+    if optional argument is true). It is a reliable way
+    to have all elements redrawn, but a costly too.
+    
+    Should be avoided when possible to let internals 
+    handle the rendering and avoid some unnecessary 
+    calculations.
+  */
+
+  refresh: function(recursive) {
+    this.update(recursive);
+    return this.render();
+  },
+  
+  $family: function() {
+    return "object"
+  },
+  
+  /*
+    Wrapper is where content nodes get appended. 
+    Defaults to this.element, but can be redefined
+    in other Modules or Traits (as seen in Container
+    module)
+  */
+  
+  getWrapper: function() {
+    return this.toElement();
+  }
+  
+});
+/*
+---
+ 
+script: Item.js
+ 
+description: Easy way to have a list of children (to select from) or something like that.
+ 
+license: Public domain (http://unlicense.org).
+ 
+requires:
+  - LSD
+  - Ext/Class.Stateful
+
+provides: 
+  - LSD.Trait.Item
+  - LSD.Trait.Item.State
+  - LSD.Trait.Item.Stateful
+ 
+...
+*/
+
+LSD.Trait.Item = new Class({
+  options: {
+    events: {
+      self: {
+        setParent: 'setList'
+      }
+    }
+  },
+  
+  select: Macro.onion(function() {
+    this.listWidget.selectItem(this)
+  }),
+  
+  attach: Macro.onion(function() {
+    this.value = this.element.get('item') || $uid(this.element);
+  }),
+  
+  getValue: Macro.defaults(function() {
+    return this.value;
+  }),
+  
+  setList: function(widget) {
+    if (!widget.addItem) 
+      if (Element.type(widget))
+        for (var parent = widget, widget = null; parent && !widget; widget = parent.retrieve('widget'), parent = parent.parentNode);
+      else
+        while (!widget.addItem) widget = widget.parentNode;
+    if (widget.addItem) return widget.addItem(this)
+  }
+})
+
+LSD.Trait.Item.State = Class.Stateful({
+  selected: ['select', 'unselect']
+});
+LSD.Trait.Item.Stateful = [
+  LSD.Trait.Item.State,
+  LSD.Trait.Item
+]
+/*
+---
+ 
+script: Value.js
+ 
+description: Make your widget have a real form value.
+ 
+license: Public domain (http://unlicense.org).
+ 
+requires:
+  - LSD
+ 
+provides: 
+  - LSD.Trait.Value
+ 
+...
+*/
+
+LSD.Trait.Value = new Class({
+
+  setValue: function(item) {
+    var value = this.value;
+    this.value = this.processValue(item);
+    if (value != this.value) {
+      var result = this.applyValue(this.value);
+      this.onChange(this.value);
+      return result;
+    }
+  },
+  
+  applyValue: function(item) {
+    //if (this.element.getProperty('itemprop')) this.element.set('itemvalue', item);
+    return this.setContent(item)
+  },
+
+  getValue: function() {
+    return this.formatValue(this.value);
+  },
+
+  formatValue: $arguments(0),
+  processValue: $arguments(0),
+  
+  onChange: function() {
+    this.fireEvent('change', arguments)
+    return true;
+  }
+});
+/*
+---
+ 
+script: Container.js
+ 
+description: A container class that swallows all kind of a content
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD
+ 
+provides: [LSD.Container]
+ 
+...
+*/
+
+LSD.Container = new Class({
+  
+  Implements: [Events, Options],
+  
+  options: {
+    data: null,
+    request: null,
+
+    element: null,
+    iframe: null,
+    attributes: null,
+    container: null,
+    content: null,
+
+    padding: null
+  },
+  
+  initialize: function(element, options) {
+    this.element = $(element);
+    
+    if (!this.element) return
+    
+    this.set(options)
+    return this
+  },
+  
+  toElement: function() {
+    return this.element;
+  },
+  
+  set: function() {
+    var params = Array.link(arguments, {options: Object.type, content: String.type, fn: Function.type, element: Element.type});
+    if (!Hash.getLength(params)) return;
+    if (!params.options) params.options = {};
+    if (params.fn) this.set(params.fn());
+    if (params.element) params.options.element = params.element;
+    if (params.element && params.element.get('iframe')) {
+      params.iframe = params.element;
+      delete params.element
+    }
+    
+    if (params.content) params.options = $merge(params.options, {content: params.content});
+
+    return this.act($merge(this.options, params.options));
+  },
+  
+  load: function() {
+    this.set.apply(this, arguments)
+    return this.options
+  },
+  
+  act: function(options) {
+    //first set static stuff
+    var result = this.append(options.element || options.content) || this.build(options.attributes) || this.render(options.content);
+    //second do a request if needed
+    return this.request(options.request) || this.browse(options.iframe) || result
+  },
+  
+  browse: function(iframe) {
+    if (!iframe) return false;
+    switch(typeOf(this.options.iframe)) {
+      case "string": 
+        this.options.iframe = {src: this.options.iframe};
+      case "element":
+        this.iframe = this.options.iframe;
+      default:
+        if (!this.iframe) {
+          this.iframe = new IFrame($merge({
+            styles: {
+              border: 0, 
+              display: 'block',
+              width: "100%",
+              height: this.element.scrollHeight
+            }
+          }, this.options.iframe))
+        } else {
+          var options = $merge(this.options.iframe) || {}
+          if (options.src == this.iframe.src) delete options.src //do not set same src to avoid refreshing
+          this.iframe.set(this.options.iframe)
+        }
+    }
+    
+    if (this.iframe.getParent() != this.element) this.iframe.inject(this.empty());
+    return this.iframe;
+  },
+  
+  append: function(element) {
+    if (!$(element)) return false;
+    this.element.adopt(element);
+    this.update();
+    return element;
+  },
+  
+  request: function(options) {  
+    if (!options || !options.url) return false;
+    this.xhr = new Request($merge({method: "get"}, options));
+    this.xhr.addEvent('success', this.recieve.bind(this));
+    return this.xhr.send();
+  },
+  
+  render: function(html) {
+    if (!String.type(html) || !html.length) return false;
+    this.empty().set('html', html);
+    return html;
+  },
+  
+  build: function(attributes) {
+    if (!Object.type(attributes)) return false;
+    return this.element.adopt(new Element(attributes.tag || 'div', attributes));
+  },
+  
+  recieve: function(html) {
+    this.render(html);
+    this.fireEvent('update', this.element);
+  },
+
+  update: function() {
+    this.fireEvent('update', this.element);
+  },
+  
+  empty: function() {
+    this.element.empty();
+    return this.element;
+  }
+  
+});
+
+
+Moo = {};
+Moo.Container = new Class({
+  Extends: LSD.Container,
+  
+  initialize: function(widget, options) {
+    this.widget = widget;
+    //TODO: Remove the need for this container
+    this.container = new Element('div', {'class': 'container'}).inject($(this.widget));
+    this.parent(this.container, options);
+  },
+  
+  empty: function() { //skip LSD widgets
+    this.element.getChildren().each(function(child) {
+      if (!child.retrieve('widget')) child.destroy();
+    });
+    return this.element;
+  },
+  
+  update: function() {
+    this.parent.apply(this, arguments);
+    this.widget.fireEvent('contentChanged', arguments)
+  }
+});
+/*
+---
+ 
+script: Container.js
+ 
+description: Makes widget use container - wrapper around content setting
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD
+  - LSD.Container
+
+provides:
+  - LSD.Module.Container
+ 
+...
+*/
+
+LSD.Module.Container = new Class({
+  options: {
+    container: false,
+    
+    proxies: {
+      container: {
+        container: function() {
+          return $(this.getContainer()) //creates container, once condition is true
+        },
+        condition: $lambda(false),      //turned off by default
+        priority: -1,                   //lowest priority
+        rewrite: false                  //does not rewrite parent
+      }
+    }
+  },
+  
+  setContent: function(item) {
+    if (item.title) item = item.title;
+    return this.getContainer().set.apply(this.container, arguments);
+  },
+  
+  getContainer: Macro.getter('container', function() {
+    return new Moo.Container(this, this.options.container);
+  }),
+  
+  getWrapper: function() {
+    return this.getContainer().toElement()
+  }
+});
+/*
+---
+ 
+script: Dimensions.js
+ 
+description: Get and set dimensions of widget
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD
+
+provides: 
+  - LSD.Trait.Dimensions
+ 
+...
+*/
+
+
+LSD.Trait.Dimensions = new Class({
+  initialize: function() {
+    this.size = {};
+    this.parent.apply(this, arguments);
+  },
+  
+  render: function() {
+    var old = $unlink(this.size);
+    if (!this.parent.apply(this, arguments)) return false;
+    this.setSize({height: this.getStyle('height'), width: this.getStyle('width')}, old);
+    return true;
+  },
+  
+  setSize: function(size) {
+    if (!(this.setHeight(size.height, true) + this.setWidth(size.width, true))) return false;
+    var element = this.element, padding = this.offset.padding;
+    if (size.height && this.style.expressed.height) element.style.height = size.height - padding.top - padding.bottom + 'px'
+    if (size.width && this.style.expressed.width) element.style.width = size.width - padding.left - padding.right + 'px';
+  },
+  
+  setHeight: function(value, light) {
+    value = Math.min(this.style.current.maxHeight || 1500, Math.max(this.style.current.minHeight || 0, value));
+    if (this.size.height == value) return false;
+    this.size.height = value;
+    if (!light) this.setStyle('height', value);
+    return value;
+  },
+    
+  setWidth: function(value, light) {
+    value = Math.min(this.style.current.maxWidth || 3500, Math.max(this.style.current.minWidth || 0, value));
+    if (this.size.width == value) return false;
+    this.size.width = value;
+    if (!light) this.setStyle('width', value);
+    return value;
+  },
+  
+  getClientHeight: function() {
+    var style = this.style.current, height = style.height, offset = this.offset, padding = offset.padding;
+    if (!height || (height == "auto")) {
+      height = this.element.clientHeight;
+      var inner = offset.inner || padding;
+      if (height > 0 && inner) height -= inner.top + inner.bottom;
+    }
+    if (height != 'auto' && padding) height += padding.top + padding.bottom;
+    return height;
+  },
+  
+  getClientWidth: function() {
+    var style = this.style.current, offset = this.offset, padding = offset.padding, width = style.width;
+    if (typeof width != 'number') { //auto, inherit, undefined
+      var inside = offset.inside, outside = offset.outside, shape = offset.shape;
+      width = this.element.clientWidth;
+      if (width > 0) {
+        if (shape) width -= shape.left + shape.right;
+        if (inside) width -= inside.left + inside.right;
+        if (outside) width -= outside.left + outside.right;
+      }
+    }
+    if (style.display != 'block' && padding && inside) width += padding.left + padding.right;
+    return width;
+  },
+  
+  getOffsetHeight: function(height) {
+    var style = this.style.current, inside = this.offset.inside, bottom = style.borderBottomWidth, top = style.borderTopWidth;
+    if (!height) height =  this.getClientHeight();
+    if (inside)  height += inside.top + inside.bottom;
+    if (top)     height += top;
+    if (bottom)  height += bottom;
+    return height;
+  },
+  
+  getOffsetWidth: function(width) {
+    var style = this.style.current, inside = this.offset.inside, left = style.borderLeftWidth, right = style.borderRightWidth;
+    if (!width) width =  this.getClientWidth();
+    if (inside) width += inside.left + inside.right;
+    if (left)   width += left;
+    if (right)  width += right
+    return width;
+  },
+  
+  getLayoutHeight: function(height) {
+    height = this.getOffsetHeight(height);
+    if (this.offset.margin)  height += this.offset.margin.top + this.offset.margin.bottom;
+    if (this.offset.outside) height += this.offset.outside.top + this.offset.outside.bottom;
+    return height;
+  },
+
+  getLayoutWidth: function(width) {
+    var width = this.getOffsetWidth(width), offset = this.offset, margin = offset.margin, outside = offset.outside
+    if (margin)  width += margin.right + margin.left;
+    if (outside) width += outside.right + outside.left;
+    return width;
+  }
+  
+});
+/*
+---
+ 
+script: Node.js
+ 
+description: Super lightweight base class for abstract elements (documents, commands, meta)
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD
+  
+provides:
+  - LSD.Node
+  
+...
+*/
+
+LSD.Node = new Class({
+  
+  Implements: [Events, Options],  
+  
+  options: {},
+
+  initialize: function(element, options) {
+    this.element = document.id(element);
+    this.setOptions(options);
+    var attributes = this.options.element;
+    if (attributes && element) this.element.set(attributes);
+  },
+  
+  toElement: function() {
+    return this.element;
+  }
+})
+/*
+---
+ 
+script: Checkbox.js
+ 
+description: Abstract command
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD
+ 
+provides: 
+  - LSD.Command
+  - LSD.Command.Command
+ 
+...
+*/
+
+LSD.Command = new Class({
+  Stateful: {
+    disabled: ['disable', 'enable']
+  },
+  
+  options: {
+    id: null
+  },
+  
+  Implements: [Options, Events],
+  
+  initialize: function(document, options) {
+    this.setOptions(options);
+    if (document) {
+      this.document = document;
+      if (!this.document.commands) this.document.commands = {};
+      this.document.commands[this.options.id] = this;
+    }
+  },
+  
+  click: function() {
+    this.fireEvent('click', arguments);
+  },
+  
+  attach: function(widget) {
+    var states = this.options.states;
+    var events = widget.events._command = {}, self = this;
+    Object.each(states, function(state, name) {
+      events[state.enabler] = function() {
+        self[state.enabler].apply(widget, arguments)
+      }
+      events[state.disabler] = function() {
+        self[state.disabler].apply(widget, arguments)
+      }
+    });
+    if (widget.options.events.command) this.addEvents(widget.options.events.command);
+    this.addEvents(events);
+  },
+  
+  detach: function(widget) {
+    if (widget.options.events.command) this.removeEvents(widget.options.events.command);
+    this.removeEvents(events);
+  }
+})
+
+LSD.Command.Command = LSD.Command;
+/*
+---
+ 
+script: Checkbox.js
+ 
+description: Two-state command (can be on and off)
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Command
+ 
+provides: 
+  - LSD.Command.Checkbox
+ 
+...
+*/
+
+/*
+  Checkbox commands are useful when you need to track and toggle
+  state of some linked object. 
+  
+  Provide your custom logic hooking on *check* and *uncheck*
+  state transitions. Use *checked* property to get the current state.
+  
+  Examples:
+    - Button that toggles visibility of a sidebar
+    - Context menu item that shows or hides line numbers in editor
+*/
+
+LSD.Command.Checkbox = new Class({
+  Extends: LSD.Command,
+  
+  Stateful: {
+    checked: ['check', 'uncheck', 'toggle']
+  },
+
+  click: function() {
+    this.parent.apply(this, arguments);
+    this.toggle();
+  }
+})
+/*
+---
+ 
+script: Radio.js
+ 
+description: A command that is linked with others by name (one of many)
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Command
+ 
+provides: 
+  - LSD.Command.Radio
+ 
+...
+*/
+
+/*
+  Radio groupping is a way to links commands together to allow
+  only one in the group be active at the moment of time.
+  
+  Activation (*check*ing) of the commands deactivates all 
+  other commands in a radiogroup.
+  
+  Examples: 
+    - Tabs on top of a content window
+    - List of currently open documents in a context menu that
+      shows which of them is the one you edit now and an 
+      ability to switch between documents
+*/
+
+LSD.Command.Radio = new Class({
+  Extends: LSD.Command,
+  
+  Stateful: {
+    checked: ['check', 'uncheck']
+  },
+
+  options: {
+    radiogroup: false
+  },
+  
+  initialize: function() {
+    this.parent.apply(this, arguments);
+    var name = this.options.radiogroup || this.options.name;
+    if (name) {
+      var groups = this.document.radiogroups;
+      if (!groups) groups = this.document.radiogroups = {};
+      var group = groups[name];
+      if (!group) group = groups[name] = [];
+      group.push(this);
+      this.group = group;
+    }
+    this.addEvent('check', function() {
+      group.each(function(command) {
+        if (command != this) command.uncheck()
+      }, this);
+    }.bind(this))
+  },
+  
+  click: function() {
+    this.parent.apply(this, arguments);
+    this.check();
+  }
+});
+/*
+---
+ 
+script: Layout.js
+ 
+description: A logic to render (and nest) a few widgets out of the key-value hash
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+- LSD
+
+provides: [LSD.Layout]
+ 
+...
+*/
+
+LSD.Layout = new Class({
+  
+  Implements: [Options],
+    
+  initialize: function(widget, layout, options) {
+    if (LSD.Layout.isConvertable(widget)) widget = LSD.Layout.build(widget)
+    this.widget = widget;
+    this.layout = layout;
+    this.setOptions(options);
+    this.reset();
+  }, 
+  
+  reset: function() {
+    this.render(this.layout, this.widget);
+  },
+  
+  materialize: function(selector, layout, parent) {
+    var widget = LSD.Layout.build(selector, parent);
+    if (!Element.type(widget)) {
+      if (!String.type(layout)) this.render(layout, widget);
+      else widget.setContent(layout)
+    }
+    return widget;
+  },
+  
+  render: function(layout, parent) {
+    var widgets = [];
+    switch (typeOf(layout)) {
+      case "string": 
+        widgets.push(this.materialize(layout, {}, parent));
+        break;
+      case "array": case "elements":
+        layout.each(function(widget) {
+          widgets.push.apply(widgets, this.render(widget, parent))
+        }, this)
+        break;
+      case "element":
+        widgets.push(this.materialize(layout, LSD.Layout.getFromElement(layout), parent));
+        break;
+      case "object":
+        for (var selector in layout) widgets.push(this.materialize(selector, layout[selector], parent));
+        break;
+    }
+    return widgets;
+  }
+});
+
+(function(cache) {
+  LSD.Layout.findTraitByAttributeName = function(name) {
+    if (typeof cache[name] == 'undefined') {
+      switch (name) {
+        case 'tabindex':
+          name = 'Focus';
+          break;
+        case 'at':
+          name = 'Position';
+          break;
+      };
+      var base = LSD.Trait;
+      for (var bits = name.split('-'), bit, i = 0; (bit = bits[i++]) && (base = base[bit.capitalize()]););
+      var klass = cache[name] = base || null;
+      if (klass && klass.Stateful) cache[name] = klass.Stateful;
+    }
+    return cache[name];
+  }
+})(LSD.Layout.traitByAttribute = {});
+
+LSD.Layout.getFromElement = function(element) {
+  var children = element.getChildren();
+  if (children.length) return children;
+  var text = element.get('text');
+  if (text.length) return text;
+}
+
+LSD.Layout.Plain = new FastArray('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'strong', 'i', 'em', 'ul', 'ol', 'li', 'span', 'table', 'thead', 'tfoot', 'tbody', 'tr', 'td', 'colgroup')
+
+LSD.Layout.isConvertable = function(element) {
+  return Element.type(element) && !LSD.Layout.Plain[element.get('tag')];
+}
+
+LSD.Layout.convert = function(element) {
+  var options = {
+    attributes: {},
+    origin: element
+  };
+  var tag = element.get('tag');
+  if (tag != 'div') options.source = tag;
+  if (element.id) options.id = element.id;
+  for (var i = 0, attribute; attribute = element.attributes[i++];) {
+    options.attributes[attribute.name] = ((attribute.value != attribute.name) && attribute.value) || true;
+  }
+  if (options.attributes && options.attributes.inherit) {
+    options.inherit = options.attributes.inherit;
+    delete options.attributes.inherit;
+  }
+  var klass = options.attributes['class'];
+  if (klass) {
+    klass = klass.replace(/^lsd (?:tag-)?([a-zA-Z0-9-_]+)\s?/, function(m, tag) {
+      options.source = tag;
+      return '';
+    })
+    options.classes = klass.split(' ').filter(function(name) {
+      var match = /^(is|id)-(.*?)$/.exec(name)
+      if (match) {
+        switch (match[1]) {
+          case "is":
+            if (!options.pseudos) options.pseudos = [];
+            options.pseudos.push(match[2]);
+            break;
+          case "id":
+            options.id = match[2];
+        }
+      }
+      return !match;
+    })
+    delete options.attributes['class'];
+  }
+  return options;
+}
+
+LSD.Layout.replace = function(element) {
+  var layout = new LSD.Layout(element, element.getChildren());
+  if (element.parentNode) {
+    layout.widget.inject(element.parentNode);
+    if (layout.widget.element.previousSibling != element) $(layout.widget).inject(element, 'after');
+    element.dispose();
+  }
+  return layout.widget;
+}
+
+LSD.Layout.parse = function(selector) {
+  var parsed = Slick.parse(selector).expressions[0][0]
+  var options = {}
+  if (parsed.tag != '*') options.source = parsed.tag;
+  if (parsed.id) options.id = parsed.id
+  if (parsed.attributes) parsed.attributes.each(function(attribute) {
+    if (!options.attributes) options.attributes = {};
+    options.attributes[attribute.key] = attribute.value || true;
+  });
+  if (parsed.classes) options.classes = parsed.classes.map(Macro.map('value'));
+  if (parsed.pseudos) options.pseudos = parsed.pseudos.map(Macro.map('key'));
+  switch (parsed.combinator) {
+    case '^':
+      options.inherit = 'full';
+      break;
+    case '>':
+      options.inherit = 'partial';
+  }
+  return options;
+}
+
+LSD.Layout.build = function(item, parent, element) {
+  var options;
+  if (Element.type(item)) {
+    if (LSD.Layout.isConvertable(item)) {
+      options = LSD.Layout.convert(item);
+    } else {
+      var result = item.inject(parent);
+      if (result && parent.getContainer) $(item).inject(parent.getContainer());
+      return result;
+    }
+  } else options = LSD.Layout.parse(item);
+  var mixins = [];
+  var tag = options.source || options.tag || 'container'
+  if (options.attributes) {
+    if ('type' in options.attributes) tag += "-" + options.attributes.type;
+    if ('kind' in options.attributes) tag += "-" + options.attributes.kind;
+    for (var name in options.attributes) {
+      var value = options.attributes[name];
+      var bits = name.split('-');
+      for (var i = bits.length - 1; i > -1; i--) {
+        var obj = {};
+        obj[bits[i]] = value;
+        if (i == 0) $mixin(options, obj);
+        else value = obj;
+      }
+      var trait = LSD.Layout.findTraitByAttributeName(name);
+      if (trait) mixins.push(trait);
+    }
+  }
+  if (options.inherit) {
+    var source = parent.options.source;
+    if (!source) {
+      var bits = [parent.options.tag, parent.getAttribute('type')]
+      if (options.inherit == 'full') bits.push(parent.getAttribute('kind'))
+      source = bits.filter(function(bit) { return bit }).join('-');
+    }
+    tag = source + '-' + tag
+  }
+  
+  mixins.unshift(tag);
+  
+  options.source = tag;
+  var widget = LSD.Widget.create(mixins, options);
+  widget.build();
+  
+  if (element !== false && (element || parent)) widget.inject(element || parent, 'bottom', true)
+  
+  return widget;
+};
+/*
+---
+ 
+script: Expression.js
+ 
+description: Adds layout capabilities to widget (parse and render widget trees from objects)
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+- LSD
+- LSD.Layout
+
+provides: [LSD.Module.Layout]
+ 
+...
+*/
+
+LSD.Module.Layout = new Class({
+  options: {
+    layout: {}
+  },
+  
+  initialize: function(options) {
+    if (options && LSD.Layout.isConvertable(options)) options = LSD.Layout.convert(options);
+    this.parent.apply(this, arguments);
+    var origin = options && options.origin;
+    var layout = Array.from(this.options.layout.children);
+    if (origin && !options.source) {
+      var children = origin.getChildren();
+      if (!children.length) {
+        var text = origin.get('html').trim();
+        if (text.length) this.setContent(text)
+      } else layout.push.apply(layout, Array.from(children));
+    }
+    if (layout.length) this.setLayout(layout);
+    if (this.options.layout.self) this.applySelector(this.options.layout.self);
+  },
+  
+  applySelector: function(selector) {
+    var parsed = Slick.parse(selector).expressions[0][0];
+    if (parsed.classes) {
+      var klasses = parsed.classes.map(function(klass) { return klass.value })
+      this.classes.push.apply(this.classes, klasses);
+      klasses.each(this.addClass.bind(this));
+    }
+    var options = {};
+    if (parsed.id) options.id = parsed.id;
+    if (parsed.attributes) {
+      if (parsed.attributes) parsed.attributes.each(function(attribute) {
+        options[attribute.key] = attribute.value || true;
+      });
+    }  
+    if (parsed.attributes || parsed.id) Object.append(this.options, options);
+    this.fireEvent('selector', [parsed, selector]);
+  },
+  
+  setLayout: function(layout) {
+    this.layout = layout;
+    this.tree = this.applyLayout(layout);
+    this.fireEvent('layout', [this.tree, this.layout])
+  },
+  
+  applyLayout: function(layout) {
+    return new LSD.Layout(this, layout)
+  },
+  
+  buildLayout: function(selector, layout, parent) {
+    return LSD.Layout.build(selector, layout, (parent === null) ? null : (parent || this))
+  },
+  
+  buildItem: function() {
+    if (!this.options.layout.item) return this.parent.apply(this, arguments);
+    return this.buildLayout(this.options.layout.item, null, this)
+  }
+});
+/*
+---
+ 
+script: Action.js
+ 
+description: Action is a class that adds some feature to widget by mixing up in runtime
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires: 
+  - LSD
+ 
+provides: 
+  - LSD.Action
+ 
+...
+*/
+
+
+LSD.Action = function(options, name) {
+  var target, state;
+  var self = {
+    enable: function() {
+      if (self.enabled) return false;
+      if (state) target[state.enabler]();
+      options.enable.apply(target, arguments);
+      if (options.events) target.addEvents(target.events[options.events]);
+      if (self.enabled == null) target.addEvents(events);
+      self.enabled = true;
+      return true;
+    },
+
+    disable: function() {
+      if (!self.enabled) return false;
+      if (state) target[state.disabler]();
+      options.disable.apply(target, arguments);
+      if (options.events) target.removeEvents(target.events[options.events]);
+      if (self.enabled != null) target.removeEvents(events);
+      self.enabled = false;
+      return true;
+    },
+
+    use: function(widget, state) {
+      var widgets = Array.from(arguments);
+      var state = widgets.pop();
+      self[state ? 'enable' : 'disable'].apply(self, widgets);
+    },
+
+    watch: function(widget, state) {
+      if (!self[state ? 'enable' : 'disable'](widget)) //try enable the action
+        options[state ? 'enable' : 'disable'].call(target, widget); //just fire the callback 
+    },
+    
+    inject: function() {
+      self.enable();
+      if (state) self[state.disabler]();
+    },
+
+    attach: function(widget) {
+      target = widget;
+      state = widget.options.states && widget.options.states[name];
+      if (state) {
+        events[state.enabler] = options.enable.bind(target);
+        events[state.disabler] = options.disabler.bind(target);
+      }
+      target.addEvents(events);
+      if (options.uses) {
+        target.use(options.uses, self.use);
+      } else if (options.watches) {
+        target.watch(options.watches, self.watch);
+      } else if (!state || target[name]) target.onDOMInject(self.inject);
+    },
+
+    detach: function(widget) {
+      target.removeEvents(events);
+      if (options.watches) target.unwatch(options.watches, self.watch);
+      if (self.enabled) self.disable();
+      if (state) {
+        self[state.disabler]();
+        delete events[state.enabler], events[state.disabler];
+      }
+      target = state = null;
+    }
+  }
+  var events = {
+    enable:  self.enable,
+    disable: self.disable,
+    detach:  self.disable
+  };  
+  return self ;
+}
+/*
+---
+ 
+script: Observer.js
+ 
+description: A wrapper around Observer to look for changes in input values
+ 
+license: Public domain (http://unlicense.org).
+ 
+requires:
+  - LSD
+  - Ext/Observer
+ 
+provides: 
+  - LSD.Trait.Observer
+  - Class.Mutators.States
+ 
+...
+*/
+
+
+LSD.Trait.Observer = new Class({
+  
+  options: {
+    observer: {
+      periodical: 200,
+      delay: 50
+    },
+    events: {
+      _observer: {
+        self: {
+          focus: function() {
+            this.getObserver().resume()
+          },
+          blur: function() {
+            this.getObserver().pause()
+          }
+        }
+      }
+    }
+  },
+  
+  getObserver: Macro.getter('observer', function() {
+    return new Observer(this.getObservedElement(), this.onChange.bind(this), this.options.observer)
+  }),
+  
+  getObservedElement: Macro.defaults(function() {
+    return this.element;
+  }),
+  
+  onChange: function(value) {
+    if (value.match(/^\s*$/)) {
+      this.empty();
+    } else {
+      this.fill.apply(this, arguments);
+    }
+  }
+});
+
+LSD.Trait.Observer.State = Class.Stateful({
+  'filled': ['fill', 'empty']
+});
+LSD.Trait.Observer.Stateful = [
+  LSD.Trait.Observer.State,
+  LSD.Trait.Observer
+];
+/*
+---
+ 
+script: DOM.js
+ 
+description: Provides DOM-compliant interface to play around with other widgets
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+
+requires:
+  - LSD
+
+provides:
+  - LSD.Module.DOM
+
+...
+*/
+
+
+(function() {
+  
+var inserters = {
+
+  before: function(context, element){
+    var parent = element.parentNode;
+    if (parent) return parent.insertBefore(context, element);
+  },
+
+  after: function(context, element){
+    var parent = element.parentNode;
+    if (parent) return parent.insertBefore(context, element.nextSibling);
+  },
+
+  bottom: function(context, element){
+    return element.appendChild(context);
+  },
+
+  top: function(context, element){
+    return element.insertBefore(context, element.firstChild);
+  }
+
+};
+
+
+LSD.Module.DOM = new Class({
+  initialize: function() {
+    this.childNodes = [];
+    this.nodeType = 1;
+    this.parentNode = this.nextSibling = this.previousSibling = null;
+    this.parent.apply(this, arguments);
+    this.nodeName = this.options.tag//.toUpperCase(); //Make slick happy
+    this.tagName = this.options.tag;
+  },
+  
+  //getElementsByTagName: function(tagName) {
+  //  var found = [];
+  //  var all = tagName == "*";
+  //  for (var i = 0, child; child = this.childNodes[i]; i++) {
+  //    if (all || tagName == child.tagName) found.push(child);
+  //    found.push.apply(found, child.getElementsByTagName(tagName))
+  //  }
+  //  return found;
+  //},
+  
+  getElements: function(selector) {
+    return Slick.search(this, selector)
+  },
+  
+  getElement: function(selector) {
+    return Slick.find(this, selector)
+  },
+  
+  contains: function(element) {
+    while (element = element.parentNode) if (element == this) return true;
+    return false;
+  },
+  
+  getChildren: function() {
+    return this.childNodes;
+  },
+
+  getRoot: function() {
+    var widget = this;
+    while (widget.parentNode) widget = widget.parentNode;
+    return widget;
+  },
+  
+  getHierarchy: function() {
+    var widgets = [this];
+    var widget = this;
+    while (widget.parentNode) {
+      widget = widget.parentNode;
+      widgets.unshift(widget)
+    }
+    return widgets;
+  },
+  
+  setParent: function(widget){
+    this.parent.apply(this, arguments);
+    this.fireEvent('setParent', [widget, widget.document])
+    var siblings = widget.childNodes;
+    var length = siblings.length;
+    if (length == 1) widget.firstChild = this;
+    widget.lastChild = this;
+    var previous = siblings[length - 2];
+    if (previous) {
+      previous.nextSibling = this;
+      this.previousSibling = previous;
+    }
+    widget.dispatchEvent('nodeInserted', this)
+  },
+  
+  /*
+    
+    %header
+      %section#top
+      %button
+      %button
+      %section Title
+    
+    var header = LSD.document.getElement('header');
+    header.top     //=> section#top
+    header.buttons //=> [button, button]
+    header.section //=> section 
+    
+    When widget is appended as child the semantic to that widget
+    is set. The name of the link is determined by these rules:
+    
+    - If widget has id, use id
+    - Use tag name
+      - If the link is not taken, write tag name link
+      - If the link is taken, append widget to a pluralized array link
+        - When pluralized link is added, original link is not removed
+  */
+  
+  appendChild: function(widget, adoption) {
+    if (!adoption && this.canAppendChild && !this.canAppendChild(widget)) return false;
+    var options = widget.options, id = options.id, tag = options.tag, tags = tag + 's', kind = widget.attributes['kind']
+    widget.identifier = id || tag;
+    if (id) {
+      if (this[id]) this[id].dispose();
+      this[id] = widget;
+    } else if (!this[tag]) this[tag] = widget;
+    else if (!this[tags]) this[tags] = [widget];
+    else if (typeof this[tags] == 'array') this[tags].push(widget);
+    else if (!this['_' + tags]) this['_' + tags] = [widget];
+    else this['_' + tags].push(widget);
+        
+    this.childNodes.push(widget);
+    if (this.nodeType != 9) widget.setParent(this);
+    (adoption || function() {
+      this.toElement().appendChild(document.id(widget));
+    }).apply(this, arguments);
+    
+    this.fireEvent('adopt', [widget, id])
+    widget.walk(function(node) {
+      this.dispatchEvent('nodeInserted', node);
+    }.bind(this));
+    return true;
+  },
+  
+  insertBefore: function(insertion, element) {
+    return this.appendChild(insertion, function() {
+      document.id(insertion).inject(document.id(element), 'before')
+    });
+  },
+  
+  grab: function(el, where){
+    inserters[where || 'bottom'](document.id(el, true), this);
+    return this;
+  },
+  
+  setDocument: function(widget) {
+    var element = document.id(widget);
+    var doc;
+    var isDocument = (widget.nodeType == 9);
+    var isBody = element.get('tag') == 'body';
+    if (isDocument || isBody || element.offsetParent) {
+      if (!isDocument) {
+        var body = (isBody ? element : element.ownerDocument.body);
+        doc = body.retrieve('widget') || new LSD.Document(body);
+      } else doc = widget;
+      var halted = [];
+      //this.render();
+      this.walk(function(child) {
+        //if (child.halted) halted.push(child);
+        child.ownerDocument = child.document = doc;
+        child.fireEvent('dominject', element);
+        child.dominjected = true;
+      });
+      //halted.each(function(child) {
+      //  child.refresh();
+      //})
+    }
+  },
+  
+  inject: function(widget, where, quiet) {
+    var isElement = 'localName' in widget;
+    if (isElement) {
+      var instance = widget.retrieve('widget');
+      if (instance) {
+        widget = instance;
+        isElement = false;
+      }
+    }
+    var self = isElement ? this.toElement() : this;
+    if (!inserters[where || 'bottom'](self, widget) && !quiet) return false;
+    this.fireEvent('inject', arguments);
+    if (quiet !== true) this.setDocument(widget);
+    return true;
+  },
+  
+  dispose: function() {
+    var parent = this.parentNode;
+    if (parent) {
+      parent.childNodes.erase(this);
+      if (parent.firstChild == this) delete parent.firstChild;
+      if (parent.lastChild == this) delete parent.lastChild;
+    }
+    return this.parent.apply(this, arguments);
+  },
+  
+  dispatchEvent: function(type, args){
+    args = Array.from(args);
+    var node = this;
+    type = type.replace(/^on([A-Z])/, function(match, letter) {
+      return letter.toLowerCase();
+    });
+    while (node) {
+      var events = node.$events;
+      if (events && events[type]) events[type].each(function(fn){
+        return fn.apply(node, args);
+      }, node);
+      node = node.parentNode;
+    }
+    return this;
+  },
+  
+  walk: function(callback) {
+    callback(this);
+    this.childNodes.each(function(child) {
+      child.walk(callback)
+    });
+  },
+  
+  collect: function(callback) {
+    var result = [];
+    this.walk(function(child) {
+      if (!callback || callback(child)) result.push(child);
+    });
+    return result;
+  },
+  
+  compareDocumentPosition: function(node) {
+    var context =  (Element.type(node)) ? this.toElement() : this;
+		if (node) do {
+			if (node === context) return true;
+		} while ((node = node.parentNode));
+		return false;
+	}
+});
+
+})();
+/*
+---
+ 
+script: Document.js
+ 
+description: Provides a virtual root to all the widgets. DOM-Compatible for Slick traversals.
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires: 
+  - LSD.Node
+  - LSD.Module.DOM
+ 
+provides:
+  - LSD.Document
+ 
+...
+*/
+
+
+/*
+  Document is a big disguise proxy class that contains the tree
+  of widgets and a link to document element.
+  
+  It is DOM-compatible (to some degree), so tools that crawl DOM
+  tree (we use Slick) can work with the widget tree like it usually
+  does with the real DOM so we get selector engine for free.
+  
+  The class contains a few hacks that allows Slick to initialize.
+*/
+
+LSD.Document = new Class({
+
+  Includes: [
+    LSD.Node,
+    LSD.Module.DOM
+  ],
+  
+  States: {
+    built: ['build', 'destroy', false]
+  },
+  
+  options: {
+    tag: '#document',
+    selector: ':not(.lsd)', //convert unconvered elements
+    root: false // topmost widget's parentNode is the document if set to true
+  },
+  
+  initialize: function(options) {
+    if (!LSD.document.body) LSD.document = Object.append(this, LSD.document);
+    this.parent.apply(this, Element.type(options) ? [options] : [options.origin, options]);
+    this.body = this.element.store('widget', this);
+    this.document = this.documentElement = this;
+    
+    this.xml = true;
+    this.navigator = {};
+    this.attributes = {};
+    
+    this.childNodes = [];
+    this.nodeType = 9;
+    this.events = this.options.events;
+  },
+  
+  build: Macro.onion(function() {
+    this.element.getChildren(this.options.selector).each(LSD.Layout.replace);
+    if (this.stylesheets) this.stylesheets.each(this.addStylesheet.bind(this))
+  }),
+
+	attach: $lambda(true),
+	detach: $lambda(true),
+  
+  /*
+    Slick.Finder tries to probe document it was given to determine
+    capabilities of the engine and possible quirks that will alter
+    the desired results. 
+    
+    We try to emulate XML-tree (simple built-in querying capabilities),
+    so all of the traversing work happens inside of Slick except 
+    getElementsByTagName which is provided by LSD.Module.DOM.
+    
+    So the problem is that Slick creates element and tries to 
+    append it to the document which is unacceptable (because every node
+    in LSD.Document means widget instance, and we dont want that for 
+    dummy elements). The solution is to ignore those elements.
+  */
+  createElement: function(tag) {
     return {
-      left: ((styles.width == 'auto') ? Math.max(stroke - offset.left, 0) : stroke),
-      top: 0,
-      right: ((styles.width == 'auto') ? Math.max(stroke - offset.right, 0) : stroke),
-      bottom: stroke
+      innerText: '',
+      mock: true
     }
+  },
+  
+  appendChild: function(widget) {
+    if (widget.mock) return false;
+    if (this.options.root) widget.parentNode = this; 
+    return this.parent.apply(this, arguments);
+  },
+  
+  removeChild: function(widget) {
+    if (widget.mock) return false;
+    return this.parent.apply(this, arguments);
+  },
+  
+  getAttribute: function(name) {
+    return this.attributes[name]
+  },
+  
+  setAttribute: function(name, value) {
+    return this.attributes[name] = value;
+  },
+  
+  id: function(item) {
+    if (item.render) return item;
+  },
+  
+  addStylesheet: function(sheet) {
+    if (!this.stylesheets) this.stylesheets = [];
+    this.stylesheets.include(sheet);
+    sheet.attach(this);
+  },
+  
+  removeStylesheet: function(sheet) {
+    if (!this.stylesheets) return;
+    this.stylesheets.erase(sheet);
+    sheet.detach(this);
   }
+});
 
-});  
+// Properties set here will be picked up by first document
+LSD.document = {}; 
 
-//Raphael.fn.flower = function (cx, cy, rout, rin, n) {
-//    rin = rin || rout * .5;
-//    n = +n < 3 || !n ? 5 : n;
-//    var points = ["M", cx, cy + rin, "Q"],
-//        R;
-//    for (var i = 1; i < n * 2 + 1; i++) {
-//        R = i % 2 ? rout : rin;
-//        points = points.concat([+(cx + R * Math.sin(i * Math.PI / n)).toFixed(3), +(cy + R * Math.cos(i * Math.PI / n)).toFixed(3)]);
-//    }
-//    points.push("z");
-//    return this.path(points);
-//};
-
+// Queue up stylesheets before document is loaded
+LSD.Document.addStylesheet = function(sheet) {
+  var instance = LSD.document, stylesheets = instance.stylesheets
+  if (instance.addStylesheet) return instance.addStylesheet(sheet)
+  if (!stylesheets) stylesheets = instance.stylesheets = [];
+  instance.stylesheets.push(sheet);
+}
 /*
 ---
- 
-script: Ellipse.js
- 
-description: Draw ellipses and circles without a hassle
- 
-license: Public domain (http://unlicense.org).
 
-authors: Yaroslaff Fedin
- 
+script: More.js
+
+name: More
+
+description: MooTools More
+
+license: MIT-style license
+
+authors:
+  - Guillermo Rauch
+  - Thomas Aylott
+  - Scott Kyle
+
 requires:
-- ART/ART.Shape
- 
-provides: [ART.Shape.Ellipse]
- 
+  - Core/MooTools
+
+provides: [MooTools.More]
+
 ...
 */
 
-ART.Shape.Ellipse = new Class({
+MooTools.More = {
+	'version': '1.3.0.1dev',
+	'build': '%build%'
+};
+
+/*
+---
+
+script: Class.Binds.js
+
+name: Class.Binds
+
+description: Automagically binds specified methods in a class to the instance of the class.
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+
+requires:
+  - Core/Class
+  - /MooTools.More
+
+provides: [Class.Binds]
+
+...
+*/
+
+Class.Mutators.Binds = function(binds){
+    return binds;
+};
+
+Class.Mutators.initialize = function(initialize){
+	return function(){
+		Array.from(this.Binds).each(function(name){
+			var original = this[name];
+			if (original) this[name] = original.bind(this);
+		}, this);
+		return initialize.apply(this, arguments);
+	};
+};
+
+
+/*
+---
+
+script: Class.Binds.js
+
+description: Removes mutators added by Class.Binds that breaks multiple inheritance
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+
+extends: More/Class.Binds
+...
+*/
+
+//empty
+
+delete Class.Mutators.Binds;
+delete Class.Mutators.initialize;
+/*
+---
+name : sg-regex-tools
+description : A few super-handy tools for messing around with RegExp
+
+authors   : Thomas Aylott
+copyright : © 2010 Thomas Aylott
+license   : MIT
+
+provides : [combineRegExp]
+...
+*/
+;(function(exports){
+
+exports.combineRegExp = function(regex, group){
+	if (regex.source) regex = [regex]
+	
+	var names = [], i, source = '', this_source
+	
+	for (i = 0; i < regex.length; ++i){ if (!regex[i]) continue
+		this_source = regex[i].source || ''+regex[i]
+		if (this_source == '|') source += '|'
+		else {
+			source += (group?'(':'') + this_source.replace(/\s/g,'') + (group?')':'')
+			if (group) names.push(group)
+		}
+		if (regex[i].names)	names = names.concat(regex[i].names)
+	}
+	try {
+		regex = new RegExp(source,'gm')
+	}
+	catch (e){
+		throw new SyntaxError('Invalid Syntax: ' + source +'; '+ e)
+	}
+	// [key] → 1
+	for (i = -1; i < names.length; ++i) names[names[i]] = i + 1
+	// [1] → key
+	regex.names = names
+	return regex
+}
+
+}(typeof exports != 'undefined' ? exports : this))
+
+/*
+---
+name    : SheetParser.CSS
+
+authors   : Thomas Aylott
+copyright : © 2010 Thomas Aylott
+license   : MIT
+
+provides : SheetParser.CSS
+requires : combineRegExp
+...
+*/
+;(function(exports){
+	
+
+/*<depend>*/
+var UNDEF = {undefined:1}
+if (!exports.SheetParser) exports.SheetParser = {}
+
+/*<CommonJS>*/
+var combineRegExp = UNDEF[typeof require]
+	?	exports.combineRegExp
+	:	require('./sg-regex-tools').combineRegExp
+var SheetParser = exports.SheetParser
+/*</CommonJS>*/
+
+/*<debug>*/;if (UNDEF[typeof combineRegExp]) throw new Error('Missing required function: "combineRegExp"');/*</debug>*/
+/*</depend>*/
+
+
+var CSS = SheetParser.CSS = {version: '1.0.2 dev'}
+
+CSS.trim = trim
+function trim(str){
+	// http://blog.stevenlevithan.com/archives/faster-trim-javascript
+	var	str = (''+str).replace(/^\s\s*/, ''),
+		ws = /\s/,
+		i = str.length;
+	while (ws.test(str.charAt(--i)));
+	return str.slice(0, i + 1);
+}
+
+CSS.camelCase = function(string){
+	return ('' + string).replace(camelCaseSearch, camelCaseReplace)
+}
+var camelCaseSearch = /-\D/g
+function camelCaseReplace(match){
+	return match.charAt(1).toUpperCase()
+}
+
+CSS.parse = function(cssText){
+	var	found
+	,	rule
+	,	rules = {length:0}
+	,	keyIndex = -1
+	,	regex = this.parser
+	,	names = CSS.parser.names
+	,	i,r,l
+	,	ruleCount
+	
+	rules.cssText = cssText = trim(cssText)
+	
+	// strip comments
+	cssText = cssText.replace(CSS.comment, '');
+	
+	regex.lastIndex = 0
+	while ((found = regex.exec(cssText))){
+		// avoid an infinite loop on zero-length keys
+		if (regex.lastIndex == found.index) ++ regex.lastIndex
+		
+		// key:value
+		if (found[names._key]){
+			rules[rules.length ++] = found[names._key]
+			rules[found[names._key]] = found[names._value]
+			rules[CSS.camelCase(found[names._key])] = found[names._value]
+			continue
+		}
+		
+		rules[rules.length++] = rule = {}
+		for (i = 0, l = names.length; i < l; ++i){
+			if (!(names[i-1] && found[i])) continue
+			rule[names[i-1]] = trim(found[i])
+		}
+	}
+	
+	var atKey, atRule, atList, atI
+	for (i = 0, l = rules.length; i < l; ++i){
+		if (!rules[i]) continue
+		
+		if (rules[i]._style_cssText){
+			rules[i].style = CSS.parse(rules[i]._style_cssText)
+			delete rules[i]._style_cssText
+		}
+		
+		// _atKey/_atValue
+		if (atKey = rules[i]._atKey){
+			atKey = CSS.camelCase(atKey)
+			atRule = {length:0}
+			rules[i][atKey] = atRule
+			atRule["_source"] =
+			atRule[atKey + "Text"] = rules[i]._atValue
+			atList = ('' + rules[i]._atValue).split(/,\s*/)
+			for (atI = 0; atI < atList.length; ++atI){
+				atRule[atRule.length ++] = atList[atI]
+			}
+			rules[i].length = 1
+			rules[i][0] = atKey
+			delete rules[i]._atKey
+			delete rules[i]._atValue
+		}
+		
+		if (rules[i].style)
+		for (ruleCount = -1, r = -1, rule; rule = rules[i].style[++r];){
+			if (typeof rule == 'string') continue
+			rules[i][r] = (rules[i].cssRules || (rules[i].cssRules = {}))[++ ruleCount]  = rule
+			rules[i].cssRules.length = ruleCount + 1
+			rules[i].rules = rules[i].cssRules
+		}
+	}
+	
+	return rules
+}
+
+var x = combineRegExp
+var OR = '|'
+
+;(CSS.at = x(/\s*@([-a-zA-Z0-9]+)\s+(([\w-]+)?[^;{]*)/))
+.names=[         '_atKey',           '_atValue', 'name']
+
+CSS.atRule = x([CSS.at, ';'])
+
+;(CSS.keyValue_key = x(/([-a-zA-Z0-9]+)/))
+.names=[                '_key']
+
+;(CSS.keyValue_value_end = x(/(?:;|(?=\})|$)/))
+
+;(CSS.notString = x(/[^"']+/))
+;(CSS.stringSingle = x(/"(?:[^"]|\\")*"/))
+;(CSS.stringDouble = x(/'(?:[^']|\\')*'/))
+;(CSS.string = x(['(?:',CSS.stringSingle ,OR, CSS.stringDouble,')']))
+;(CSS.propertyValue = x([/[^;}]+/, CSS.keyValue_value_end]))
+
+var rRound = "(?:[^()]|\\((?:[^()]|\\((?:[^()]|\\((?:[^()]|\\([^()]*\\))*\\))*\\))*\\))"
+
+;(CSS.keyValue_value = x(
+[
+	x(['((?:'
+	,	CSS.stringSingle
+	,	OR
+	,	CSS.stringDouble
+	,	OR
+	,	"\\("+rRound+"*\\)"
+	,	OR
+	,	/[^;}()]/ // not a keyValue_value terminator
+	,	')*)'
+	])
+,	CSS.keyValue_value_end
+])).names = ['_value']
+
+;(CSS.keyValue = x([CSS.keyValue_key ,/\s*:\s*/, CSS.keyValue_value]))
+
+;(CSS.comment = x(/\/\*\s*((?:[^*]|\*(?!\/))*)\s*\*\//))
+.names=[                   'comment']
+
+;(CSS.selector = x(['(',/\s*(\d+%)\s*/,OR,'(?:',/[^{}'"()]|\([^)]*\)|\[[^\]]*\]/,')+',')']))
+.names=[    'selectorText','keyText']
+
+var rCurly = "(?:[^{}]|\\{(?:[^{}]|\\{(?:[^{}]|\\{(?:[^{}]|\\{[^{}]*\\})*\\})*\\})*\\})"
+var rCurlyRound = "(?:[^{}()]+|\\{(?:[^{}()]+|\\{(?:[^{}()]+|\\{(?:[^{}()]+|\\{[^{}()]*\\})*\\})*\\})*\\})"
+
+;(CSS.block = x("\\{\\s*((?:"+"\\("+rRound+"*\\)|"+rCurly+")*)\\s*\\}"))
+.names=[              '_style_cssText']
+
+CSS.selectorBlock = x([CSS.selector, CSS.block])
+
+CSS.atBlock = x([CSS.at, CSS.block])
+
+CSS.parser = x
+(
+	[	x(CSS.comment)
+	,	OR
+	,	x(CSS.atBlock)
+	,	OR
+	,	x(CSS.atRule)
+	,	OR
+	,	x(CSS.selectorBlock)
+	,	OR
+	,	x(CSS.keyValue)
+	]
+,	'cssText'
+);
+
+
+})(typeof exports != 'undefined' ? exports : this);
+
+/*
+---
+name    : SheetParser.Value
+
+authors   : Yaroslaff Fedin
+
+license   : MIT
+
+requires : SheetParser.CSS
+
+provides : SheetParser.Value
+...
+*/
+
+
+(function(exports) {
+  /*<CommonJS>*/
+  var combineRegExp = (typeof require == 'undefined')
+    ?  exports.combineRegExp
+    :  require('./sg-regex-tools').combineRegExp
+  var SheetParser = exports.SheetParser
+  /*</CommonJS>*/
   
-  Extends: ART.Shape,
+  var Value = SheetParser.Value = {version: '1.0.2 dev'};
   
-  properties: ['width', 'height'],
+  Value.translate = function(value) {
+    var found, result = [], matched = [], scope = result, func, text;
+    var regex = Value.tokenize;
+    var names = regex.names;
+    while (found = regex.exec(value)) matched.push(found);
+    for (var i = 0; found = matched[i++];) {
+      if (func = found[names['function']]) {
+        var obj = {};
+        var translated = obj[found[names['function']]] = Value.translate(found[names._arguments]);
+        for (var j = 0, bit; bit = translated[j]; j++) if (bit && bit.length == 1) translated[j] = bit[0];
+        scope.push(obj);
+      } else if (found[names.comma]) {
+        if (!result[0].push) result = [result];
+        result.push(scope = []);
+      } else if (found[names.whitespace]) {
+        var length = scope.length;
+        if (length && (scope == result) && !scope[length - 1].push) scope = scope[length - 1] = [scope[length - 1]];
+        
+      } else if (text = (found[names.dstring] || found[names.sstring])) {
+        scope.push(text)
+      } else if (text = found[names.token]) {
+        if (!text.match(Value.hex)) {
+          var match = Value.length.exec(text);
+          Value.length.lastIndex = 0;
+          if (match) {
+            var number = parseFloat(match[1]);
+            text = match[2] ? {number: number, unit: match[2]} : number;
+          } else if (!text.match(Value.keyword)) return false;
+        }
+        scope.push(text);
+      }
+    }
+    return result.length == 1 ? result[0] : result;
+  }
   
-  initialize: function(width, height){
-    this.parent();
-    if (width != null && height != null) this.draw(width, height);
-  },
+  var x = combineRegExp
+  var OR = '|'
+  var rRound = "(?:[^()]|\\((?:[^()]|\\((?:[^()]|\\((?:[^()]|\\([^()]*\\))*\\))*\\))*\\))";
+
+  ;(Value.stringDouble = x(/"((?:[^"]|\\")*)"/)).names = ['dstring']
+  ;(Value.stringSingle = x(/'((?:[^']|\\')*)'/)).names = ['sstring']
+  ;(Value.string = x([Value.stringSingle, OR, Value.stringDouble]))
+  ;(Value.keyword = x(/[-a-zA-Z0-9]+/, "keyword"))
+  ;(Value.token = x(/[^$,\s\/)]+/, "token"))
   
-  draw: function(width, height){
-    var path = new ART.Path;
-    var rx = width / 2, ry = height / 2;
-    path.move(0, ry).arc(width, 0, rx, ry).arc(-width, 0, rx, ry);
-    return this.parent(path);
-  },
+  ;(Value['function'] = x("([-a-zA-Z0-9]+)\\((" + rRound + "*)\\)"))
+  .names = [               'function',       '_arguments']
   
-  produce: function(delta) {
-    return new ART.Shapes.Ellipse(this.style.width + delta * 2, this.style.height + delta * 2)
+  ;(Value.integer = x(/-?\d+/))
+  ;(Value.float = x(/-?\d+\.\d*/))
+  ;(Value.number = x(['(', Value.float,  OR, Value.integer, ')']))
+  .names = [           'number']
+
+  ;(Value.unit = x(/em|px|pt|%|fr/, 'unit'))
+  ;(Value.length = x(['^', Value.number, Value.unit, "?$"]))
+  ;(Value.direction = x(/top|left|bottom|right|center/, 'direction'))
+  ;(Value.position = x([Value.length, OR, Value.direction]))
+
+  ;(Value.hex = x(/#[0-9a-z]+/, 'hex'))
+
+  ;(Value.comma = x(/\s*,\s*/, 'comma'))
+  ;(Value.whitespace = x(/\s+/, 'whitespace'))
+  ;(Value.slash = x(/\//, 'slash'))
+
+
+  Value.tokenize = x
+  (
+    [ x(Value['function']),
+    , OR
+    , x(Value.comma)
+    , OR
+    , x(Value.whitespace)
+    , OR
+    , x(Value.slash)
+    , OR
+    , x(Value.string)
+    , OR
+    , x(Value.token)
+    ]
+  )
+  
+})(typeof exports != 'undefined' ? exports : this);
+/*
+---
+name    : Sheet
+
+authors   : Thomas Aylott
+copyright : © 2010 Thomas Aylott
+license   : MIT
+
+provides : Sheet
+requires : SheetParser.CSS
+...
+*/
+;(function(exports){
+
+
+/*<depend>*/
+var UNDEF = {undefined:1}
+
+/*<CommonJS>*/
+var SheetParser = UNDEF[typeof require]
+	?	exports.SheetParser
+	:	require('./SheetParser.CSS').SheetParser
+
+exports.Sheet = Sheet
+/*</CommonJS>*/
+
+/*<debug>*/;if (!(!UNDEF[typeof SheetParser] && SheetParser.CSS)) throw new Error('Missing required function: "SheetParser.CSS"');/*</debug>*/
+/*</depend>*/
+
+
+Sheet.version = '1.0.2 dev'
+
+function Sheet(cssText){
+	if (this instanceof Sheet) this.initialize(cssText)
+	else return Sheet.from(cssText)
+}
+
+Sheet.from = function(cssText){
+	return new Sheet(cssText)
+}
+
+Sheet.prototype = {
+	
+	parser: SheetParser.CSS,
+	
+	initialize: function(cssText){
+		this.cssText = cssText || ''
+		this.style = this.rules = this.cssRules = this.parser.parse(this.cssText)
+		var self = this
+	},
+	
+	update: function(){
+		var cssText = '',
+			i = -1,
+			rule,
+			rules = this.style || this.rules || this.cssRules
+		
+		while ((rule = rules[++i])){
+			if (typeof rule == 'object'){
+				// cssRule
+				if (this.update) rule.cssText = this.update.call(rule)
+				cssText += rule.cssText = rule.selectorText + '{' + rule.cssText + '}'
+			} else {
+				// style key/value
+				cssText += rule + ':'
+				cssText += rules[rule] + ';'
+			}
+		}
+		
+		if (rules.selectorText)
+			return rules.cssText = rules.selectorText + '{' + cssText + '}'
+		return rules.cssText = cssText
+	}
+	
+}
+
+Sheet.prototype.toString = Sheet.prototype.update
+
+
+}(typeof exports != 'undefined' ? exports : this));
+
+/*
+---
+name    : SheetParser.Property
+
+authors   : Yaroslaff Fedin
+
+license   : MIT
+
+requires : SheetParser.CSS
+
+provides : SheetParser.Property
+...
+*/
+
+
+(function(exports) {
+  /*<CommonJS>*/
+  var combineRegExp = (typeof require == 'undefined')
+    ?  exports.combineRegExp
+    :  require('./sg-regex-tools').combineRegExp
+  var SheetParser = exports.SheetParser
+  /*</CommonJS>*/
+  
+  var Property = SheetParser.Property = {version: '0.2 dev'};
+  
+  /*
+    Finds optional groups in expressions and builds keyword
+    indecies for them. Keyword index is an object that has
+    keywords as keys and values as property names.
+    
+    Index only holds keywords that can be uniquely identified
+    as one of the properties in group.
+  */
+  
+  Property.index = function(properties, context) {
+    var index = {};
+    for (var i = 0, property; property = properties[i]; i++) {
+      if (property.push) {
+        var group = index[i] = {};
+        for (var j = 0, prop; prop = property[j]; j++) {
+          var keys = context[prop].keywords;
+          if (keys) for (var key in keys) {
+            if (group[key] == null) group[key] = prop;
+            else group[key] = false;
+          }
+        }
+        for (var keyword in group) if (!group[keyword]) delete group[keyword];
+      }
+    }
+    return index;
+  };
+  
+  /*
+    Simple value 
+  */
+
+  Property.simple = function(types, keywords) {
+    return function(value) {
+      if (keywords && keywords[value]) return true;
+      if (types) for (var i = 0, type; type = types[i++];) if (Type[type](value)) return true;
+      return false;
+    }
+  };
+  
+  /*
+    Links list of inambigous arguments with corresponding properties keeping
+    the order.
+  */
+  
+  Property.shorthand = function(properties, keywords, context) {
+    var index, r = 0;
+    for (var i = 0, property; property = properties[i++];) if (!property.push) r++;
+    return function() {
+      var result = [], used = {}, start = 0, group, k = 0, l = arguments.length;
+      for (var i = 0, argument; argument = arguments[i]; i++) {
+        var property = properties[k];
+        if (!property) return false;
+        if ((group = (property.push && property))) property = properties[k + 1];
+        if (property) {
+          if (context[property](argument)) k++
+          else property = false
+        }
+        if (group) {
+          if (!property) {
+            if (!index) index = Property.index(properties, context)
+            if (property = index[k][argument])
+              if (used[property]) return false;
+              else used[property] = 1;
+          }
+          if ((property && !used[property]) || (i == l - 1)) {
+            if (i - start > group.length) return false;
+            for (var j = start; j < (i + +!property); j++) 
+              if (!result[j])
+                for (var m = 0, optional; optional = group[m++];) {
+                  if (!used[optional] && context[optional](arguments[j])) {
+                    result[j] = optional;
+                    used[optional] = true
+                    break;
+                  }
+                }
+            start = i;
+            k++;
+          }
+        }
+        if (result[i] == null) result[i] = property;
+      }
+      if (i < r) return false
+      for (var i = 0, j = arguments.length, object = {}; i < j; i++) {
+        var value = result[i];
+        if (!value) return false;
+        object[value] = arguments[i];
+      }
+      return object;
+    };
   }
 
-});
+  /*
+    A shorthand that operates on collection of properties. When given values
+    are not enough (less than properties in collection), the value sequence
+    is repeated until all properties are filled.     
+  */
+
+  Property.collection = function(properties, keywords, context) {
+    var first = context[properties[0]];
+    if (first.type != 'simple') 
+      return function(arg) {
+        var args = (!arg || !arg.push) ? [Array.prototype.slice.call(arguments)] : arguments;
+        var length = args.length;
+        var result = {};
+        for (var i = 0, property; property = properties[i]; i++) {
+          var values = context[property].apply(1, args[i] || args[i % 2] || args[0]);
+          if (!values) return false;
+          for (var prop in values) result[prop] = values[prop];
+        }
+        return result;
+      }
+    else
+      return function() {
+        var length = arguments.length;
+        var result = {};
+        for (var i = 0, property; property = properties[i]; i++) {
+          var values = arguments[i] || arguments[i % 2] || arguments[0];
+          if (!context[property].call(1, values)) return false;
+          result[property] = values;
+        }
+        return result;
+      }
+  };
+  
+  /* 
+    Multiple value property accepts arrays as arguments
+    as well as regular stuff
+  */
+  
+  Property.multiple = function(arg) {
+    //if (arg.push)
+  }
+  
+  Property.compile = function(definition, context) {
+    var properties, keywords, types;
+    for (var i = 0, bit; bit = definition[i++];) {
+      if (bit.push) properties = bit;
+      else if (bit.indexOf) {
+        if (!Type[bit]) {
+          if (!keywords) keywords = {};
+          keywords[bit] = 1;
+        } else types ? types.push(bit) : (types = [bit]);
+      } else options = bit;
+    }
+    var type = properties ? (keywords && keywords.collection ? "collection" : "shorthand") : 'simple'
+    var property = Property[type](properties || types, keywords, context);
+    if (keywords) property.keywords = keywords;
+    if (properties) {
+      var props = [];
+      for (var i = 0, prop; prop = properties[i++];) prop.push ? props.push.apply(props, prop) : props.push(prop);
+      property.properties = props;
+    }
+    property.type = type;
+    return property;
+  };
+  
+  
+  var Type = Property.Type = {
+    length: function(obj) {
+      return typeof obj == 'number' || (!obj.indexOf && ('number' in obj) && obj.unit && (obj.unit != '%'))
+    },
+  
+    color: function(obj) {
+      return obj.indexOf ? obj.match(/^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/) : (obj.isColor || obj.rgba || obj.rgb || obj.hsb)
+    },
+    
+    number: function(obj) {
+      return typeof obj == 'number'
+    },
+    
+    integer: function(obj) {
+      return obj % 1 == 0 && ((0 + obj).toString() == obj)
+    },
+  
+    keyword: function(keywords) {
+      var storage;
+      for (var i = 0, keyword; keyword = keywords[i++];) storage[keyword] = 1;
+      return function(keyword) {
+        return !!storage[keyword]
+      }
+    },
+    
+    strings: function(obj) {
+      return !!obj.indexOf
+    },
+    
+    url: function(obj) {
+      return !obj.indexOf && ("url" in obj);
+    },
+    
+    position: function(obj) {        
+      var positions = Type.position.positions;
+      if (!positions) positions = Type.position.positions = {left: 1, top: 1, bottom: 1, right: 1, center: 1}
+      return positions[obj]
+    },
+    
+    percentage: function(obj) {
+      return obj.unit == '%'
+    }
+  };
+  
+})(typeof exports != 'undefined' ? exports : this);
+/*
+---
+name    : SheetParser.Styles
+
+authors   : Yaroslaff Fedin
+
+license   : MIT
+
+requires : SheetParser.Property
+
+provides : SheetParser.Styles
+...
+*/
+
+(function() {
+   
+var SheetParser = (typeof exports == 'undefined') ? window.SheetParser : exports.SheetParser;
+var CSS = SheetParser.Properties = {
+  background:           [[['backgroundColor', 'backgroundImage', 'backgroundRepeat', 
+                          'backgroundAttachment', 'backgroundPositionX', 'backgroundPositionY']], 'multiple'],
+  backgroundColor:      ['color', 'transparent', 'inherit'],
+  backgroundImage:      ['url', 'none', 'inherit'],
+  backgroundRepeat:     ['repeat', 'no-repeat', 'repeat-x', 'repeat-y', 'inherit', 'space', 'round'],
+  backgroundAttachment: ['fixed', 'scroll', 'inherit', 'local', 'fixed'],
+  backgroundPosition:   [['backgroundPositionX', 'backgroundPositionY']],
+  backgroundPositionX:  ['percentage', 'center', 'left', 'right', 'length', 'inherit'],
+  backgroundPositionY:  ['percentage', 'center', 'top', 'bottom', 'length', 'inherit'],
+   
+  textShadow:           [['textShadowBlur', 'textShadowOffsetX', 'textShadowOffsetY', 'textShadowColor'], 'multiple'],
+  textShadowBlur:       ['length'],
+  textShadowOffsetX:    ['length'],
+  textShadowOffsetY:    ['length'],
+  textShadowColor:      ['color'],
+                        
+  boxShadow:            [['boxShadowBlur', 'boxShadowOffsetX', 'boxShadowOffsetY', 'boxShadowColor'], 'multiple'],
+  boxShadowBlur:        ['length'],
+  boxShadowOffsetX:     ['length'],
+  boxShadowOffsetY:     ['length'],
+  boxShadowColor:       ['color'], 
+  
+  outline:              ['outlineWidth', 'outlineStyle', 'outlineColor'],
+  outlineWidth:         ['length'],
+  outlineStyle:         ['dotted', 'dashed', 'solid', 'double', 'groove', 'reidge', 'inset', 'outset'],
+  outlineColor:         ['color'],
+                        
+  font:                 [[
+                          ['fontStyle', 'fontVariant', 'fontWeight'], 
+                          'fontSize', 
+                          ['lineHeight'], 
+                          'fontFamily'
+                        ]],
+  fontStyle:            ['normal', 'italic', 'oblique', 'inherit'],
+  fontVariant:          ['normal', 'small-caps', 'inherit'],
+  fontWeight:           ['normal', 'number', 'bold', 'inherit'],
+  fontFamily:           ['strings', 'inherit'],
+  fontSize:             ['length', 'percentage', 'inherit', 
+                         'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large', 'smaller', 'larger'],
+                        
+  color:                ['color'],
+  letterSpacing:        ['normal', 'length', 'inherit'],
+  textDecoration:       ['none', 'capitalize', 'uppercase', 'lowercase'],
+  textAlign:            ['left', 'right', 'center', 'justify'],
+  textIdent:            ['length', 'percentage'],                 
+  lineHeight:           ['normal', 'length', 'number', 'percentage'],
+  
+  height:               ['length', 'auto'],
+  maxHeight:            ['length', 'auto'],
+  minHeight:            ['length', 'auto'],
+  width:                ['length', 'auto'],
+  maxWidth:             ['length', 'auto'],
+  minWidth:             ['length', 'auto'],
+                        
+  display:              ['inline', 'block', 'list-item', 'run-in', 'inline-block', 'table', 'inline-table', 'none', 
+                         'table-row-group', 'table-header-group', 'table-footer-group', 'table-row', 
+                         'table-column-group', 'table-column', 'table-cell', 'table-caption'],
+  visibility:           ['visible', 'hidden'],
+  float:                ['none', 'left', 'right'],
+  clear:                ['none', 'left', 'right', 'both', 'inherit'],
+  overflow:             ['visible', 'hidden', 'scroll', 'auto'],
+  position:             ['static', 'relative', 'absolute', 'fixed'],
+  top:                  ['length', 'auto'],
+  left:                 ['length', 'auto'],
+  right:                ['length', 'auto'],
+  bottom:               ['length', 'auto'],
+  zIndex:               ['integer'],
+  cursor:               ['auto', 'crosshair', 'default', 'hand', 'move', 'e-resize', 'ne-resize', 'nw-resize', 
+                         'n-resize', 'se-resize', 'sw-resize', 's-resize', 'w-resize', 'text', 'wait', 'help'],
+};
+
+var expanded = ['borderWidth', 'borderColor', 'borderStyle', 'padding', 'margin', 'border'];
+for (var side, sides = ['Top', 'Right', 'Bottom', 'Left'], i = 0; side = sides[i++];) {
+  CSS['border' + side]           = [['border' + side + 'Width', 'border' + side + 'Style', 'border' + side + 'Color']];
+  
+  CSS['border' + side + 'Width'] = ['length', 'thin', 'thick', 'medium'];
+  CSS['border' + side + 'Style'] = ['none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset', 'inherit', 'none'];
+  CSS['border' + side + 'Color'] = ['color'];
+  
+  CSS['margin' + side]           = ['length', 'percentage', 'auto'];
+  CSS['padding' + side]          = ['length', 'percentage', 'auto'];
+
+  for (var j = 0, prop; prop = expanded[j++];) {
+    if (!CSS[prop]) CSS[prop] = [[]];
+    CSS[prop][0].push(prop.replace(/^([a-z]*)/, '$1' + side));
+    if (i == 4) CSS[prop].push('collection')
+  }
+
+  if (i % 2 == 0) 
+    for (var j = 1, adj; adj = sides[j+=2];) 
+      CSS['borderRadius' + side + adj] = ['length', 'none'];
+};
+
+var Styles = SheetParser.Styles = {}
+for (var property in CSS) Styles[property] = SheetParser.Property.compile(CSS[property], Styles);
+
+})();
 /*
 ---
 name: Slick.Parser
@@ -8056,238 +8771,6 @@ Slick.escapeRegExp = escapeRegExp;
 if (!this.Slick) this.Slick = Slick;
 
 }).apply(/*<CommonJS>*/(typeof exports != 'undefined') ? exports : /*</CommonJS>*/this);
-
-/*
----
- 
-script: Attributes.js
- 
-description: A mixin that adds support for setting attributes, adding and removing classes and pseudos
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD
-  - Core/Slick.Parser
- 
-provides: 
-  - LSD.Module.Attributes
- 
-...
-*/
-
-LSD.Module.Attributes = new Class({
-  
-  initialize: function() {
-    var classes = (this.classes || []).concat(this.options.classes || []);
-    var pseudos = (this.pseudos || []).concat(this.options.pseudos || []);
-    this.classes = new FastArray
-    this.pseudos = new FastArray
-    this.attributes = {}
-    this.parent.apply(this, arguments);
-    if (this.options.attributes) for (var name in this.options.attributes) if (!LSD.Attributes.Ignore[name]) this.attributes[name] = this.options.attributes[name]
-    pseudos.each(function(value) {
-      this.setStateTo(value, true);
-    }, this);
-    for (var attribute in this.attributes) this.setAttribute(attribute, this.attributes[attribute]);
-    classes.each(this.addClass.bind(this));
-  },
-  
-  getAttribute: function(attribute) {
-    switch (attribute) {
-      case "id": return this.options.id || this.identifier;
-      case "class": return this.classes.join(' ');
-      default:   return this.attributes[attribute]
-    }
-  },
-  
-  removeAttribute: function(attribute) {
-    delete this.attributes[attribute];
-    if (this.element) this.element.removeProperty(attribute);
-  },
-
-  setAttribute: function(attribute, value) {
-    if (LSD.Attributes.Ignore[attribute]) return;
-    if (LSD.Attributes.Numeric[attribute]) value = value.toInt();
-    else {
-      var logic = LSD.Attributes.Setter[attribute];
-      if (logic) logic.call(this, value)
-    }
-    if (value === attribute) value = true;
-    if (typeof value != 'string') value = value.toString()  //Slick compat
-    this.attributes[attribute] = value;
-    if (attribute != 'slick:uniqueid')
-    if (this.element) this.element.setProperty(attribute, value);
-  },
-
-  addPseudo: function(pseudo){
-    this.pseudos.include(pseudo);
-  },
-
-  removePseudo: function(pseudo){
-    this.pseudos.erase(pseudo);
-  },
-
-  addClass: function(name) {
-    this.classes.include(name);
-    if (this.element) this.element.addClass(name);
-  },
-
-  removeClass: function(name) {
-    this.classes.erase(name);
-    if (this.element) this.element.removeClass(name);
-  },
-  
-  getAttributeNode: function(attribute) {
-    return {
-      nodeName: attribute,
-      nodeValue: (attribute in this.options.states) || (attribute in this.pseudos) 
-                  ? this.pseudos[attribute] 
-                  : this.getAttribute(attribute)
-    }
-  }
-});
-
-
-LSD.Attributes.Setter = {
-  'class': function(value) {
-    value.split(' ').each(this.addClass.bind(this));
-  },
-  'style': function(value) {
-    value.split(/\s*;\s*/).each(function(definition) {
-      var bits = definition.split(/\s*:\s*/)
-      if (!bits[1]) return;
-      bits[0] = bits[0].camelCase();
-      var integer = bits[1].toInt();
-      if (bits[1].indexOf('px') > -1 || (integer == bits[1])) bits[1] = integer
-      //this.setStyle.apply(this, bits);
-    }, this);
-  },
-  'disabled': function(value) {
-    if (value == false) this.enable()
-    else this.disable();
-  },
-  'label': function(value) {
-    //this.setContent(value)
-  }
-}
-/*
----
-
-name: Events.Pseudos
-
-description: Adds the functionallity to add pseudo events
-
-license: MIT-style license
-
-authors:
-  - Arian Stolwijk
-
-requires: [Core/Class.Extras, Core/Slick.Parser, More/MooTools.More]
-provides: [Events.Pseudos]
-
-...
-*/
-
-Events.Pseudos = function(pseudos, addEvent, removeEvent){
-
-	var storeKey = 'monitorEvents:';
-
-	var getStorage = function(object){
-				
-		return {
-			store: object.store ? function(key, value){
-				object.store(storeKey + key, value);
-			} : function(key, value){
-				(object.$monitorEvents || (object.$monitorEvents = {}))[key] = value;
-			},
-			retrieve: object.retrieve ? function(key, dflt){
-				return object.retrieve(storeKey + key, dflt);
-			} : function(key, dflt){
-				if (!object.$monitorEvents) return dflt;
-				return object.$monitorEvents[key] || dflt;
-			}
-		};
-	};
-
-	
-	var splitType = function(type){
-		if (type.indexOf(':') == -1) return null;
-		
-		var parsed = Slick.parse(type).expressions[0][0],
-			parsedPseudos = parsed.pseudos;
-		
-		return (pseudos && pseudos[parsedPseudos[0].key]) ? {
-			event: parsed.tag,
-			value: parsedPseudos[0].value,
-			pseudo: parsedPseudos[0].key,
-			original: type
-		} : null;
-	};
-
-	
-	return {
-		
-		addEvent: function(type, fn, internal){
-			var split = splitType(type);
-			if (!split) return addEvent.call(this, type, fn, internal);
-			
-			var storage = getStorage(this);
-			var events = storage.retrieve(type, []);
-					
-			var self = this;
-			var monitor = function(){
-				pseudos[split.pseudo].call(self, split, fn, arguments);
-			};
-			
-			events.include({event: fn, monitor: monitor});
-			storage.store(type, events);
-			
-			return addEvent.call(this, split.event, monitor, internal);
-		},
-		
-		removeEvent: function(type, fn){
-			var split = splitType(type);
-			if (!split) return removeEvent.call(this, type, fn);
-
-			var storage = getStorage(this);
-			var events = storage.retrieve(type);
-
-			if (!events) return this;
-			
-			events.each(function(monitor, i){
-				if (!fn || monitor.event == fn) removeEvent.call(this, split.event, monitor.monitor);
-				delete events[i];
-			}, this);				
-
-			storage.store(type, events);
-			return this;
-		}
-		
-	};
-	
-};
-
-(function(){
-
-	var pseudos = {
-		
-		once: function(split, fn, args){
-			fn.apply(this, args)
-			this.removeEvent(split.original, fn);
-		}
-		
-	};
-	
-	Events.definePseudo = function(key, fn){
-		pseudos[key] = fn;
-	};
-	
-	Events.implement(Events.Pseudos(pseudos, Events.prototype.addEvent, Events.prototype.removeEvent)); 
-
-})();
 
 /*
 ---
@@ -10058,6 +10541,404 @@ Element.Properties.html = (function(){
 /*
 ---
  
+script: Item.js
+ 
+description: Methods to get and set microdata closely to html5 spsec
+ 
+license: MIT-style license.
+ 
+requires:
+- Core/Element
+ 
+provides: [Element.prototype.getItems, Element.Properties.item, Element.Microdata]
+ 
+...
+*/
+
+[Document, Element].invoke('implement', {
+  getItems: function(tokens) {
+    var selector = '[itemscope]:not([itemprop])';
+    if (tokens) selector += tokens.split(' ').map(function(type) {
+      return '[itemtype~=' + type + ']'
+    }).join('');
+    return this.getElements(selector).each(function(element) {
+      return element.get('item');
+    }).get('item')
+  }
+});
+
+(function() {
+  var push = function(properties, property, value) {
+    var old = properties[property];
+    if (old) { //multiple values, convert to array
+      if (!old.push) properties[property] = [old];
+      properties[property].push(value)
+    } else {
+      properties[property] = value;
+    }
+  }
+
+Element.Properties.properties = {
+  get: function() {
+    var properties = {};
+    var property = this.getProperty('itemprop');
+    if (property) {
+      var value = this.get('itemvalue');
+      if (value) push(properties, property, value)
+    }
+    
+    this.getChildren().each(function(child) {
+      var values = child.get('properties');
+      for (var property in values) push(properties, property, values[property]);
+    });
+    
+    var reference = this.getProperty('itemref');
+    if (reference) {
+      var selector = reference.split(' ').map(function(id) { return '#' + id}).join(', ');
+      $$(selector).each(function(reference) {
+        var values = reference.get('properties');
+        for (var property in values) push(properties, property, values[property]);
+      })
+    }
+    
+    return properties;
+  },
+  
+  set: function(value) {
+    this.getChildren().each(function(child) {
+      var property = child.getProperty('itemprop');
+      if (property) child.set('itemvalue', value[property]);
+      else child.set('properties', value)
+    });
+  }
+};
+
+})();
+
+Element.Properties.item = {
+  get: function() {
+    if (!this.getProperty('itemscope')) return;
+    return this.get('properties');
+  },
+  
+  set: function(value) {
+    if (!this.getProperty('itemscope')) return;
+    return this.set('properties', value);
+  }
+};
+
+(function() {
+
+var resolve = function(url) {
+  if (!url) return '';
+  var img = document.createElement('img');
+  img.setAttribute('src', url);
+  return img.src;
+}
+
+Element.Properties.itemvalue = {
+  get: function() {
+    var property = this.getProperty('itemprop');
+    if (!property) return;
+    var item = this.get('item');
+    if (item) return item;
+    switch (this.get('tag')) {
+      case 'meta':
+        return this.get('content') || '';
+      case 'input':
+      case 'select':
+      case 'textarea':
+        return this.get('value');
+      case 'audio':
+      case 'embed':
+      case 'iframe':
+      case 'img':
+      case 'source':
+      case 'video':
+        return resolve(this.get('src'));
+      case 'a':
+      case 'area':
+      case 'link':
+        return resolve(this.get('href'));
+      case 'object':
+        return resolve(this.get('data'));
+      case 'time':
+        var datetime = this.get('datetime');
+        if (!(datetime === undefined)) return datetime;
+      default:
+        return this.getProperty('itemvalue') || this.get('text');
+    }        
+  },
+
+  set: function(value) {
+    var property = this.getProperty('itemprop');
+    var scope = this.getProperty('itemscope');
+    if (property === undefined) return;
+    else if (scope && Object.type(value[scope])) return this.set('item', value[scope]);
+    
+    switch (this.get('tag')) {
+      case 'meta':
+        return this.set('content', value);
+      case 'audio':
+      case 'embed':
+      case 'iframe':
+      case 'img':
+      case 'source':
+      case 'video':
+        return this.set('src', value);
+      case 'a':
+      case 'area':
+      case 'link':
+        return this.set('href', value);
+      case 'object':
+        return this.set('data', value);
+      case 'time':
+        var datetime = this.get('datetime');
+        if (!(datetime === undefined)) this.set('datetime', value)
+      default:
+        return this.set('html', value);
+    }
+  }
+}
+
+})();
+/*
+---
+ 
+script: List.js
+ 
+description: Trait that makes it simple to work with a list of item (and select one of them)
+ 
+license: Public domain (http://unlicense.org).
+ 
+requires:
+  - LSD
+  - Core/Element
+  - Ext/Element.Properties.item
+ 
+provides: 
+  - LSD.Trait.List
+ 
+...
+*/
+
+
+LSD.Trait.List = new Class({  
+  options: {
+    list: {
+      endless: true,
+      force: false
+    },
+    proxies: {
+      container: {
+        condition: function(widget) {
+          return !!widget.setList
+        }
+      }
+    },
+    shortcuts: {
+      previous: 'previous',
+      next: 'next'
+    }
+  },
+  
+  list: [],
+  items: [],
+  
+  attach: Macro.onion(function() {  
+    var items = this.items.length ? this.items : this.options.list.items;
+    if (items) {
+      this.setItems(items);
+    }
+  }),
+  
+  selectItem: function(item) {
+    if (item && !item.render) item = this.findItemByValue(item);
+    if (!item && this.options.list.force) return false;
+    var selected = this.selectedItem;
+    this.setSelectedItem.apply(this, arguments); 
+    if ((selected != item) && selected && selected.unselect) selected.unselect();
+    item.select();
+    return item;
+  },
+  
+  unselectItem: function(item) {
+    if (this.selectedItem) {
+      if (this.selectedItem.unselect) this.selectedItem.unselect();
+      delete this.selectedItem;
+    }
+  },
+  
+  setSelectedItem: function(item) {
+    this.selectedItem = item;
+    this.fireEvent('set', [item, this.getItemIndex()]);
+  },
+  
+  buildItem: Macro.defaults(function(value) {
+    return new Element('div', {
+      'class': 'lsd option', 
+      'html': value.toString(), 
+      'events': {
+        click: function() {
+          this.selectItem(value);
+        }.bind(this)
+      }
+    });
+  }),
+  
+  setItems: function(items) {
+    this.items = [];
+    this.list = [];
+    items.each(this.addItem.bind(this));
+    if (this.options.list.force) this.selectItem(items[0]);
+    return this;
+  },
+  
+  addItem: function(item) {
+    if (item.setList) var data = item.getValue(), widget = item, item = data;
+    if (!this.items.contains(item)) {
+      this.items.push(item);
+      if (widget) {
+        widget.listWidget = this;
+        this.list.push(widget);
+      }
+      return true;
+    }
+    return false;
+  },
+  
+  makeItems: function() {
+    var item, i = this.list.length;
+    while (item = this.items[i++]) this.makeItem(item);
+  },
+	
+  makeItem: function(item) {
+    var widget = this.buildItem.apply(this, arguments);
+    widget.item = widget.value = item;
+    if (widget.setContent) widget.setContent(item)
+    else widget.set('html', item.toString());
+    return widget;
+  },
+  
+  getItems: function() {
+    return this.items;
+  },
+  
+  hasItems: function() {
+    return this.getItems() && (this.getItems().length > 0)
+  },
+  
+  getSelectedItem: function() {
+    return this.selectedItem;
+  },
+  
+  getItemIndex: function(item) {
+    return this.getItems().indexOf(item || this.selectedItem);
+  },
+  
+  findItemByValue: function(value) {
+    for (var i = 0, j = this.list.length; i < j; i++) {
+      if (this.list[i].value == value) return this.list[i];
+    }
+    return null;
+  },
+  
+  getItemValue: function(item) {
+    for (var i = 0, j = this.list.length; i < j; i++) {
+      if (this.list[i] == item) return this.items[i];
+    }
+    return null;
+  },
+  
+  getActiveItem: function() {
+    var active = (this.chosenItem || this.selectedItem);
+    return active ? active.value : null;
+  },
+
+  next: function(e) {
+    this.makeItems();
+    var next = this.getItems()[this.getItemIndex(this.getActiveItem()) + 1];
+    if (!next && this.options.list.endless) next = this.getItems()[0];
+    if (this.selectItem(next, true, !!e)) {
+      if (e && e.stop) e.stop();
+      return !!this.fireEvent('next', [next]);
+    }
+    return false;
+  },
+
+  previous: function(e) {
+    this.makeItems();
+    var previous = this.getItems()[this.getItemIndex(this.getActiveItem()) - 1];
+    if (!previous && this.options.list.endless) previous = this.getItems().getLast();
+    if (this.selectItem(previous, true)) {
+      if (e && e.stop) e.stop();
+      return !!this.fireEvent('previous', [previous]);
+    }
+    return false;
+  }
+  
+});
+/*
+---
+ 
+script: Choice.js
+ 
+description: Trait that completes List. Allows one item to be chosen and one selected (think navigating to a menu item to select)
+ 
+license: Public domain (http://unlicense.org).
+ 
+requires:
+  - LSD.Trait.List
+ 
+provides: 
+  - LSD.Trait.Choice
+ 
+...
+*/
+
+
+LSD.Trait.Choice = new Class({
+  
+  selectItem: function(item, temp) {
+    if (temp !== true) return this.parent.apply(this, arguments)
+    if (item && !item.render) item = this.findItemByValue(item);
+    if (!item && this.options.list.force) return false;
+    
+    var chosen = this.chosenItem;
+    this.setSelectedItem.apply(this, arguments);
+    if (item.choose() && chosen) chosen.forget();
+    return item;
+  },
+  
+  forgetChosenItem: function() {
+    if (this.chosenItem) this.chosenItem.forget();
+    delete this.chosenItem;
+  },
+  
+  setSelectedItem: function(item, temp) {
+    if (!temp) return this.parent.apply(this, arguments);
+    this.chosenItem = item;
+    this.fireEvent('choose', [item, this.getItemIndex()]);
+    return item;
+  },
+  
+  selectChosenItem: function() {
+    return this.selectItem(this.chosenItem)
+  },
+  
+  getSelectedOptionPosition: function() {
+    var height = 0;
+    if (!this.selectedItem) return height;
+    for (var i = 0, j = this.list.length; i < j; i++) {
+      if (this.list[i] == this.selectedItem) break;
+      height += this.list[i].getLayoutHeight();
+    }
+    return height
+  }
+});
+/*
+---
+ 
 script: UserSelect.js
  
 description: Disable user selection cross-browserly by setting userSelect property
@@ -10087,975 +10968,6 @@ provides: [Element.Properties.userSelect]
     }
   }
 })();
-/*
----
-
-name: Element.Style
-
-description: Contains methods for interacting with the styles of Elements in a fashionable way.
-
-license: MIT-style license.
-
-requires: Element
-
-provides: Element.Style
-
-...
-*/
-
-(function(){
-
-var html = document.html;
-
-Element.Properties.styles = {set: function(styles){
-	this.setStyles(styles);
-}};
-
-var hasOpacity = (html.style.opacity != null);
-var reAlpha = /alpha\(opacity=([\d.]+)\)/i;
-
-var setOpacity = function(element, opacity){
-	if (!element.currentStyle || !element.currentStyle.hasLayout) element.style.zoom = 1;
-	if (hasOpacity){
-		element.style.opacity = opacity;
-	} else {
-		opacity = (opacity == 1) ? '' : 'alpha(opacity=' + opacity * 100 + ')';
-		var filter = element.style.filter || element.getComputedStyle('filter') || '';
-		element.style.filter = reAlpha.test(filter) ? filter.replace(reAlpha, opacity) : filter + opacity;
-	}
-};
-
-Element.Properties.opacity = {
-
-	set: function(opacity){
-		var visibility = this.style.visibility;
-		if (opacity == 0 && visibility != 'hidden') this.style.visibility = 'hidden';
-		else if (opacity != 0 && visibility != 'visible') this.style.visibility = 'visible';
-
-		setOpacity(this, opacity);
-	},
-
-	get: (hasOpacity) ? function(){
-		var opacity = this.style.opacity || this.getComputedStyle('opacity');
-		return (opacity == '') ? 1 : opacity;
-	} : function(){
-		var opacity, filter = (this.style.filter || this.getComputedStyle('filter'));
-		if (filter) opacity = filter.match(reAlpha);
-		return (opacity == null || filter == null) ? 1 : (opacity[1] / 100);
-	}
-
-};
-
-var floatName = (html.style.cssFloat == null) ? 'styleFloat' : 'cssFloat';
-
-Element.implement({
-
-	getComputedStyle: function(property){
-		if (this.currentStyle) return this.currentStyle[property.camelCase()];
-		var defaultView = Element.getDocument(this).defaultView,
-			computed = defaultView ? defaultView.getComputedStyle(this, null) : null;
-		return (computed) ? computed.getPropertyValue((property == floatName) ? 'float' : property.hyphenate()) : null;
-	},
-
-	setOpacity: function(value){
-		setOpacity(this, value);
-		return this;
-	},
-
-	getOpacity: function(){
-		return this.get('opacity');
-	},
-
-	setStyle: function(property, value){
-		switch (property){
-			case 'opacity': return this.set('opacity', parseFloat(value));
-			case 'float': property = floatName;
-		}
-		property = property.camelCase();
-		if (typeOf(value) != 'string'){
-			var map = (Element.Styles[property] || '@').split(' ');
-			value = Array.from(value).map(function(val, i){
-				if (!map[i]) return '';
-				return (typeOf(val) == 'number') ? map[i].replace('@', Math.round(val)) : val;
-			}).join(' ');
-		} else if (value == String(Number(value))){
-			value = Math.round(value);
-		}
-		this.style[property] = value;
-		return this;
-	},
-
-	getStyle: function(property){
-		switch (property){
-			case 'opacity': return this.get('opacity');
-			case 'float': property = floatName;
-		}
-		property = property.camelCase();
-		var result = this.style[property];
-		if (!result || property == 'zIndex'){
-			result = [];
-			for (var style in Element.ShortStyles){
-				if (property != style) continue;
-				for (var s in Element.ShortStyles[style]) result.push(this.getStyle(s));
-				return result.join(' ');
-			}
-			result = this.getComputedStyle(property);
-		}
-		if (result){
-			result = String(result);
-			var color = result.match(/rgba?\([\d\s,]+\)/);
-			if (color) result = result.replace(color[0], color[0].rgbToHex());
-		}
-		if (Browser.opera || (Browser.ie && isNaN(parseFloat(result)))){
-			if ((/^(height|width)$/).test(property)){
-				var values = (property == 'width') ? ['left', 'right'] : ['top', 'bottom'], size = 0;
-				values.each(function(value){
-					size += this.getStyle('border-' + value + '-width').toInt() + this.getStyle('padding-' + value).toInt();
-				}, this);
-				return this['offset' + property.capitalize()] - size + 'px';
-			}
-			if (Browser.opera && String(result).indexOf('px') != -1) return result;
-			if ((/^border(.+)Width|margin|padding/).test(property)) return '0px';
-		}
-		return result;
-	},
-
-	setStyles: function(styles){
-		for (var style in styles) this.setStyle(style, styles[style]);
-		return this;
-	},
-
-	getStyles: function(){
-		var result = {};
-		Array.flatten(arguments).each(function(key){
-			result[key] = this.getStyle(key);
-		}, this);
-		return result;
-	}
-
-});
-
-Element.Styles = {
-	left: '@px', top: '@px', bottom: '@px', right: '@px',
-	width: '@px', height: '@px', maxWidth: '@px', maxHeight: '@px', minWidth: '@px', minHeight: '@px',
-	backgroundColor: 'rgb(@, @, @)', backgroundPosition: '@px @px', color: 'rgb(@, @, @)',
-	fontSize: '@px', letterSpacing: '@px', lineHeight: '@px', clip: 'rect(@px @px @px @px)',
-	margin: '@px @px @px @px', padding: '@px @px @px @px', border: '@px @ rgb(@, @, @) @px @ rgb(@, @, @) @px @ rgb(@, @, @)',
-	borderWidth: '@px @px @px @px', borderStyle: '@ @ @ @', borderColor: 'rgb(@, @, @) rgb(@, @, @) rgb(@, @, @) rgb(@, @, @)',
-	zIndex: '@', 'zoom': '@', fontWeight: '@', textIndent: '@px', opacity: '@'
-};
-
-//<1.2compat>
-
-Element.Styles = new Hash(Element.Styles);
-
-//</1.2compat>
-
-Element.ShortStyles = {margin: {}, padding: {}, border: {}, borderWidth: {}, borderStyle: {}, borderColor: {}};
-
-['Top', 'Right', 'Bottom', 'Left'].each(function(direction){
-	var Short = Element.ShortStyles;
-	var All = Element.Styles;
-	['margin', 'padding'].each(function(style){
-		var sd = style + direction;
-		Short[style][sd] = All[sd] = '@px';
-	});
-	var bd = 'border' + direction;
-	Short.border[bd] = All[bd] = '@px @ rgb(@, @, @)';
-	var bdw = bd + 'Width', bds = bd + 'Style', bdc = bd + 'Color';
-	Short[bd] = {};
-	Short.borderWidth[bdw] = Short[bd][bdw] = All[bdw] = '@px';
-	Short.borderStyle[bds] = Short[bd][bds] = All[bds] = '@';
-	Short.borderColor[bdc] = Short[bd][bdc] = All[bdc] = 'rgb(@, @, @)';
-});
-
-})();
-
-/*
----
-
-name: Element.Dimensions
-
-description: Contains methods to work with size, scroll, or positioning of Elements and the window object.
-
-license: MIT-style license.
-
-credits:
-  - Element positioning based on the [qooxdoo](http://qooxdoo.org/) code and smart browser fixes, [LGPL License](http://www.gnu.org/licenses/lgpl.html).
-  - Viewport dimensions based on [YUI](http://developer.yahoo.com/yui/) code, [BSD License](http://developer.yahoo.com/yui/license.html).
-
-requires: [Element, Element.Style]
-
-provides: [Element.Dimensions]
-
-...
-*/
-
-(function(){
-
-var element = document.createElement('div'),
-	child = document.createElement('div');
-element.style.height = '0';
-element.appendChild(child);
-var brokenOffsetParent = (child.offsetParent === element);
-element = child = null;
-
-var isOffset = function(el){
-	return styleString(el, 'position') != 'static' || isBody(el);
-};
-
-var isOffsetStatic = function(el){
-	return isOffset(el) || (/^(?:table|td|th)$/i).test(el.tagName);
-};
-
-Element.implement({
-
-	scrollTo: function(x, y){
-		if (isBody(this)){
-			this.getWindow().scrollTo(x, y);
-		} else {
-			this.scrollLeft = x;
-			this.scrollTop = y;
-		}
-		return this;
-	},
-
-	getSize: function(){
-		if (isBody(this)) return this.getWindow().getSize();
-		return {x: this.offsetWidth, y: this.offsetHeight};
-	},
-
-	getScrollSize: function(){
-		if (isBody(this)) return this.getWindow().getScrollSize();
-		return {x: this.scrollWidth, y: this.scrollHeight};
-	},
-
-	getScroll: function(){
-		if (isBody(this)) return this.getWindow().getScroll();
-		return {x: this.scrollLeft, y: this.scrollTop};
-	},
-
-	getScrolls: function(){
-		var element = this.parentNode, position = {x: 0, y: 0};
-		while (element && !isBody(element)){
-			position.x += element.scrollLeft;
-			position.y += element.scrollTop;
-			element = element.parentNode;
-		}
-		return position;
-	},
-
-	getOffsetParent: brokenOffsetParent ? function(){
-		var element = this;
-		if (isBody(element) || styleString(element, 'position') == 'fixed') return null;
-
-		var isOffsetCheck = (styleString(element, 'position') == 'static') ? isOffsetStatic : isOffset;
-		while ((element = element.parentNode)){
-			if (isOffsetCheck(element)) return element;
-		}
-		return null;
-	} : function(){
-		var element = this;
-		if (isBody(element) || styleString(element, 'position') == 'fixed') return null;
-
-		try {
-			return element.offsetParent;
-		} catch(e) {}
-		return null;
-	},
-
-	getOffsets: function(){
-		if (this.getBoundingClientRect && !Browser.Platform.ios){
-			var bound = this.getBoundingClientRect(),
-				html = document.id(this.getDocument().documentElement),
-				htmlScroll = html.getScroll(),
-				elemScrolls = this.getScrolls(),
-				isFixed = (styleString(this, 'position') == 'fixed');
-
-			return {
-				x: bound.left.toInt() + elemScrolls.x + ((isFixed) ? 0 : htmlScroll.x) - html.clientLeft,
-				y: bound.top.toInt()  + elemScrolls.y + ((isFixed) ? 0 : htmlScroll.y) - html.clientTop
-			};
-		}
-
-		var element = this, position = {x: 0, y: 0};
-		if (isBody(this)) return position;
-
-		while (element && !isBody(element)){
-			position.x += element.offsetLeft;
-			position.y += element.offsetTop;
-
-			if (Browser.firefox){
-				if (!borderBox(element)){
-					position.x += leftBorder(element);
-					position.y += topBorder(element);
-				}
-				var parent = element.parentNode;
-				if (parent && styleString(parent, 'overflow') != 'visible'){
-					position.x += leftBorder(parent);
-					position.y += topBorder(parent);
-				}
-			} else if (element != this && Browser.safari){
-				position.x += leftBorder(element);
-				position.y += topBorder(element);
-			}
-
-			element = element.offsetParent;
-		}
-		if (Browser.firefox && !borderBox(this)){
-			position.x -= leftBorder(this);
-			position.y -= topBorder(this);
-		}
-		return position;
-	},
-
-	getPosition: function(relative){
-		if (isBody(this)) return {x: 0, y: 0};
-		var offset = this.getOffsets(),
-			scroll = this.getScrolls();
-		var position = {
-			x: offset.x - scroll.x,
-			y: offset.y - scroll.y
-		};
-		
-		if (relative && (relative = document.id(relative))){
-			var relativePosition = relative.getPosition();
-			return {x: position.x - relativePosition.x - leftBorder(relative), y: position.y - relativePosition.y - topBorder(relative)};
-		}
-		return position;
-	},
-
-	getCoordinates: function(element){
-		if (isBody(this)) return this.getWindow().getCoordinates();
-		var position = this.getPosition(element),
-			size = this.getSize();
-		var obj = {
-			left: position.x,
-			top: position.y,
-			width: size.x,
-			height: size.y
-		};
-		obj.right = obj.left + obj.width;
-		obj.bottom = obj.top + obj.height;
-		return obj;
-	},
-
-	computePosition: function(obj){
-		return {
-			left: obj.x - styleNumber(this, 'margin-left'),
-			top: obj.y - styleNumber(this, 'margin-top')
-		};
-	},
-
-	setPosition: function(obj){
-		return this.setStyles(this.computePosition(obj));
-	}
-
-});
-
-
-[Document, Window].invoke('implement', {
-
-	getSize: function(){
-		var doc = getCompatElement(this);
-		return {x: doc.clientWidth, y: doc.clientHeight};
-	},
-
-	getScroll: function(){
-		var win = this.getWindow(), doc = getCompatElement(this);
-		return {x: win.pageXOffset || doc.scrollLeft, y: win.pageYOffset || doc.scrollTop};
-	},
-
-	getScrollSize: function(){
-		var doc = getCompatElement(this),
-			min = this.getSize(),
-			body = this.getDocument().body;
-
-		return {x: Math.max(doc.scrollWidth, body.scrollWidth, min.x), y: Math.max(doc.scrollHeight, body.scrollHeight, min.y)};
-	},
-
-	getPosition: function(){
-		return {x: 0, y: 0};
-	},
-
-	getCoordinates: function(){
-		var size = this.getSize();
-		return {top: 0, left: 0, bottom: size.y, right: size.x, height: size.y, width: size.x};
-	}
-
-});
-
-// private methods
-
-var styleString = Element.getComputedStyle;
-
-function styleNumber(element, style){
-	return styleString(element, style).toInt() || 0;
-};
-
-function borderBox(element){
-	return styleString(element, '-moz-box-sizing') == 'border-box';
-};
-
-function topBorder(element){
-	return styleNumber(element, 'border-top-width');
-};
-
-function leftBorder(element){
-	return styleNumber(element, 'border-left-width');
-};
-
-function isBody(element){
-	return (/^(?:body|html)$/i).test(element.tagName);
-};
-
-function getCompatElement(element){
-	var doc = element.getDocument();
-	return (!doc.compatMode || doc.compatMode == 'CSS1Compat') ? doc.html : doc.body;
-};
-
-})();
-
-//aliases
-Element.alias({position: 'setPosition'}); //compatability
-
-[Window, Document, Element].invoke('implement', {
-
-	getHeight: function(){
-		return this.getSize().y;
-	},
-
-	getWidth: function(){
-		return this.getSize().x;
-	},
-
-	getScrollTop: function(){
-		return this.getScroll().y;
-	},
-
-	getScrollLeft: function(){
-		return this.getScroll().x;
-	},
-
-	getScrollHeight: function(){
-		return this.getScrollSize().y;
-	},
-
-	getScrollWidth: function(){
-		return this.getScrollSize().x;
-	},
-
-	getTop: function(){
-		return this.getPosition().y;
-	},
-
-	getLeft: function(){
-		return this.getPosition().x;
-	}
-
-});
-
-/*
----
-
-script: Element.Measure.js
-
-name: Element.Measure
-
-description: Extends the Element native object to include methods useful in measuring dimensions.
-
-credits: "Element.measure / .expose methods by Daniel Steigerwald License: MIT-style license. Copyright: Copyright (c) 2008 Daniel Steigerwald, daniel.steigerwald.cz"
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Element.Style
-  - Core/Element.Dimensions
-  - /MooTools.More
-
-provides: [Element.Measure]
-
-...
-*/
-
-(function(){
-
-var getStylesList = function(styles, planes){
-	var list = [];
-	Object.each(planes, function(directions){
-		Object.each(directions, function(edge){
-			styles.each(function(style){
-				if (style == 'border') list.push(style + '-' + edge + '-width');
-				else list.push(style + '-' + edge);
-			});
-		});
-	});
-	return list;
-};
-
-var calculateEdgeSize = function(edge, styles){
-	var total = 0;
-	Object.each(styles, function(value, style){
-		if (style.test(edge)) total += value.toInt();
-	});
-	return total;
-};
-
-
-Element.implement({
-
-	measure: function(fn){
-		var visibility = function(el){
-			return !!(!el || el.offsetHeight || el.offsetWidth);
-		};
-		if (visibility(this)) return fn.apply(this);
-		var parent = this.getParent(),
-			restorers = [],
-			toMeasure = [];
-		while (!visibility(parent) && parent != document.body){
-			toMeasure.push(parent.expose());
-			parent = parent.getParent();
-		}
-		var restore = this.expose();
-		var result = fn.apply(this);
-		restore();
-		toMeasure.each(function(restore){
-			restore();
-		});
-		return result;
-	},
-
-	expose: function(){
-		if (this.getStyle('display') != 'none') return function(){};
-		var before = this.style.cssText;
-		this.setStyles({
-			display: 'block',
-			position: 'absolute',
-			visibility: 'hidden'
-		});
-		return function(){
-			this.style.cssText = before;
-		}.bind(this);
-	},
-
-	getDimensions: function(options){
-		options = Object.merge({computeSize: false}, options);
-		var dim = {};
-		
-		var getSize = function(el, options){
-			return (options.computeSize) ? el.getComputedSize(options) : el.getSize();
-		};
-		
-		var parent = this.getParent('body');
-		
-		if (parent && this.getStyle('display') == 'none'){
-			dim = this.measure(function(){
-				return getSize(this, options);
-			});
-		} else if (parent){
-			try { //safari sometimes crashes here, so catch it
-				dim = getSize(this, options);
-			}catch(e){}
-		} else {
-			dim = {x: 0, y: 0};
-		}
-		
-		return Object.append(dim, (dim.x || dim.x === 0) ?  {
-				width: dim.x,
-				height: dim.y
-			} : {
-				x: dim.width,
-				y: dim.height
-			}
-		);
-	},
-
-	getComputedSize: function(options){
-		//<1.2compat>
-		//legacy support for my stupid spelling error
-		if (options && options.plains) options.planes = options.plains;
-		//</1.2compat>
-		
-		options = Object.merge({
-			styles: ['padding','border'],
-			planes: {
-				height: ['top','bottom'],
-				width: ['left','right']
-			},
-			mode: 'both'
-		}, options);
-
-		var styles = {},
-			size = {width: 0, height: 0};
-
-		switch (options.mode){
-			case 'vertical':
-				delete size.width;
-				delete options.planes.width;
-				break;
-			case 'horizontal':
-				delete size.height;
-				delete options.planes.height;
-				break;
-		}
-
-
-		getStylesList(options.styles, options.planes).each(function(style){
-			styles[style] = this.getStyle(style).toInt();
-		}, this);
-
-		Object.each(options.planes, function(edges, plane){
-
-			var capitalized = plane.capitalize();
-			styles[plane] = this.getStyle(plane).toInt();
-			size['total' + capitalized] = styles[plane];
-
-			edges.each(function(edge){
-				var edgesize = calculateEdgeSize(edge, styles);
-				size['computed' + edge.capitalize()] = edgesize;
-				size['total' + capitalized] += edgesize;
-			});
-			
-		}, this);
-		
-		return Object.append(size, styles);
-	}
-
-});
-
-})();
-
-/*
----
-
-name: Fx.CSS
-
-description: Contains the CSS animation logic. Used by Fx.Tween, Fx.Morph, Fx.Elements.
-
-license: MIT-style license.
-
-requires: [Fx, Element.Style]
-
-provides: Fx.CSS
-
-...
-*/
-
-Fx.CSS = new Class({
-
-	Extends: Fx,
-
-	//prepares the base from/to object
-
-	prepare: function(element, property, values){
-		values = Array.from(values);
-		if (values[1] == null){
-			values[1] = values[0];
-			values[0] = element.getStyle(property);
-		}
-		var parsed = values.map(this.parse);
-		return {from: parsed[0], to: parsed[1]};
-	},
-
-	//parses a value into an array
-
-	parse: function(value){
-		value = Function.from(value)();
-		value = (typeof value == 'string') ? value.split(' ') : Array.from(value);
-		return value.map(function(val){
-			val = String(val);
-			var found = false;
-			Object.each(Fx.CSS.Parsers, function(parser, key){
-				if (found) return;
-				var parsed = parser.parse(val);
-				if (parsed || parsed === 0) found = {value: parsed, parser: parser};
-			});
-			found = found || {value: val, parser: Fx.CSS.Parsers.String};
-			return found;
-		});
-	},
-
-	//computes by a from and to prepared objects, using their parsers.
-
-	compute: function(from, to, delta){
-		var computed = [];
-		(Math.min(from.length, to.length)).times(function(i){
-			computed.push({value: from[i].parser.compute(from[i].value, to[i].value, delta), parser: from[i].parser});
-		});
-		computed.$family = Function.from('fx:css:value');
-		return computed;
-	},
-
-	//serves the value as settable
-
-	serve: function(value, unit){
-		if (typeOf(value) != 'fx:css:value') value = this.parse(value);
-		var returned = [];
-		value.each(function(bit){
-			returned = returned.concat(bit.parser.serve(bit.value, unit));
-		});
-		return returned;
-	},
-
-	//renders the change to an element
-
-	render: function(element, property, value, unit){
-		element.setStyle(property, this.serve(value, unit));
-	},
-
-	//searches inside the page css to find the values for a selector
-
-	search: function(selector){
-		if (Fx.CSS.Cache[selector]) return Fx.CSS.Cache[selector];
-		var to = {}, selectorTest = new RegExp('^' + selector.escapeRegExp() + '$');
-		Array.each(document.styleSheets, function(sheet, j){
-			var href = sheet.href;
-			if (href && href.contains('://') && !href.contains(document.domain)) return;
-			var rules = sheet.rules || sheet.cssRules;
-			Array.each(rules, function(rule, i){
-				if (!rule.style) return;
-				var selectorText = (rule.selectorText) ? rule.selectorText.replace(/^\w+/, function(m){
-					return m.toLowerCase();
-				}) : null;
-				if (!selectorText || !selectorTest.test(selectorText)) return;
-				Object.each(Element.Styles, function(value, style){
-					if (!rule.style[style] || Element.ShortStyles[style]) return;
-					value = String(rule.style[style]);
-					to[style] = ((/^rgb/).test(value)) ? value.rgbToHex() : value;
-				});
-			});
-		});
-		return Fx.CSS.Cache[selector] = to;
-	}
-
-});
-
-Fx.CSS.Cache = {};
-
-Fx.CSS.Parsers = {
-
-	Color: {
-		parse: function(value){
-			if (value.match(/^#[0-9a-f]{3,6}$/i)) return value.hexToRgb(true);
-			return ((value = value.match(/(\d+),\s*(\d+),\s*(\d+)/))) ? [value[1], value[2], value[3]] : false;
-		},
-		compute: function(from, to, delta){
-			return from.map(function(value, i){
-				return Math.round(Fx.compute(from[i], to[i], delta));
-			});
-		},
-		serve: function(value){
-			return value.map(Number);
-		}
-	},
-
-	Number: {
-		parse: parseFloat,
-		compute: Fx.compute,
-		serve: function(value, unit){
-			return (unit) ? value + unit : value;
-		}
-	},
-
-	String: {
-		parse: Function.from(false),
-		compute: function(zero, one){
-			return one;
-		},
-		serve: function(zero){
-			return zero;
-		}
-	}
-
-};
-
-//<1.2compat>
-
-Fx.CSS.Parsers = new Hash(Fx.CSS.Parsers);
-
-//</1.2compat>
-
-/*
----
-
-name: Fx.Tween
-
-description: Formerly Fx.Style, effect to transition any CSS property for an element.
-
-license: MIT-style license.
-
-requires: Fx.CSS
-
-provides: [Fx.Tween, Element.fade, Element.highlight]
-
-...
-*/
-
-Fx.Tween = new Class({
-
-	Extends: Fx.CSS,
-
-	initialize: function(element, options){
-		this.element = this.subject = document.id(element);
-		this.parent(options);
-	},
-
-	set: function(property, now){
-		if (arguments.length == 1){
-			now = property;
-			property = this.property || this.options.property;
-		}
-		this.render(this.element, property, now, this.options.unit);
-		return this;
-	},
-
-	start: function(property, from, to){
-		if (!this.check(property, from, to)) return this;
-		var args = Array.flatten(arguments);
-		this.property = this.options.property || args.shift();
-		var parsed = this.prepare(this.element, this.property, args);
-		return this.parent(parsed.from, parsed.to);
-	}
-
-});
-
-Element.Properties.tween = {
-
-	set: function(options){
-		this.get('tween').cancel().setOptions(options);
-		return this;
-	},
-
-	get: function(){
-		var tween = this.retrieve('tween');
-		if (!tween){
-			tween = new Fx.Tween(this, {link: 'cancel'});
-			this.store('tween', tween);
-		}
-		return tween;
-	}
-
-};
-
-Element.implement({
-
-	tween: function(property, from, to){
-		this.get('tween').start(arguments);
-		return this;
-	},
-
-	fade: function(how){
-		var fade = this.get('tween'), o = 'opacity', toggle;
-		how = [how, 'toggle'].pick();
-		switch (how){
-			case 'in': fade.start(o, 1); break;
-			case 'out': fade.start(o, 0); break;
-			case 'show': fade.set(o, 1); break;
-			case 'hide': fade.set(o, 0); break;
-			case 'toggle':
-				var flag = this.retrieve('fade:flag', this.get('opacity') == 1);
-				fade.start(o, (flag) ? 0 : 1);
-				this.store('fade:flag', !flag);
-				toggle = true;
-			break;
-			default: fade.start(o, arguments);
-		}
-		if (!toggle) this.eliminate('fade:flag');
-		return this;
-	},
-
-	highlight: function(start, end){
-		if (!end){
-			end = this.retrieve('highlight:original', this.getStyle('background-color'));
-			end = (end == 'transparent') ? '#fff' : end;
-		}
-		var tween = this.get('tween');
-		tween.start('background-color', start || '#ffff88', end).chain(function(){
-			this.setStyle('background-color', this.retrieve('highlight:original'));
-			tween.callChain();
-		}.bind(this));
-		return this;
-	}
-
-});
-
-/*
----
- 
-script: Animation.js
- 
-description: Animated ways to show/hide widget
- 
-license: Public domain (http://unlicense.org).
- 
-requires:
-  - LSD
-  - Core/Fx.Tween
- 
-provides: 
-  - LSD.Trait.Animation
- 
-...
-*/
-
-
-LSD.Trait.Animation = new Class({
-  options: {
-    animation: {}
-  },
-  
-  getAnimation: function() {
-    if (!this.animation) {
-      this.animation = this.getAnimatedElement().set('tween', this.options.animation).get('tween');
-      if (this.options.animation.value) this.animation.set(this.options.animation.value);
-    }
-    return this.animation;
-  },
-  
-  show: function() {
-    var parent = this.parent;
-    this.getAnimation().start('opacity', 1).chain(function() {
-      LSD.Widget.prototype.show.apply(this, arguments);
-    }.bind(this))
-  },
-  
-  hide: function(how) {
-    var parent = this;
-    this.getAnimation().start('opacity', 0).chain(function() {
-      LSD.Widget.prototype.hide.apply(this, arguments);
-    }.bind(this))
-  },
-  
-  remove: function() {
-    return this.getAnimation().start('opacity', 0).chain(this.dispose.bind(this));
-  },
-  
-  dispose: function() {
-    return this.getAnimatedElement().dispose()
-  },
-  
-  getAnimatedElement: function() {
-    return this.element;
-  }
-  
-});
-
-LSD.Trait.Animation.Instant = new Class({
-  show: function() {
-    this.getAnimatedElement().setStyle('visibility', 'visible')
-  },
-  
-  hide: function() {
-    this.getAnimatedElement().setStyle('visibility', 'hidden')
-  },
-  
-  getAnimatedElement: function() {
-    return this.element;
-  }
-})
 /*
 ---
 
@@ -11537,874 +11449,6 @@ LSD.Mixin.Touchable = new Class({
 /*
 ---
 
-script: Drag.js
-
-name: Drag
-
-description: The base Drag Class. Can be used to drag and resize Elements using mouse events.
-
-license: MIT-style license
-
-authors:
-  - Valerio Proietti
-  - Tom Occhinno
-  - Jan Kassens
-
-requires:
-  - Core/Events
-  - Core/Options
-  - Core/Element.Event
-  - Core/Element.Style
-  - /MooTools.More
-
-provides: [Drag]
-...
-
-*/
-
-var Drag = new Class({
-
-	Implements: [Events, Options],
-
-	options: {/*
-		onBeforeStart: function(thisElement){},
-		onStart: function(thisElement, event){},
-		onSnap: function(thisElement){},
-		onDrag: function(thisElement, event){},
-		onCancel: function(thisElement){},
-		onComplete: function(thisElement, event){},*/
-		snap: 6,
-		unit: 'px',
-		grid: false,
-		style: true,
-		limit: false,
-		handle: false,
-		invert: false,
-		preventDefault: false,
-		stopPropagation: false,
-		modifiers: {x: 'left', y: 'top'}
-	},
-
-	initialize: function(){
-		var params = Array.link(arguments, {
-			'options': Type.isObject, 
-			'element': function(obj){
-				return obj != null;
-			}
-		});
-		
-		this.element = document.id(params.element);
-		this.document = this.element.getDocument();
-		this.setOptions(params.options || {});
-		var htype = typeOf(this.options.handle);
-		this.handles = ((htype == 'array' || htype == 'collection') ? $$(this.options.handle) : document.id(this.options.handle)) || this.element;
-		this.mouse = {'now': {}, 'pos': {}};
-		this.value = {'start': {}, 'now': {}};
-
-		this.selection = (Browser.ie) ? 'selectstart' : 'mousedown';
-
-		this.bound = {
-			start: this.start.bind(this),
-			check: this.check.bind(this),
-			drag: this.drag.bind(this),
-			stop: this.stop.bind(this),
-			cancel: this.cancel.bind(this),
-			eventStop: Function.from(false)
-		};
-		this.attach();
-	},
-
-	attach: function(){
-		this.handles.addEvent('mousedown', this.bound.start);
-		return this;
-	},
-
-	detach: function(){
-		this.handles.removeEvent('mousedown', this.bound.start);
-		return this;
-	},
-
-	start: function(event){
-		var options = this.options;
-		
-		if (event.rightClick) return;
-		
-		if (options.preventDefault) event.preventDefault();
-		if (options.stopPropagation) event.stopPropagation();
-		this.mouse.start = event.page;
-		
-		this.fireEvent('beforeStart', this.element);
-		
-		var limit = options.limit;
-		this.limit = {x: [], y: []};
-		for (var z in options.modifiers){
-			if (!options.modifiers[z]) continue;
-			
-			if (options.style) this.value.now[z] = this.element.getStyle(options.modifiers[z]).toInt();
-			else this.value.now[z] = this.element[options.modifiers[z]];
-			
-			if (options.invert) this.value.now[z] *= -1;
-			this.mouse.pos[z] = event.page[z] - this.value.now[z];
-			
-			if (limit && limit[z]){
-				var i = 2;
-				while (i--){
-					var limitZI = limit[z][i];
-					if (limitZI || limitZI === 0) this.limit[z][i] = (typeof limitZI == 'function') ? limitZI() : limitZI;
-				}
-			}
-		}
-		
-		if (typeOf(this.options.grid) == 'number') this.options.grid = {
-			x: this.options.grid, 
-			y: this.options.grid
-		};
-		
-		var events = {
-			mousemove: this.bound.check, 
-			mouseup: this.bound.cancel
-		};
-		events[this.selection] = this.bound.eventStop;
-		this.document.addEvents(events);
-	},
-
-	check: function(event){
-		if (this.options.preventDefault) event.preventDefault();
-		var distance = Math.round(Math.sqrt(Math.pow(event.page.x - this.mouse.start.x, 2) + Math.pow(event.page.y - this.mouse.start.y, 2)));
-		if (distance > this.options.snap){
-			this.cancel();
-			this.document.addEvents({
-				mousemove: this.bound.drag,
-				mouseup: this.bound.stop
-			});
-			this.fireEvent('start', [this.element, event]).fireEvent('snap', this.element);
-		}
-	},
-
-	drag: function(event){
-		var options = this.options;
-		
-		if (options.preventDefault) event.preventDefault();
-		this.mouse.now = event.page;
-		
-		for (var z in options.modifiers){
-			if (!options.modifiers[z]) continue;
-			this.value.now[z] = this.mouse.now[z] - this.mouse.pos[z];
-			if (options.invert) this.value.now[z] *= -1;
-			
-			if (options.limit && this.limit[z]){
-				if ((this.limit[z][1] || this.limit[z][1] === 0) && (this.value.now[z] > this.limit[z][1])){
-					this.value.now[z] = this.limit[z][1];
-				} else if ((this.limit[z][0] || this.limit[z][0] === 0) && (this.value.now[z] < this.limit[z][0])){
-					this.value.now[z] = this.limit[z][0];
-				}
-			}
-			
-			if (options.grid[z]) this.value.now[z] -= ((this.value.now[z] - (this.limit[z][0]||0)) % options.grid[z]);
-			if (options.style) {
-				this.element.setStyle(options.modifiers[z], this.value.now[z] + options.unit);
-			} else {
-				this.element[options.modifiers[z]] = this.value.now[z];
-			}
-		}
-		
-		this.fireEvent('drag', [this.element, event]);
-	},
-
-	cancel: function(event){
-		this.document.removeEvents({
-			mousemove: this.bound.check,
-			mouseup: this.bound.cancel
-		});
-		if (event){
-			this.document.removeEvent(this.selection, this.bound.eventStop);
-			this.fireEvent('cancel', this.element);
-		}
-	},
-
-	stop: function(event){
-		var events = {
-			mousemove: this.bound.drag,
-			mouseup: this.bound.stop
-		};
-		events[this.selection] = this.bound.eventStop;
-		this.document.removeEvents(events);
-		if (event) this.fireEvent('complete', [this.element, event]);
-	}
-
-});
-
-Element.implement({
-
-	makeResizable: function(options){
-		var drag = new Drag(this, Object.merge({
-			modifiers: {
-				x: 'width', 
-				y: 'height'
-			}
-		}, options));
-		
-		this.store('resizer', drag);
-		return drag.addEvent('drag', function(){
-			this.fireEvent('resize', drag);
-		}.bind(this));
-	}
-
-});
-
-/*
----
-
-script: Slider.js
-
-name: Slider
-
-description: Class for creating horizontal and vertical slider controls.
-
-license: MIT-style license
-
-authors:
-  - Valerio Proietti
-
-requires:
-  - Core/Element.Dimensions
-  - /Class.Binds
-  - /Drag
-  - /Element.Measure
-
-provides: [Slider]
-
-...
-*/
-
-var Slider = new Class({
-
-	Implements: [Events, Options],
-
-	Binds: ['clickedElement', 'draggedKnob', 'scrolledElement'],
-
-	options: {/*
-		onTick: function(intPosition){},
-		onChange: function(intStep){},
-		onComplete: function(strStep){},*/
-		onTick: function(position){
-			if (this.options.snap) position = this.toPosition(this.step);
-			this.knob.setStyle(this.property, position);
-		},
-		initialStep: 0,
-		snap: false,
-		offset: 0,
-		range: false,
-		wheel: false,
-		steps: 100,
-		mode: 'horizontal'
-	},
-
-	initialize: function(element, knob, options){
-		this.setOptions(options);
-		this.element = document.id(element);
-		this.knob = document.id(knob);
-		this.previousChange = this.previousEnd = this.step = -1;
-		var offset, limit = {}, modifiers = {'x': false, 'y': false};
-		switch (this.options.mode){
-			case 'vertical':
-				this.axis = 'y';
-				this.property = 'top';
-				offset = 'offsetHeight';
-				break;
-			case 'horizontal':
-				this.axis = 'x';
-				this.property = 'left';
-				offset = 'offsetWidth';
-		}
-		
-		this.full = this.element.measure(function(){ 
-			this.half = this.knob[offset] / 2; 
-			return this.element[offset] - this.knob[offset] + (this.options.offset * 2); 
-		}.bind(this));
-		
-		this.setRange(this.options.range);
-
-		this.knob.setStyle('position', 'relative').setStyle(this.property, this.options.initialStep ? this.toPosition(this.options.initialStep) : - this.options.offset);
-		modifiers[this.axis] = this.property;
-		limit[this.axis] = [- this.options.offset, this.full - this.options.offset];
-
-		var dragOptions = {
-			snap: 0,
-			limit: limit,
-			modifiers: modifiers,
-			onDrag: this.draggedKnob,
-			onStart: this.draggedKnob,
-			onBeforeStart: (function(){
-				this.isDragging = true;
-			}).bind(this),
-			onCancel: function(){
-				this.isDragging = false;
-			}.bind(this),
-			onComplete: function(){
-				this.isDragging = false;
-				this.draggedKnob();
-				this.end();
-			}.bind(this)
-		};
-		if (this.options.snap){
-			dragOptions.grid = Math.ceil(this.stepWidth);
-			dragOptions.limit[this.axis][1] = this.full;
-		}
-
-		this.drag = new Drag(this.knob, dragOptions);
-		this.attach();
-	},
-
-	attach: function(){
-		this.element.addEvent('mousedown', this.clickedElement);
-		if (this.options.wheel) this.element.addEvent('mousewheel', this.scrolledElement);
-		this.drag.attach();
-		return this;
-	},
-
-	detach: function(){
-		this.element.removeEvent('mousedown', this.clickedElement);
-		this.element.removeEvent('mousewheel', this.scrolledElement);
-		this.drag.detach();
-		return this;
-	},
-
-	set: function(step){
-		if (!((this.range > 0) ^ (step < this.min))) step = this.min;
-		if (!((this.range > 0) ^ (step > this.max))) step = this.max;
-
-		this.step = Math.round(step);
-		this.checkStep();
-		this.fireEvent('tick', this.toPosition(this.step));
-		this.end();
-		return this;
-	},
-	
-	setRange: function(range, pos){
-		this.min = Array.pick([range[0], 0]);
-		this.max = Array.pick([range[1], this.options.steps]);
-		this.range = this.max - this.min;
-		this.steps = this.options.steps || this.full;
-		this.stepSize = Math.abs(this.range) / this.steps;
-		this.stepWidth = this.stepSize * this.full / Math.abs(this.range);
-		this.set(Array.pick([pos, this.step]).floor(this.min).max(this.max));
-		return this;
-	},
-
-	clickedElement: function(event){
-		if (this.isDragging || event.target == this.knob) return;
-
-		var dir = this.range < 0 ? -1 : 1;
-		var position = event.page[this.axis] - this.element.getPosition()[this.axis] - this.half;
-		position = position.limit(-this.options.offset, this.full -this.options.offset);
-
-		this.step = Math.round(this.min + dir * this.toStep(position));
-		this.checkStep();
-		this.fireEvent('tick', position);
-		this.end();
-	},
-
-	scrolledElement: function(event){
-		var mode = (this.options.mode == 'horizontal') ? (event.wheel < 0) : (event.wheel > 0);
-		this.set(mode ? this.step - this.stepSize : this.step + this.stepSize);
-		event.stop();
-	},
-
-	draggedKnob: function(){
-		var dir = this.range < 0 ? -1 : 1;
-		var position = this.drag.value.now[this.axis];
-		position = position.limit(-this.options.offset, this.full -this.options.offset);
-		this.step = Math.round(this.min + dir * this.toStep(position));
-		this.checkStep();
-	},
-
-	checkStep: function(){
-		if (this.previousChange != this.step){
-			this.previousChange = this.step;
-			this.fireEvent('change', this.step);
-		}
-	},
-
-	end: function(){
-		if (this.previousEnd !== this.step){
-			this.previousEnd = this.step;
-			this.fireEvent('complete', this.step + '');
-		}
-	},
-
-	toStep: function(position){
-		var step = (position + this.options.offset) * this.stepSize / this.full * this.steps;
-		return this.options.steps ? Math.round(step -= step % this.stepSize) : step;
-	},
-
-	toPosition: function(step){
-		return (this.full * Math.abs(this.min - step)) / (this.steps * this.stepSize) - this.options.offset;
-	}
-
-});
-
-/*
----
- 
-script: Drag.Limits.js
- 
-description: A set of function to easily cap Drag's limit
- 
-license: MIT-style license.
- 
-requires:
-- More/Drag
-
-provides: [Drag.Limits]
- 
-...
-*/
-
-Drag.implement({
-  setMaxX: function(x) {
-    var limit = this.options.limit;
-    limit.x[1] = x//Math.max(x, limit.x[1]);
-    limit.x[0] = Math.min(limit.x[0], limit.x[1]);
-  },
-  
-  setMaxY: function(y) {
-    var limit = this.options.limit;
-    limit.y[1] = y//Math.max(y, limit.y[1]);
-    limit.y[0] = Math.min(limit.y[0], limit.y[1]);
-  },
-  
-  setMinX: function(x) {
-    var limit = this.options.limit;
-    limit.x[0] = x//Math.min(x, limit.x[0]);
-    limit.x[1] = Math.max(limit.x[1], limit.x[0]);
-  },
-  
-  setMinY: function(y) {
-    var limit = this.options.limit;
-    limit.y[0] = y//Math.min(y, limit.y[0]);
-    limit.y[1] = Math.max(limit.y[1], limit.y[0]);
-  }
-});
-
-/*
----
- 
-script: Slider.js
- 
-description: Methods to update slider without reinitializing the thing
- 
-license: MIT-style license.
- 
-requires:
-- Drag.Limits
-- More/Slider
-
-provides: [Slider.prototype.update]
- 
-...
-*/
-
-
-Slider.implement({
-  update: function() {
-		var offset = (this.options.mode == 'vertical') ?  'offsetHeight' : 'offsetWidth'
-		this.half = this.knob[offset] / 2; 
-		this.full =  this.element[offset] - this.knob[offset] + (this.options.offset * 2); 
-		
-		//this.setRange(this.options.range);
-
-		this.knob.setStyle(this.property, this.toPosition(this.step));
-		var X = this.axis.capitalize();
-		this.drag['setMin' + X](- this.options.offset)
-		this.drag['setMax' + X](this.full - this.options.offset)
-  }
-})
-/*
----
- 
-script: Slider.js
- 
-description: Because sometimes slider is the answer
- 
-license: Public domain (http://unlicense.org).
- 
-requires:
-  - LSD
-  - More/Slider
-  - Ext/Slider.prototype.update
-  - Ext/Class.hasParent
-
-provides: 
-  - LSD.Trait.Slider
- 
-...
-*/
-
-LSD.Trait.Slider = new Class({
-  
-  options: {
-    actions: {
-      slider: {
-        enable: function() {
-          if (!this.slider) this.getSlider();
-          else this.slider.attach();
-        },
-
-        disable: function() {
-          if (this.slider) this.slider.detach()
-        }
-      }
-    },
-    events: {
-      parent: {
-        resize: 'onParentResize'
-      },
-      slider: {}
-    },
-    slider: {},
-    value: 0,
-    mode: 'horizontal',
-  },
-  
-  onParentResize: function(current, old) {
-    if (this.slider) this.slider.update();
-  },
-  
-  getSlider: Macro.getter('slider', function (update) {
-    var slider = new Slider(document.id(this.getTrack()), document.id(this.getTrackThumb()), $merge(this.options.slider, {
-      mode: this.options.mode
-    })).set(parseFloat(this.options.value));
-    slider.addEvent('change', this.onSet.bind(this));
-    slider.addEvents(this.events.slider)
-    return slider;
-  }),
-  
-  onSet: Macro.defaults($lambda(true)),
-  
-  getTrack: Macro.defaults(function() {
-    return this
-  }),
-  
-  getTrackThumb: Macro.defaults(function() {
-    return this.thumb;
-  }),
-  
-  increment: function() {
-    this.slider.set((this.slider.step || 0) + 10)
-  },
-  
-  decrement: function() {
-    this.slider.set((this.slider.step || 0) - 10)
-  }
-  
-});
-
-Slider = new Class({
-  Extends: Slider,
-  
-  initialize: function() {
-    Array.from(this.Binds).each(function(name){
-      var original = this[name];
-      if (original) this[name] = original.bind(this);
-    }, this);
-    return this.parent.apply(this, arguments);
-  }
-})
-/*
----
- 
-script: Resizable.js
- 
-description: Resize widget with the mouse freely
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD
-  - More/Drag
-
-provides: 
-  - LSD.Mixin.Resizable 
-...
-*/
-
-
-LSD.Mixin.Resizable = new Class({
-  behaviour: '[resizable][resizable!=false]',
-  
-  options: {
-    resizer: {
-      modifiers: {
-        x: 'width',
-        y: 'height'
-      },
-      snap: false,
-      style: false,
-      crop: false,
-      handle: [],
-      container: true,
-      limit: {
-        x: [0, 3000],
-        y: [0, 3000]
-      },
-    },
-    actions: {
-      resizable: {
-        enable: function(handle, resizable) {
-          this.handle = handle;
-          this.resized = resizable || this;
-          this.onStateChange('resizable', true);
-          var resizer = this.resizer;
-          if (resizer == this.getResizer(document.id(this.resized))) resizer.attach();
-          if (handle) document.id(handle).addEvent('mousedown', this.resizer.bound.start);
-          if (this.options.resizer.fit) this.fit(resizable)
-        },
-
-        disable: function(handle, content) {
-          this.onStateChange('resizable', false);
-          if (this.resizer) this.resizer.detach();
-          if (handle) document.id(handle).removeEvent('mousedown', this.resizer.bound.start);
-          delete this.resized, this.handle;
-        },
-      }
-    }
-  },
-  
-  initialize: function() {
-    this.parent.apply(this, arguments);
-    var options = this.options.resizer;
-    var rules = (new FastArray).concat(this.getAttribute('resizable').split(/\s+/));
-    options.modifiers.x = (!rules.x && rules.y) ? false : 'width';
-    options.modifiers.y = (!rules.y && rules.x) ? false : 'height';
-    options.fit = !!rules.fit;
-  },
-  
-  uninitialize: function() {
-    if (this.handle) this.options.actions.resizable.disable.call(this, this.handle, this.resized);
-    delete this.resizer;
-  },
-   
-  getResizer: function(resized) {
-    var element = resized
-    if (this.resizer) {
-      if (this.resizer.element == element) return this.resizer;
-      return this.resizer.element = element;
-    }
-    var resizer = this.resizer = new Drag(element, Object.append(this.options, this.options.resizer));
-    resizer.addEvents(this.events.resizer);
-    resizer.addEvents({
-      'beforeStart': this.onBeforeResize.bind(this),
-      'start': this.onResizeStart.bind(this),
-      'complete': this.onResizeComplete.bind(this),
-      'cancel': this.onResizeComplete.bind(this),
-      'drag': this.onResize.bind(this)
-    }, true);
-    return resizer;
-  },
-  
-  check: function(size) {
-    if (!this.resizer) return;
-    var width = this.element.offsetWidth - this.offset.inner.left - this.offset.inner.right;
-    if (!size) size = {width: this.resized.toElement().width}
-    if (size.width < width) {
-      if (!$chk(this.limit)) this.limit = this.resized.getStyle('minWidth') || 1
-      this.resized.setStyle('minWidth', width);
-      $clear(this.delay);
-      this.delay = (function() { //reset limit options in one second
-        this.resized.setStyle('minWidth', this.limit);
-      }).delay(1000, this); 
-      size.width = width;
-    }
-    return size;
-  },
-  
-  onBeforeResize: function() {
-    Object.append(this.resized.toElement(), this.resized.size)
-  },
-  
-  onResizeStart: function() {
-    this.onStateChange('resized', true);
-    var getLiquid = function(child, prop) {
-      var value = child.style.current[prop];
-      return ((value == 'inherit') || (value == 'auto') || child.style.expressed[prop]) ? value : null
-    }
-    if (!this.liquid) {
-      this.liquid = this.collect(function(c) { return getLiquid(c, 'width')}).include(this.resized);
-      if (this.resized != this) {
-        var style = this.resized.style.liquid = {};
-        var width = getLiquid(this.resized, 'width');
-        if (width) style.width = width;
-        var height = getLiquid(this.resized, 'height');
-        if (height) style.height = height;
-      }
-    }
-  },
-  
-  onResizeComplete: function() {
-    console.log(this.resized.style.liquid)
-    if (this.resized.style.liquid) this.resized.setStyles(this.resized.style.liquid);
-    this.onStateChange('resized', false);
-    delete this.liquid
-  },
-  
-  onResize: function() {
-    var now = this.resizer.value.now;
-    var resized = this.resized;
-    if (!resized.style.dimensions) {
-      resized.style.dimensions = {};
-      var width = resized.style.current.width
-      if (width == 'auto') resized.style.dimensions.width = 'auto';
-      var height = resized.toElement().getStyle('height');
-      if (height == 'auto') resized.style.dimensions.height = 'auto';
-    }
-    if (!now.x) now.x = resized.size.width;
-    if (!now.y) now.y = resized.size.height;
-    var size = this.check({width: resized.setWidth(now.x) || now.x, height: resized.setHeight(now.y) || now.y});
-    resized.setStyles(size);
-    if (this.liquid) {
-      this.liquid.each(function(child) {
-        child.update();
-      })
-    }
-    this.refresh();
-  },
-  
-  fit: function(content) {
-    if (!content) content = this.resized;
-    var element = content.getWrapper();
-    var display = element.getStyle('display');
-    if (display != 'inline-block') element.setStyle('display', 'inline-block');
-    var width = element.offsetWidth;
-    var height = element.offsetHeight;
-    element.setStyle('display', display)
-    content.setHeight(height);
-    content.setWidth(width);
-    this.refresh({
-      maxWidth: width, maxHeight: height
-    });
-  },
-  
-  getScrolled: function() {
-    return this.resized.getWrapper();
-  }
-});
-/*
----
- 
-script: Draggable.js
- 
-description: Drag widget around the screen
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD
-- More/Drag
-
-provides: [LSD.Mixin.Draggable]
- 
-...
-*/
-
-LSD.Mixin.Draggable = new Class({
-  behaviour: '[draggable][draggable!=false]',
-  
-  options: {
-    dragger: {
-      modifiers: {
-        x: 'left',
-        y: 'top'
-      },
-      snap: 5,
-      style: false,
-      container: true,
-      limit: {
-        x: [0, 3000],
-        y: [0, 3000]
-      },
-      handle: []
-    },
-    actions: {
-      draggable: {
-        enable: function(handle) {
-          if (this.index++ == 0) {
-            if (this.dragger) this.dragger.attach();
-            else this.getDragger();
-            this.onStateChange('draggable', true);
-          }
-          if (!handle) return;
-          this.handles.push(handle);
-          document.id(handle).addEvent('mousedown', this.dragger.bound.start);
-        },
-        
-        disable: function(handle) {
-          if (!this.dragger) return;
-          if (--this.index == 0) {
-            this.onStateChange('draggable', false);
-            this.dragger.detach();
-          }
-          if (!handle) return;
-          this.handles.erase(handle)
-          document.id(handle).removeEvent('mousedown', this.dragger.bound.start);
-        }
-      }
-    }
-  },
-  
-  initialize: function() {
-    this.parent.apply(this, arguments);
-    this.handles = [];
-    this.index = 0;
-  },
-  
-  unitialize: function() {
-    this.handles.each(this.options.actions.draggable.disable, this);
-    this.onStateChange('draggable', false);
-    delete this.dragger;
-  },
-  
-  getDragger: Macro.getter('dragger', function() {
-    var element = this.element;
-    this.onDOMInject(function() {
-      var position = element.getPosition();
-      element.left = position.x - element.getStyle('margin-left').toInt();
-      element.top = position.y - element.getStyle('margin-top').toInt();
-    }.create({delay: 50}));
-    var dragger = new Drag(element, Object.append(this.options.dragger, this.options.dragger));
-    dragger.addEvents(this.events.dragger);
-    dragger.addEvents({
-      'start': this.onDragStart.bind(this),
-      'complete': this.onDragComplete.bind(this),
-      'cancel': this.onDragComplete.bind(this),
-      'drag': this.onDrag.bind(this)
-    }, true);
-    return dragger;
-  }),
-  
-  onDragStart: function() {
-    this.onStateChange('dragged', true);
-  },
-  
-  onDragComplete: function() {
-    this.onStateChange('dragged', false);
-  },
-  
-  onDrag: function() {
-    this.setStyles({
-      top: this.dragger.value.now.y,
-      left: this.dragger.value.now.x
-    });
-  }
-  
-});
-/*
----
-
 name: DOMReady
 
 description: Contains the custom event domready.
@@ -12726,105 +11770,2059 @@ LSD.Trait.Accessibility = new Class({
 /*
 ---
 
-name: Element.Pseudos
+name: Element.Style
 
-description: Adds the functionallity to add pseudo events for Elements
+description: Contains methods for interacting with the styles of Elements in a fashionable way.
 
-license: MIT-style license
+license: MIT-style license.
 
-authors:
-  - Arian Stolwijk
+requires: Element
 
-requires: [Core/Element.Event, Events.Pseudos]
-provides: [Element.Pseudos]
+provides: Element.Style
 
 ...
 */
 
 (function(){
 
-	var keysStoreKey = '$moo:keys-pressed',
-		keysKeyupStoreKey = '$moo:keys-keyup';
+var html = document.html;
 
-	var pseudos = {
-		
-		once: function(split, fn, args){
-			fn.apply(this, args);
-			this.removeEvent(split.original, fn);
-		},
-		
-		
-		keys: function(split, fn, args){
-			if (split.event != 'keydown') return;
-			
-			var event = args[0],
-				keys = split.value.split('+'),
-				pressed = this.retrieve(keysStoreKey, []);
-			
-			pressed.include(event.key);
-			
-			if (keys.every(function(key){
-				return pressed.contains(key);
-			})) fn.apply(this, args);
-			
-			this.store(keysStoreKey, pressed);
-			
-			
-			if (!this.retrieve(keysKeyupStoreKey)){
-				var keyup = function(){
-					this.store(keysStoreKey, []);
-				};
-				this.store(keysKeyupStoreKey, keyup).addEvent('keyup', keyup);
-			}
-			
+Element.Properties.styles = {set: function(styles){
+	this.setStyles(styles);
+}};
+
+var hasOpacity = (html.style.opacity != null);
+var reAlpha = /alpha\(opacity=([\d.]+)\)/i;
+
+var setOpacity = function(element, opacity){
+	if (!element.currentStyle || !element.currentStyle.hasLayout) element.style.zoom = 1;
+	if (hasOpacity){
+		element.style.opacity = opacity;
+	} else {
+		opacity = (opacity == 1) ? '' : 'alpha(opacity=' + opacity * 100 + ')';
+		var filter = element.style.filter || element.getComputedStyle('filter') || '';
+		element.style.filter = reAlpha.test(filter) ? filter.replace(reAlpha, opacity) : filter + opacity;
+	}
+};
+
+Element.Properties.opacity = {
+
+	set: function(opacity){
+		var visibility = this.style.visibility;
+		if (opacity == 0 && visibility != 'hidden') this.style.visibility = 'hidden';
+		else if (opacity != 0 && visibility != 'visible') this.style.visibility = 'visible';
+
+		setOpacity(this, opacity);
+	},
+
+	get: (hasOpacity) ? function(){
+		var opacity = this.style.opacity || this.getComputedStyle('opacity');
+		return (opacity == '') ? 1 : opacity;
+	} : function(){
+		var opacity, filter = (this.style.filter || this.getComputedStyle('filter'));
+		if (filter) opacity = filter.match(reAlpha);
+		return (opacity == null || filter == null) ? 1 : (opacity[1] / 100);
+	}
+
+};
+
+var floatName = (html.style.cssFloat == null) ? 'styleFloat' : 'cssFloat';
+
+Element.implement({
+
+	getComputedStyle: function(property){
+		if (this.currentStyle) return this.currentStyle[property.camelCase()];
+		var defaultView = Element.getDocument(this).defaultView,
+			computed = defaultView ? defaultView.getComputedStyle(this, null) : null;
+		return (computed) ? computed.getPropertyValue((property == floatName) ? 'float' : property.hyphenate()) : null;
+	},
+
+	setOpacity: function(value){
+		setOpacity(this, value);
+		return this;
+	},
+
+	getOpacity: function(){
+		return this.get('opacity');
+	},
+
+	setStyle: function(property, value){
+		switch (property){
+			case 'opacity': return this.set('opacity', parseFloat(value));
+			case 'float': property = floatName;
 		}
-		
-	};
-	
-	Event.definePseudo = function(key, fn){
-		pseudos[key] = fn;
-	};
-	
-	Element.implement(Events.Pseudos(pseudos, Element.prototype.addEvent, Element.prototype.removeEvent)); 
+		property = property.camelCase();
+		if (typeOf(value) != 'string'){
+			var map = (Element.Styles[property] || '@').split(' ');
+			value = Array.from(value).map(function(val, i){
+				if (!map[i]) return '';
+				return (typeOf(val) == 'number') ? map[i].replace('@', Math.round(val)) : val;
+			}).join(' ');
+		} else if (value == String(Number(value))){
+			value = Math.round(value);
+		}
+		this.style[property] = value;
+		return this;
+	},
+
+	getStyle: function(property){
+		switch (property){
+			case 'opacity': return this.get('opacity');
+			case 'float': property = floatName;
+		}
+		property = property.camelCase();
+		var result = this.style[property];
+		if (!result || property == 'zIndex'){
+			result = [];
+			for (var style in Element.ShortStyles){
+				if (property != style) continue;
+				for (var s in Element.ShortStyles[style]) result.push(this.getStyle(s));
+				return result.join(' ');
+			}
+			result = this.getComputedStyle(property);
+		}
+		if (result){
+			result = String(result);
+			var color = result.match(/rgba?\([\d\s,]+\)/);
+			if (color) result = result.replace(color[0], color[0].rgbToHex());
+		}
+		if (Browser.opera || (Browser.ie && isNaN(parseFloat(result)))){
+			if ((/^(height|width)$/).test(property)){
+				var values = (property == 'width') ? ['left', 'right'] : ['top', 'bottom'], size = 0;
+				values.each(function(value){
+					size += this.getStyle('border-' + value + '-width').toInt() + this.getStyle('padding-' + value).toInt();
+				}, this);
+				return this['offset' + property.capitalize()] - size + 'px';
+			}
+			if (Browser.opera && String(result).indexOf('px') != -1) return result;
+			if ((/^border(.+)Width|margin|padding/).test(property)) return '0px';
+		}
+		return result;
+	},
+
+	setStyles: function(styles){
+		for (var style in styles) this.setStyle(style, styles[style]);
+		return this;
+	},
+
+	getStyles: function(){
+		var result = {};
+		Array.flatten(arguments).each(function(key){
+			result[key] = this.getStyle(key);
+		}, this);
+		return result;
+	}
+
+});
+
+Element.Styles = {
+	left: '@px', top: '@px', bottom: '@px', right: '@px',
+	width: '@px', height: '@px', maxWidth: '@px', maxHeight: '@px', minWidth: '@px', minHeight: '@px',
+	backgroundColor: 'rgb(@, @, @)', backgroundPosition: '@px @px', color: 'rgb(@, @, @)',
+	fontSize: '@px', letterSpacing: '@px', lineHeight: '@px', clip: 'rect(@px @px @px @px)',
+	margin: '@px @px @px @px', padding: '@px @px @px @px', border: '@px @ rgb(@, @, @) @px @ rgb(@, @, @) @px @ rgb(@, @, @)',
+	borderWidth: '@px @px @px @px', borderStyle: '@ @ @ @', borderColor: 'rgb(@, @, @) rgb(@, @, @) rgb(@, @, @) rgb(@, @, @)',
+	zIndex: '@', 'zoom': '@', fontWeight: '@', textIndent: '@px', opacity: '@'
+};
+
+//<1.2compat>
+
+Element.Styles = new Hash(Element.Styles);
+
+//</1.2compat>
+
+Element.ShortStyles = {margin: {}, padding: {}, border: {}, borderWidth: {}, borderStyle: {}, borderColor: {}};
+
+['Top', 'Right', 'Bottom', 'Left'].each(function(direction){
+	var Short = Element.ShortStyles;
+	var All = Element.Styles;
+	['margin', 'padding'].each(function(style){
+		var sd = style + direction;
+		Short[style][sd] = All[sd] = '@px';
+	});
+	var bd = 'border' + direction;
+	Short.border[bd] = All[bd] = '@px @ rgb(@, @, @)';
+	var bdw = bd + 'Width', bds = bd + 'Style', bdc = bd + 'Color';
+	Short[bd] = {};
+	Short.borderWidth[bdw] = Short[bd][bdw] = All[bdw] = '@px';
+	Short.borderStyle[bds] = Short[bd][bds] = All[bds] = '@';
+	Short.borderColor[bdc] = Short[bd][bdc] = All[bdc] = 'rgb(@, @, @)';
+});
 
 })();
 
 /*
 ---
 
-script: Element.Delegation.js
+script: Drag.js
 
-name: Element.Delegation
+name: Drag
 
-description: Extends the Element native object to include the delegate method for more efficient event management.
+description: The base Drag Class. Can be used to drag and resize Elements using mouse events.
+
+license: MIT-style license
+
+authors:
+  - Valerio Proietti
+  - Tom Occhinno
+  - Jan Kassens
+
+requires:
+  - Core/Events
+  - Core/Options
+  - Core/Element.Event
+  - Core/Element.Style
+  - /MooTools.More
+
+provides: [Drag]
+...
+
+*/
+
+var Drag = new Class({
+
+	Implements: [Events, Options],
+
+	options: {/*
+		onBeforeStart: function(thisElement){},
+		onStart: function(thisElement, event){},
+		onSnap: function(thisElement){},
+		onDrag: function(thisElement, event){},
+		onCancel: function(thisElement){},
+		onComplete: function(thisElement, event){},*/
+		snap: 6,
+		unit: 'px',
+		grid: false,
+		style: true,
+		limit: false,
+		handle: false,
+		invert: false,
+		preventDefault: false,
+		stopPropagation: false,
+		modifiers: {x: 'left', y: 'top'}
+	},
+
+	initialize: function(){
+		var params = Array.link(arguments, {
+			'options': Type.isObject, 
+			'element': function(obj){
+				return obj != null;
+			}
+		});
+		
+		this.element = document.id(params.element);
+		this.document = this.element.getDocument();
+		this.setOptions(params.options || {});
+		var htype = typeOf(this.options.handle);
+		this.handles = ((htype == 'array' || htype == 'collection') ? $$(this.options.handle) : document.id(this.options.handle)) || this.element;
+		this.mouse = {'now': {}, 'pos': {}};
+		this.value = {'start': {}, 'now': {}};
+
+		this.selection = (Browser.ie) ? 'selectstart' : 'mousedown';
+
+		this.bound = {
+			start: this.start.bind(this),
+			check: this.check.bind(this),
+			drag: this.drag.bind(this),
+			stop: this.stop.bind(this),
+			cancel: this.cancel.bind(this),
+			eventStop: Function.from(false)
+		};
+		this.attach();
+	},
+
+	attach: function(){
+		this.handles.addEvent('mousedown', this.bound.start);
+		return this;
+	},
+
+	detach: function(){
+		this.handles.removeEvent('mousedown', this.bound.start);
+		return this;
+	},
+
+	start: function(event){
+		var options = this.options;
+		
+		if (event.rightClick) return;
+		
+		if (options.preventDefault) event.preventDefault();
+		if (options.stopPropagation) event.stopPropagation();
+		this.mouse.start = event.page;
+		
+		this.fireEvent('beforeStart', this.element);
+		
+		var limit = options.limit;
+		this.limit = {x: [], y: []};
+		for (var z in options.modifiers){
+			if (!options.modifiers[z]) continue;
+			
+			if (options.style) this.value.now[z] = this.element.getStyle(options.modifiers[z]).toInt();
+			else this.value.now[z] = this.element[options.modifiers[z]];
+			
+			if (options.invert) this.value.now[z] *= -1;
+			this.mouse.pos[z] = event.page[z] - this.value.now[z];
+			
+			if (limit && limit[z]){
+				var i = 2;
+				while (i--){
+					var limitZI = limit[z][i];
+					if (limitZI || limitZI === 0) this.limit[z][i] = (typeof limitZI == 'function') ? limitZI() : limitZI;
+				}
+			}
+		}
+		
+		if (typeOf(this.options.grid) == 'number') this.options.grid = {
+			x: this.options.grid, 
+			y: this.options.grid
+		};
+		
+		var events = {
+			mousemove: this.bound.check, 
+			mouseup: this.bound.cancel
+		};
+		events[this.selection] = this.bound.eventStop;
+		this.document.addEvents(events);
+	},
+
+	check: function(event){
+		if (this.options.preventDefault) event.preventDefault();
+		var distance = Math.round(Math.sqrt(Math.pow(event.page.x - this.mouse.start.x, 2) + Math.pow(event.page.y - this.mouse.start.y, 2)));
+		if (distance > this.options.snap){
+			this.cancel();
+			this.document.addEvents({
+				mousemove: this.bound.drag,
+				mouseup: this.bound.stop
+			});
+			this.fireEvent('start', [this.element, event]).fireEvent('snap', this.element);
+		}
+	},
+
+	drag: function(event){
+		var options = this.options;
+		
+		if (options.preventDefault) event.preventDefault();
+		this.mouse.now = event.page;
+		
+		for (var z in options.modifiers){
+			if (!options.modifiers[z]) continue;
+			this.value.now[z] = this.mouse.now[z] - this.mouse.pos[z];
+			if (options.invert) this.value.now[z] *= -1;
+			
+			if (options.limit && this.limit[z]){
+				if ((this.limit[z][1] || this.limit[z][1] === 0) && (this.value.now[z] > this.limit[z][1])){
+					this.value.now[z] = this.limit[z][1];
+				} else if ((this.limit[z][0] || this.limit[z][0] === 0) && (this.value.now[z] < this.limit[z][0])){
+					this.value.now[z] = this.limit[z][0];
+				}
+			}
+			
+			if (options.grid[z]) this.value.now[z] -= ((this.value.now[z] - (this.limit[z][0]||0)) % options.grid[z]);
+			if (options.style) {
+				this.element.setStyle(options.modifiers[z], this.value.now[z] + options.unit);
+			} else {
+				this.element[options.modifiers[z]] = this.value.now[z];
+			}
+		}
+		
+		this.fireEvent('drag', [this.element, event]);
+	},
+
+	cancel: function(event){
+		this.document.removeEvents({
+			mousemove: this.bound.check,
+			mouseup: this.bound.cancel
+		});
+		if (event){
+			this.document.removeEvent(this.selection, this.bound.eventStop);
+			this.fireEvent('cancel', this.element);
+		}
+	},
+
+	stop: function(event){
+		var events = {
+			mousemove: this.bound.drag,
+			mouseup: this.bound.stop
+		};
+		events[this.selection] = this.bound.eventStop;
+		this.document.removeEvents(events);
+		if (event) this.fireEvent('complete', [this.element, event]);
+	}
+
+});
+
+Element.implement({
+
+	makeResizable: function(options){
+		var drag = new Drag(this, Object.merge({
+			modifiers: {
+				x: 'width', 
+				y: 'height'
+			}
+		}, options));
+		
+		this.store('resizer', drag);
+		return drag.addEvent('drag', function(){
+			this.fireEvent('resize', drag);
+		}.bind(this));
+	}
+
+});
+
+/*
+---
+ 
+script: Resizable.js
+ 
+description: Resize widget with the mouse freely
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD
+  - More/Drag
+
+provides: 
+  - LSD.Mixin.Resizable 
+...
+*/
+
+
+LSD.Mixin.Resizable = new Class({
+  behaviour: '[resizable][resizable!=false]',
+  
+  options: {
+    resizer: {
+      modifiers: {
+        x: 'width',
+        y: 'height'
+      },
+      snap: false,
+      style: false,
+      crop: false,
+      handle: [],
+      container: true,
+      limit: {
+        x: [0, 3000],
+        y: [0, 3000]
+      },
+    },
+    actions: {
+      resizable: {
+        enable: function(handle, resizable) {
+          this.handle = handle;
+          this.resized = resizable || this;
+          this.onStateChange('resizable', true);
+          var resizer = this.resizer;
+          if (resizer == this.getResizer(document.id(this.resized))) resizer.attach();
+          if (handle) document.id(handle).addEvent('mousedown', this.resizer.bound.start);
+          if (this.options.resizer.fit) this.fit(resizable)
+        },
+
+        disable: function(handle, content) {
+          this.onStateChange('resizable', false);
+          if (this.resizer) this.resizer.detach();
+          if (handle) document.id(handle).removeEvent('mousedown', this.resizer.bound.start);
+          delete this.resized, this.handle;
+        },
+      }
+    }
+  },
+  
+  initialize: function() {
+    this.parent.apply(this, arguments);
+    var options = this.options.resizer;
+    var rules = (new FastArray).concat(this.getAttribute('resizable').split(/\s+/));
+    options.modifiers.x = (!rules.x && rules.y) ? false : 'width';
+    options.modifiers.y = (!rules.y && rules.x) ? false : 'height';
+    options.fit = !!rules.fit;
+  },
+  
+  uninitialize: function() {
+    if (this.handle) this.options.actions.resizable.disable.call(this, this.handle, this.resized);
+    delete this.resizer;
+  },
+   
+  getResizer: function(resized) {
+    var element = resized
+    if (this.resizer) {
+      if (this.resizer.element == element) return this.resizer;
+      return this.resizer.element = element;
+    }
+    var resizer = this.resizer = new Drag(element, Object.append(this.options, this.options.resizer));
+    resizer.addEvents(this.events.resizer);
+    resizer.addEvents({
+      'beforeStart': this.onBeforeResize.bind(this),
+      'start': this.onResizeStart.bind(this),
+      'complete': this.onResizeComplete.bind(this),
+      'cancel': this.onResizeComplete.bind(this),
+      'drag': this.onResize.bind(this)
+    }, true);
+    return resizer;
+  },
+  
+  check: function(size) {
+    if (!this.resizer) return;
+    var width = this.element.offsetWidth - this.offset.inner.left - this.offset.inner.right;
+    if (!size) size = {width: this.resized.toElement().width}
+    if (size.width < width) {
+      if (!$chk(this.limit)) this.limit = this.resized.getStyle('minWidth') || 1
+      this.resized.setStyle('minWidth', width);
+      $clear(this.delay);
+      this.delay = (function() { //reset limit options in one second
+        this.resized.setStyle('minWidth', this.limit);
+      }).delay(1000, this); 
+      size.width = width;
+    }
+    return size;
+  },
+  
+  onBeforeResize: function() {
+    Object.append(this.resized.toElement(), this.resized.size)
+  },
+  
+  onResizeStart: function() {
+    this.onStateChange('resized', true);
+    var getLiquid = function(child, prop) {
+      var value = child.style.current[prop];
+      return ((value == 'inherit') || (value == 'auto') || child.style.expressed[prop]) ? value : null
+    }
+    if (!this.liquid) {
+      this.liquid = this.collect(function(c) { return getLiquid(c, 'width')}).include(this.resized);
+      if (this.resized != this) {
+        var style = this.resized.style.liquid = {};
+        var width = getLiquid(this.resized, 'width');
+        if (width) style.width = width;
+        var height = getLiquid(this.resized, 'height');
+        if (height) style.height = height;
+      }
+    }
+  },
+  
+  onResizeComplete: function() {
+    if (this.resized.style.liquid) this.resized.setStyles(this.resized.style.liquid);
+    this.onStateChange('resized', false);
+    delete this.liquid
+  },
+  
+  onResize: function() {
+    var now = this.resizer.value.now;
+    var resized = this.resized;
+    if (!resized.style.dimensions) {
+      resized.style.dimensions = {};
+      var width = resized.style.current.width
+      if (width == 'auto') resized.style.dimensions.width = 'auto';
+      var height = resized.toElement().getStyle('height');
+      if (height == 'auto') resized.style.dimensions.height = 'auto';
+    }
+    if (!now.x) now.x = resized.size.width;
+    if (!now.y) now.y = resized.size.height;
+    var size = this.check({width: resized.setWidth(now.x) || now.x, height: resized.setHeight(now.y) || now.y});
+    resized.setStyles(size);
+    if (this.liquid) {
+      this.liquid.each(function(child) {
+        child.update();
+      })
+    }
+    this.refresh();
+  },
+  
+  fit: function(content) {
+    if (!content) content = this.resized;
+    var element = content.getWrapper();
+    var display = element.getStyle('display');
+    if (display != 'inline-block') element.setStyle('display', 'inline-block');
+    var width = element.offsetWidth;
+    var height = element.offsetHeight;
+    element.setStyle('display', display)
+    content.setHeight(height);
+    content.setWidth(width);
+    this.refresh({
+      maxWidth: width, maxHeight: height
+    });
+  },
+  
+  getScrolled: function() {
+    return this.resized.getWrapper();
+  }
+});
+/*
+---
+ 
+script: Drag.Limits.js
+ 
+description: A set of function to easily cap Drag's limit
+ 
+license: MIT-style license.
+ 
+requires:
+- More/Drag
+
+provides: [Drag.Limits]
+ 
+...
+*/
+
+Drag.implement({
+  setMaxX: function(x) {
+    var limit = this.options.limit;
+    limit.x[1] = x//Math.max(x, limit.x[1]);
+    limit.x[0] = Math.min(limit.x[0], limit.x[1]);
+  },
+  
+  setMaxY: function(y) {
+    var limit = this.options.limit;
+    limit.y[1] = y//Math.max(y, limit.y[1]);
+    limit.y[0] = Math.min(limit.y[0], limit.y[1]);
+  },
+  
+  setMinX: function(x) {
+    var limit = this.options.limit;
+    limit.x[0] = x//Math.min(x, limit.x[0]);
+    limit.x[1] = Math.max(limit.x[1], limit.x[0]);
+  },
+  
+  setMinY: function(y) {
+    var limit = this.options.limit;
+    limit.y[0] = y//Math.min(y, limit.y[0]);
+    limit.y[1] = Math.max(limit.y[1], limit.y[0]);
+  }
+});
+
+/*
+---
+ 
+script: Draggable.js
+ 
+description: Drag widget around the screen
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+- LSD
+- More/Drag
+
+provides: [LSD.Mixin.Draggable]
+ 
+...
+*/
+
+LSD.Mixin.Draggable = new Class({
+  behaviour: '[draggable][draggable!=false]',
+  
+  options: {
+    dragger: {
+      modifiers: {
+        x: 'left',
+        y: 'top'
+      },
+      snap: 5,
+      style: false,
+      container: true,
+      limit: {
+        x: [0, 3000],
+        y: [0, 3000]
+      },
+      handle: []
+    },
+    actions: {
+      draggable: {
+        enable: function(handle) {
+          if (this.index++ == 0) {
+            if (this.dragger) this.dragger.attach();
+            else this.getDragger();
+            this.onStateChange('draggable', true);
+          }
+          if (!handle) return;
+          this.handles.push(handle);
+          document.id(handle).addEvent('mousedown', this.dragger.bound.start);
+        },
+        
+        disable: function(handle) {
+          if (!this.dragger) return;
+          if (--this.index == 0) {
+            this.onStateChange('draggable', false);
+            this.dragger.detach();
+          }
+          if (!handle) return;
+          this.handles.erase(handle)
+          document.id(handle).removeEvent('mousedown', this.dragger.bound.start);
+        }
+      }
+    }
+  },
+  
+  initialize: function() {
+    this.parent.apply(this, arguments);
+    this.handles = [];
+    this.index = 0;
+  },
+  
+  unitialize: function() {
+    this.handles.each(this.options.actions.draggable.disable, this);
+    this.onStateChange('draggable', false);
+    delete this.dragger;
+  },
+  
+  getDragger: Macro.getter('dragger', function() {
+    var element = this.element;
+    this.onDOMInject(function() {
+      var position = element.getPosition();
+      element.left = position.x - element.getStyle('margin-left').toInt();
+      element.top = position.y - element.getStyle('margin-top').toInt();
+    }.create({delay: 50}));
+    var dragger = new Drag(element, Object.append(this.options.dragger, this.options.dragger));
+    dragger.addEvents(this.events.dragger);
+    dragger.addEvents({
+      'start': this.onDragStart.bind(this),
+      'complete': this.onDragComplete.bind(this),
+      'cancel': this.onDragComplete.bind(this),
+      'drag': this.onDrag.bind(this)
+    }, true);
+    return dragger;
+  }),
+  
+  onDragStart: function() {
+    this.onStateChange('dragged', true);
+  },
+  
+  onDragComplete: function() {
+    this.onStateChange('dragged', false);
+  },
+  
+  onDrag: function() {
+    this.setStyles({
+      top: this.dragger.value.now.y,
+      left: this.dragger.value.now.x
+    });
+  }
+  
+});
+/*
+---
+
+name: Element.Dimensions
+
+description: Contains methods to work with size, scroll, or positioning of Elements and the window object.
+
+license: MIT-style license.
 
 credits:
-  - "Event checking based on the work of Daniel Steigerwald. License: MIT-style license. Copyright: Copyright (c) 2008 Daniel Steigerwald, daniel.steigerwald.cz"
+  - Element positioning based on the [qooxdoo](http://qooxdoo.org/) code and smart browser fixes, [LGPL License](http://www.gnu.org/licenses/lgpl.html).
+  - Viewport dimensions based on [YUI](http://developer.yahoo.com/yui/) code, [BSD License](http://developer.yahoo.com/yui/license.html).
+
+requires: [Element, Element.Style]
+
+provides: [Element.Dimensions]
+
+...
+*/
+
+(function(){
+
+var element = document.createElement('div'),
+	child = document.createElement('div');
+element.style.height = '0';
+element.appendChild(child);
+var brokenOffsetParent = (child.offsetParent === element);
+element = child = null;
+
+var isOffset = function(el){
+	return styleString(el, 'position') != 'static' || isBody(el);
+};
+
+var isOffsetStatic = function(el){
+	return isOffset(el) || (/^(?:table|td|th)$/i).test(el.tagName);
+};
+
+Element.implement({
+
+	scrollTo: function(x, y){
+		if (isBody(this)){
+			this.getWindow().scrollTo(x, y);
+		} else {
+			this.scrollLeft = x;
+			this.scrollTop = y;
+		}
+		return this;
+	},
+
+	getSize: function(){
+		if (isBody(this)) return this.getWindow().getSize();
+		return {x: this.offsetWidth, y: this.offsetHeight};
+	},
+
+	getScrollSize: function(){
+		if (isBody(this)) return this.getWindow().getScrollSize();
+		return {x: this.scrollWidth, y: this.scrollHeight};
+	},
+
+	getScroll: function(){
+		if (isBody(this)) return this.getWindow().getScroll();
+		return {x: this.scrollLeft, y: this.scrollTop};
+	},
+
+	getScrolls: function(){
+		var element = this.parentNode, position = {x: 0, y: 0};
+		while (element && !isBody(element)){
+			position.x += element.scrollLeft;
+			position.y += element.scrollTop;
+			element = element.parentNode;
+		}
+		return position;
+	},
+
+	getOffsetParent: brokenOffsetParent ? function(){
+		var element = this;
+		if (isBody(element) || styleString(element, 'position') == 'fixed') return null;
+
+		var isOffsetCheck = (styleString(element, 'position') == 'static') ? isOffsetStatic : isOffset;
+		while ((element = element.parentNode)){
+			if (isOffsetCheck(element)) return element;
+		}
+		return null;
+	} : function(){
+		var element = this;
+		if (isBody(element) || styleString(element, 'position') == 'fixed') return null;
+
+		try {
+			return element.offsetParent;
+		} catch(e) {}
+		return null;
+	},
+
+	getOffsets: function(){
+		if (this.getBoundingClientRect && !Browser.Platform.ios){
+			var bound = this.getBoundingClientRect(),
+				html = document.id(this.getDocument().documentElement),
+				htmlScroll = html.getScroll(),
+				elemScrolls = this.getScrolls(),
+				isFixed = (styleString(this, 'position') == 'fixed');
+
+			return {
+				x: bound.left.toInt() + elemScrolls.x + ((isFixed) ? 0 : htmlScroll.x) - html.clientLeft,
+				y: bound.top.toInt()  + elemScrolls.y + ((isFixed) ? 0 : htmlScroll.y) - html.clientTop
+			};
+		}
+
+		var element = this, position = {x: 0, y: 0};
+		if (isBody(this)) return position;
+
+		while (element && !isBody(element)){
+			position.x += element.offsetLeft;
+			position.y += element.offsetTop;
+
+			if (Browser.firefox){
+				if (!borderBox(element)){
+					position.x += leftBorder(element);
+					position.y += topBorder(element);
+				}
+				var parent = element.parentNode;
+				if (parent && styleString(parent, 'overflow') != 'visible'){
+					position.x += leftBorder(parent);
+					position.y += topBorder(parent);
+				}
+			} else if (element != this && Browser.safari){
+				position.x += leftBorder(element);
+				position.y += topBorder(element);
+			}
+
+			element = element.offsetParent;
+		}
+		if (Browser.firefox && !borderBox(this)){
+			position.x -= leftBorder(this);
+			position.y -= topBorder(this);
+		}
+		return position;
+	},
+
+	getPosition: function(relative){
+		if (isBody(this)) return {x: 0, y: 0};
+		var offset = this.getOffsets(),
+			scroll = this.getScrolls();
+		var position = {
+			x: offset.x - scroll.x,
+			y: offset.y - scroll.y
+		};
+		
+		if (relative && (relative = document.id(relative))){
+			var relativePosition = relative.getPosition();
+			return {x: position.x - relativePosition.x - leftBorder(relative), y: position.y - relativePosition.y - topBorder(relative)};
+		}
+		return position;
+	},
+
+	getCoordinates: function(element){
+		if (isBody(this)) return this.getWindow().getCoordinates();
+		var position = this.getPosition(element),
+			size = this.getSize();
+		var obj = {
+			left: position.x,
+			top: position.y,
+			width: size.x,
+			height: size.y
+		};
+		obj.right = obj.left + obj.width;
+		obj.bottom = obj.top + obj.height;
+		return obj;
+	},
+
+	computePosition: function(obj){
+		return {
+			left: obj.x - styleNumber(this, 'margin-left'),
+			top: obj.y - styleNumber(this, 'margin-top')
+		};
+	},
+
+	setPosition: function(obj){
+		return this.setStyles(this.computePosition(obj));
+	}
+
+});
+
+
+[Document, Window].invoke('implement', {
+
+	getSize: function(){
+		var doc = getCompatElement(this);
+		return {x: doc.clientWidth, y: doc.clientHeight};
+	},
+
+	getScroll: function(){
+		var win = this.getWindow(), doc = getCompatElement(this);
+		return {x: win.pageXOffset || doc.scrollLeft, y: win.pageYOffset || doc.scrollTop};
+	},
+
+	getScrollSize: function(){
+		var doc = getCompatElement(this),
+			min = this.getSize(),
+			body = this.getDocument().body;
+
+		return {x: Math.max(doc.scrollWidth, body.scrollWidth, min.x), y: Math.max(doc.scrollHeight, body.scrollHeight, min.y)};
+	},
+
+	getPosition: function(){
+		return {x: 0, y: 0};
+	},
+
+	getCoordinates: function(){
+		var size = this.getSize();
+		return {top: 0, left: 0, bottom: size.y, right: size.x, height: size.y, width: size.x};
+	}
+
+});
+
+// private methods
+
+var styleString = Element.getComputedStyle;
+
+function styleNumber(element, style){
+	return styleString(element, style).toInt() || 0;
+};
+
+function borderBox(element){
+	return styleString(element, '-moz-box-sizing') == 'border-box';
+};
+
+function topBorder(element){
+	return styleNumber(element, 'border-top-width');
+};
+
+function leftBorder(element){
+	return styleNumber(element, 'border-left-width');
+};
+
+function isBody(element){
+	return (/^(?:body|html)$/i).test(element.tagName);
+};
+
+function getCompatElement(element){
+	var doc = element.getDocument();
+	return (!doc.compatMode || doc.compatMode == 'CSS1Compat') ? doc.html : doc.body;
+};
+
+})();
+
+//aliases
+Element.alias({position: 'setPosition'}); //compatability
+
+[Window, Document, Element].invoke('implement', {
+
+	getHeight: function(){
+		return this.getSize().y;
+	},
+
+	getWidth: function(){
+		return this.getSize().x;
+	},
+
+	getScrollTop: function(){
+		return this.getScroll().y;
+	},
+
+	getScrollLeft: function(){
+		return this.getScroll().x;
+	},
+
+	getScrollHeight: function(){
+		return this.getScrollSize().y;
+	},
+
+	getScrollWidth: function(){
+		return this.getScrollSize().x;
+	},
+
+	getTop: function(){
+		return this.getPosition().y;
+	},
+
+	getLeft: function(){
+		return this.getPosition().x;
+	}
+
+});
+
+/*
+---
+
+script: Element.Measure.js
+
+name: Element.Measure
+
+description: Extends the Element native object to include methods useful in measuring dimensions.
+
+credits: "Element.measure / .expose methods by Daniel Steigerwald License: MIT-style license. Copyright: Copyright (c) 2008 Daniel Steigerwald, daniel.steigerwald.cz"
 
 license: MIT-style license
 
 authors:
   - Aaron Newton
-  - Daniel Steigerwald
 
-requires: [/MooTools.More, /Element.Pseudos]
-provides: [Element.Delegation]
+requires:
+  - Core/Element.Style
+  - Core/Element.Dimensions
+  - /MooTools.More
+
+provides: [Element.Measure]
 
 ...
 */
 
-Event.definePseudo('relay', function(split, fn, args){
-	var event = args[0];
-	for (var target = event.target; target && target != this; target = target.parentNode){
-		if (Slick.match(target, split.value)){
-			var finalTarget = document.id(target);
-			if (finalTarget) fn.apply(finalTarget, [event, finalTarget]);
-			return;
+(function(){
+
+var getStylesList = function(styles, planes){
+	var list = [];
+	Object.each(planes, function(directions){
+		Object.each(directions, function(edge){
+			styles.each(function(style){
+				if (style == 'border') list.push(style + '-' + edge + '-width');
+				else list.push(style + '-' + edge);
+			});
+		});
+	});
+	return list;
+};
+
+var calculateEdgeSize = function(edge, styles){
+	var total = 0;
+	Object.each(styles, function(value, style){
+		if (style.test(edge)) total += value.toInt();
+	});
+	return total;
+};
+
+
+Element.implement({
+
+	measure: function(fn){
+		var visibility = function(el){
+			return !!(!el || el.offsetHeight || el.offsetWidth);
+		};
+		if (visibility(this)) return fn.apply(this);
+		var parent = this.getParent(),
+			restorers = [],
+			toMeasure = [];
+		while (!visibility(parent) && parent != document.body){
+			toMeasure.push(parent.expose());
+			parent = parent.getParent();
 		}
+		var restore = this.expose();
+		var result = fn.apply(this);
+		restore();
+		toMeasure.each(function(restore){
+			restore();
+		});
+		return result;
+	},
+
+	expose: function(){
+		if (this.getStyle('display') != 'none') return function(){};
+		var before = this.style.cssText;
+		this.setStyles({
+			display: 'block',
+			position: 'absolute',
+			visibility: 'hidden'
+		});
+		return function(){
+			this.style.cssText = before;
+		}.bind(this);
+	},
+
+	getDimensions: function(options){
+		options = Object.merge({computeSize: false}, options);
+		var dim = {};
+		
+		var getSize = function(el, options){
+			return (options.computeSize) ? el.getComputedSize(options) : el.getSize();
+		};
+		
+		var parent = this.getParent('body');
+		
+		if (parent && this.getStyle('display') == 'none'){
+			dim = this.measure(function(){
+				return getSize(this, options);
+			});
+		} else if (parent){
+			try { //safari sometimes crashes here, so catch it
+				dim = getSize(this, options);
+			}catch(e){}
+		} else {
+			dim = {x: 0, y: 0};
+		}
+		
+		return Object.append(dim, (dim.x || dim.x === 0) ?  {
+				width: dim.x,
+				height: dim.y
+			} : {
+				x: dim.width,
+				y: dim.height
+			}
+		);
+	},
+
+	getComputedSize: function(options){
+		//<1.2compat>
+		//legacy support for my stupid spelling error
+		if (options && options.plains) options.planes = options.plains;
+		//</1.2compat>
+		
+		options = Object.merge({
+			styles: ['padding','border'],
+			planes: {
+				height: ['top','bottom'],
+				width: ['left','right']
+			},
+			mode: 'both'
+		}, options);
+
+		var styles = {},
+			size = {width: 0, height: 0};
+
+		switch (options.mode){
+			case 'vertical':
+				delete size.width;
+				delete options.planes.width;
+				break;
+			case 'horizontal':
+				delete size.height;
+				delete options.planes.height;
+				break;
+		}
+
+
+		getStylesList(options.styles, options.planes).each(function(style){
+			styles[style] = this.getStyle(style).toInt();
+		}, this);
+
+		Object.each(options.planes, function(edges, plane){
+
+			var capitalized = plane.capitalize();
+			styles[plane] = this.getStyle(plane).toInt();
+			size['total' + capitalized] = styles[plane];
+
+			edges.each(function(edge){
+				var edgesize = calculateEdgeSize(edge, styles);
+				size['computed' + edge.capitalize()] = edgesize;
+				size['total' + capitalized] += edgesize;
+			});
+			
+		}, this);
+		
+		return Object.append(size, styles);
 	}
-	
+
 });
 
+})();
+
+/*
+---
+
+script: Slider.js
+
+name: Slider
+
+description: Class for creating horizontal and vertical slider controls.
+
+license: MIT-style license
+
+authors:
+  - Valerio Proietti
+
+requires:
+  - Core/Element.Dimensions
+  - /Class.Binds
+  - /Drag
+  - /Element.Measure
+
+provides: [Slider]
+
+...
+*/
+
+var Slider = new Class({
+
+	Implements: [Events, Options],
+
+	Binds: ['clickedElement', 'draggedKnob', 'scrolledElement'],
+
+	options: {/*
+		onTick: function(intPosition){},
+		onChange: function(intStep){},
+		onComplete: function(strStep){},*/
+		onTick: function(position){
+			if (this.options.snap) position = this.toPosition(this.step);
+			this.knob.setStyle(this.property, position);
+		},
+		initialStep: 0,
+		snap: false,
+		offset: 0,
+		range: false,
+		wheel: false,
+		steps: 100,
+		mode: 'horizontal'
+	},
+
+	initialize: function(element, knob, options){
+		this.setOptions(options);
+		this.element = document.id(element);
+		this.knob = document.id(knob);
+		this.previousChange = this.previousEnd = this.step = -1;
+		var offset, limit = {}, modifiers = {'x': false, 'y': false};
+		switch (this.options.mode){
+			case 'vertical':
+				this.axis = 'y';
+				this.property = 'top';
+				offset = 'offsetHeight';
+				break;
+			case 'horizontal':
+				this.axis = 'x';
+				this.property = 'left';
+				offset = 'offsetWidth';
+		}
+		
+		this.full = this.element.measure(function(){ 
+			this.half = this.knob[offset] / 2; 
+			return this.element[offset] - this.knob[offset] + (this.options.offset * 2); 
+		}.bind(this));
+		
+		this.setRange(this.options.range);
+
+		this.knob.setStyle('position', 'relative').setStyle(this.property, this.options.initialStep ? this.toPosition(this.options.initialStep) : - this.options.offset);
+		modifiers[this.axis] = this.property;
+		limit[this.axis] = [- this.options.offset, this.full - this.options.offset];
+
+		var dragOptions = {
+			snap: 0,
+			limit: limit,
+			modifiers: modifiers,
+			onDrag: this.draggedKnob,
+			onStart: this.draggedKnob,
+			onBeforeStart: (function(){
+				this.isDragging = true;
+			}).bind(this),
+			onCancel: function(){
+				this.isDragging = false;
+			}.bind(this),
+			onComplete: function(){
+				this.isDragging = false;
+				this.draggedKnob();
+				this.end();
+			}.bind(this)
+		};
+		if (this.options.snap){
+			dragOptions.grid = Math.ceil(this.stepWidth);
+			dragOptions.limit[this.axis][1] = this.full;
+		}
+
+		this.drag = new Drag(this.knob, dragOptions);
+		this.attach();
+	},
+
+	attach: function(){
+		this.element.addEvent('mousedown', this.clickedElement);
+		if (this.options.wheel) this.element.addEvent('mousewheel', this.scrolledElement);
+		this.drag.attach();
+		return this;
+	},
+
+	detach: function(){
+		this.element.removeEvent('mousedown', this.clickedElement);
+		this.element.removeEvent('mousewheel', this.scrolledElement);
+		this.drag.detach();
+		return this;
+	},
+
+	set: function(step){
+		if (!((this.range > 0) ^ (step < this.min))) step = this.min;
+		if (!((this.range > 0) ^ (step > this.max))) step = this.max;
+
+		this.step = Math.round(step);
+		this.checkStep();
+		this.fireEvent('tick', this.toPosition(this.step));
+		this.end();
+		return this;
+	},
+	
+	setRange: function(range, pos){
+		this.min = Array.pick([range[0], 0]);
+		this.max = Array.pick([range[1], this.options.steps]);
+		this.range = this.max - this.min;
+		this.steps = this.options.steps || this.full;
+		this.stepSize = Math.abs(this.range) / this.steps;
+		this.stepWidth = this.stepSize * this.full / Math.abs(this.range);
+		this.set(Array.pick([pos, this.step]).floor(this.min).max(this.max));
+		return this;
+	},
+
+	clickedElement: function(event){
+		if (this.isDragging || event.target == this.knob) return;
+
+		var dir = this.range < 0 ? -1 : 1;
+		var position = event.page[this.axis] - this.element.getPosition()[this.axis] - this.half;
+		position = position.limit(-this.options.offset, this.full -this.options.offset);
+
+		this.step = Math.round(this.min + dir * this.toStep(position));
+		this.checkStep();
+		this.fireEvent('tick', position);
+		this.end();
+	},
+
+	scrolledElement: function(event){
+		var mode = (this.options.mode == 'horizontal') ? (event.wheel < 0) : (event.wheel > 0);
+		this.set(mode ? this.step - this.stepSize : this.step + this.stepSize);
+		event.stop();
+	},
+
+	draggedKnob: function(){
+		var dir = this.range < 0 ? -1 : 1;
+		var position = this.drag.value.now[this.axis];
+		position = position.limit(-this.options.offset, this.full -this.options.offset);
+		this.step = Math.round(this.min + dir * this.toStep(position));
+		this.checkStep();
+	},
+
+	checkStep: function(){
+		if (this.previousChange != this.step){
+			this.previousChange = this.step;
+			this.fireEvent('change', this.step);
+		}
+	},
+
+	end: function(){
+		if (this.previousEnd !== this.step){
+			this.previousEnd = this.step;
+			this.fireEvent('complete', this.step + '');
+		}
+	},
+
+	toStep: function(position){
+		var step = (position + this.options.offset) * this.stepSize / this.full * this.steps;
+		return this.options.steps ? Math.round(step -= step % this.stepSize) : step;
+	},
+
+	toPosition: function(step){
+		return (this.full * Math.abs(this.min - step)) / (this.steps * this.stepSize) - this.options.offset;
+	}
+
+});
+
+/*
+---
+ 
+script: Slider.js
+ 
+description: Methods to update slider without reinitializing the thing
+ 
+license: MIT-style license.
+ 
+requires:
+- Drag.Limits
+- More/Slider
+
+provides: [Slider.prototype.update]
+ 
+...
+*/
+
+
+Slider.implement({
+  update: function() {
+		var offset = (this.options.mode == 'vertical') ?  'offsetHeight' : 'offsetWidth'
+		this.half = this.knob[offset] / 2; 
+		this.full =  this.element[offset] - this.knob[offset] + (this.options.offset * 2); 
+		
+		//this.setRange(this.options.range);
+
+		this.knob.setStyle(this.property, this.toPosition(this.step));
+		var X = this.axis.capitalize();
+		this.drag['setMin' + X](- this.options.offset)
+		this.drag['setMax' + X](this.full - this.options.offset)
+  }
+})
+/*
+---
+ 
+script: Slider.js
+ 
+description: Because sometimes slider is the answer
+ 
+license: Public domain (http://unlicense.org).
+ 
+requires:
+  - LSD
+  - More/Slider
+  - Ext/Slider.prototype.update
+  - Ext/Class.hasParent
+
+provides: 
+  - LSD.Trait.Slider
+ 
+...
+*/
+
+LSD.Trait.Slider = new Class({
+  
+  options: {
+    actions: {
+      slider: {
+        enable: function() {
+          if (!this.slider) this.getSlider();
+          else this.slider.attach();
+        },
+
+        disable: function() {
+          if (this.slider) this.slider.detach()
+        }
+      }
+    },
+    events: {
+      parent: {
+        resize: 'onParentResize'
+      },
+      slider: {}
+    },
+    slider: {},
+    value: 0,
+    mode: 'horizontal',
+  },
+  
+  onParentResize: function(current, old) {
+    if (this.slider) this.slider.update();
+  },
+  
+  getSlider: Macro.getter('slider', function (update) {
+    var slider = new Slider(document.id(this.getTrack()), document.id(this.getTrackThumb()), $merge(this.options.slider, {
+      mode: this.options.mode
+    })).set(parseFloat(this.options.value));
+    slider.addEvent('change', this.onSet.bind(this));
+    slider.addEvents(this.events.slider)
+    return slider;
+  }),
+  
+  onSet: Macro.defaults($lambda(true)),
+  
+  getTrack: Macro.defaults(function() {
+    return this
+  }),
+  
+  getTrackThumb: Macro.defaults(function() {
+    return this.thumb;
+  }),
+  
+  increment: function() {
+    this.slider.set((this.slider.step || 0) + 10)
+  },
+  
+  decrement: function() {
+    this.slider.set((this.slider.step || 0) - 10)
+  }
+  
+});
+
+Slider = new Class({
+  Extends: Slider,
+  
+  initialize: function() {
+    Array.from(this.Binds).each(function(name){
+      var original = this[name];
+      if (original) this[name] = original.bind(this);
+    }, this);
+    return this.parent.apply(this, arguments);
+  }
+})
+/*
+---
+ 
+script: Styles.js
+ 
+description: Set, get and render different kind of styles on widget
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD
+  - Core/Element.Style
+  - Ext/FastArray
+  - Sheet/SheetParser.Styles
+
+provides: 
+  - LSD.Module.Styles
+
+...
+*/
+
+(function() {
+  
+var CSS = SheetParser.Styles, Paint = LSD.Styles;
+var setStyle = function(element, property, value, type) {
+  delete this.style.expressed[property];
+  delete this.style.calculated[property];
+  if (value === false) {
+    if (element && this.element) delete this.element.style[property];
+    delete this.style[element ? 'element' : 'paint'][property], this.style.current[property];
+    if (type) delete this.style[type][property];
+  } else {
+    if (element && this.element) this.element.style[property] = (typeof value == 'number') ? value + 'px' : value;
+    this.style[element ? 'element' : 'paint'][property] = this.style.current[property] = value;
+    if (type) this.style[type][property] = value;
+  }
+}
+
+LSD.Module.Styles = new Class({
+  
+  options: {
+    styles: {}
+  },
+
+  initialize: function() {
+    this.style = {
+      current: {},    //styles that widget currently has
+      found: {},      //styles that were found in stylesheets
+      given: {},      //styles that were manually assigned
+
+      changed: {},    //styles that came from stylesheet since last render
+      calculated: {}, //styles that are calculated in runtime
+      computed: {},   //styles that are already getStyled
+      expressed: {},  //styles that are expressed through function
+      implied: {},    //styles that are assigned by environment
+
+      element: {},    //styles that are currently assigned to element
+      paint: {}       //styles that are currently used to paint
+    };
+    this.rules = [];
+    this.parent.apply(this, arguments);
+    Object.append(this.style.current, this.options.styles);
+    for (var property in this.style.current) this.setStyle(property, this.style.current[property])
+  },
+
+  setStyle: function(property, value) {
+    var paint, css;
+    if (!(paint = Paint[property]) && !(css = CSS[property])) return false;
+    var length = arguments.length;
+    if (length > 2) {
+      if (arguments[length - 1] in this.style) var type = arguments[--length];
+      if (length > 2) value = Array.prototype.splice.call(arguments, 1, length);
+    }
+    if (value.call) {
+      var expression = value;
+      value = value.call(this, property);
+    }
+    var result = (css || paint)[value.push ? 'apply' : 'call'](this, value);
+    if (property == 'stroke') console.info(value, result, $t = this, this.element);
+    //if (property == 'glyphPosition') alert([property, JSON.stringify(result)])
+    if (result === true || result === false) setStyle.call(this, css, property, value, type);
+    else for (var prop in result) setStyle.call(this, css, prop, result[prop], type);
+    if (expression) {
+      this.style.expressed[property] = expression
+      this.style.computed[property] = value
+    }
+    return result;
+  },
+
+  setStyles: function(style, type) {
+    for (var key in style) this.setStyle(key, style[key], type)
+  },
+
+  getStyle: function(property) {
+    if (this.style.computed[property]) return this.style.computed[property];
+    var value;
+    var definition = Paint[property] || CSS[property];
+    if (!definition) return;
+    if (definition.properties) return definition.properties.map(this.getStyle.bind(this));
+    var expression = this.style.expressed[property];    
+    if (expression) {
+      value = this.style.current[property] = this.calculateStyle(property, expression);
+    } else {  
+      value = this.style.current[property];
+      if (property == 'height') {
+        if (typeof value !== 'number') value = this.getClientHeight();
+      } else if (property == 'width') {
+        if (typeof value !== 'number') value = this.getClientWidth();
+      } else {
+        if (value == "inherit") value = this.inheritStyle(property);
+        if (value == "auto") value = this.calculateStyle(property);
+      }
+    }
+    this.style.computed[property] = value;
+    return value;
+  },
+
+  getStyles: function(properties) {
+    var result = {};
+    for (var i = 0, property, args = arguments; property = args[i++];) result[property] = this.getStyle(property);
+    return result;
+  },
+  
+  renderStyles: function(style) {
+    var style = this.style, 
+        current = style.current,
+        paint = style.paint, 
+        element = style.element,  
+        found = style.found,
+        implied = style.implied,
+        calculated = style.calculated,
+        given = Object.append(style.given, given),
+        changed = style.changed;
+    this.setStyles(given, 'given')
+    for (var property in found) if ((property in changed) && !(property in given)) this.setStyle(property, found[property]);
+    Object.append(style.current, style.implied);
+    for (var property in element)  {
+      if (!(property in given) && !(property in found) && !(property in calculated) && !(property in implied)) {
+        this.element.style[property] = '';
+        delete element[property]
+      }
+    }
+    for (var property in current)  {
+      if (!(property in given) && !(property in found) && !(property in calculated) && !(property in implied)) {
+        delete current[property];
+        delete paint[property];
+      }
+    }
+  },
+  
+  combineRules: function(rule) {
+    var rules = this.rules, style = this.style, found = style.found = {}, implied = style.implied = {}, changed = style.changed;
+    for (var j = rules.length, other; other = rules[--j];) {
+      var setting = other.style, implying = other.implied, self = (rule == other);
+      if (setting) for (var property in setting) if (!(property in found)) {
+        if (self) changed[property] = setting[property];
+        found[property] = setting[property];
+      }
+      if (implying) for (var property in implying) if (!(property in implied)) implied[property] = implying[property];
+    }
+  },
+  
+  addRule: function(rule) {
+    var rules = this.rules;
+    if (rules.indexOf(rule) > -1) return
+    for (var i = 0, other;  other = rules[i++];) {
+      if ((other.specificity > rule.specificity) || ((other.specificity == rule.specificity) && (other.index > rule.index))) break;
+    }
+    rules.splice(--i, 0, rule);
+    this.combineRules(rule);
+  },
+  
+  removeRule: function(rule) {
+    var rules = this.rules, index = rules.indexOf(rule)
+    if (index == -1) return
+    rules.splice(index, 1);
+    this.combineRules();
+    var style = this.style, found = style.found, changed = style.changed, setting = rule.style;
+    if (setting) for (var property in setting) if (!Object.equals(found[property], setting[property])) changed[property] = found[property];
+ },
+  
+  inheritStyle: function(property) {
+    var node = this;
+    var style = node.style.current[property];
+    while ((style == 'inherit' || !style) && (node = node.parentNode)) style = node.style.current[property];
+    return style;
+  },
+  
+  calculateStyle: function(property, expression) {
+    if (this.style.calculated[property]) return this.style.calculated[property];
+    var value;
+    if (expression) {
+      value = expression.call(this, property);
+    } else {
+      switch (property) {
+        case "height":
+          value = this.getClientHeight();
+        case "width":
+          value = this.inheritStyle(property);
+          if (value == "auto") value = this.getClientWidth();
+        case "height": case "width":  
+          //if dimension size is zero, then the widget is not in DOM yet
+          //so we wait until the root widget is injected, and then try to repeat
+          if (value == 0 && (this.redraws == 0)) this.halt();
+      }
+    }
+    this.style.calculated[property] = value;
+    return value;
+  },
+  
+  update: Macro.onion(function() {
+    this.style.calculated = {};
+    this.style.computed = {};
+  })
+});
+
+
+})();
+/*
+---
+
+name: Fx.CSS
+
+description: Contains the CSS animation logic. Used by Fx.Tween, Fx.Morph, Fx.Elements.
+
+license: MIT-style license.
+
+requires: [Fx, Element.Style]
+
+provides: Fx.CSS
+
+...
+*/
+
+Fx.CSS = new Class({
+
+	Extends: Fx,
+
+	//prepares the base from/to object
+
+	prepare: function(element, property, values){
+		values = Array.from(values);
+		if (values[1] == null){
+			values[1] = values[0];
+			values[0] = element.getStyle(property);
+		}
+		var parsed = values.map(this.parse);
+		return {from: parsed[0], to: parsed[1]};
+	},
+
+	//parses a value into an array
+
+	parse: function(value){
+		value = Function.from(value)();
+		value = (typeof value == 'string') ? value.split(' ') : Array.from(value);
+		return value.map(function(val){
+			val = String(val);
+			var found = false;
+			Object.each(Fx.CSS.Parsers, function(parser, key){
+				if (found) return;
+				var parsed = parser.parse(val);
+				if (parsed || parsed === 0) found = {value: parsed, parser: parser};
+			});
+			found = found || {value: val, parser: Fx.CSS.Parsers.String};
+			return found;
+		});
+	},
+
+	//computes by a from and to prepared objects, using their parsers.
+
+	compute: function(from, to, delta){
+		var computed = [];
+		(Math.min(from.length, to.length)).times(function(i){
+			computed.push({value: from[i].parser.compute(from[i].value, to[i].value, delta), parser: from[i].parser});
+		});
+		computed.$family = Function.from('fx:css:value');
+		return computed;
+	},
+
+	//serves the value as settable
+
+	serve: function(value, unit){
+		if (typeOf(value) != 'fx:css:value') value = this.parse(value);
+		var returned = [];
+		value.each(function(bit){
+			returned = returned.concat(bit.parser.serve(bit.value, unit));
+		});
+		return returned;
+	},
+
+	//renders the change to an element
+
+	render: function(element, property, value, unit){
+		element.setStyle(property, this.serve(value, unit));
+	},
+
+	//searches inside the page css to find the values for a selector
+
+	search: function(selector){
+		if (Fx.CSS.Cache[selector]) return Fx.CSS.Cache[selector];
+		var to = {}, selectorTest = new RegExp('^' + selector.escapeRegExp() + '$');
+		Array.each(document.styleSheets, function(sheet, j){
+			var href = sheet.href;
+			if (href && href.contains('://') && !href.contains(document.domain)) return;
+			var rules = sheet.rules || sheet.cssRules;
+			Array.each(rules, function(rule, i){
+				if (!rule.style) return;
+				var selectorText = (rule.selectorText) ? rule.selectorText.replace(/^\w+/, function(m){
+					return m.toLowerCase();
+				}) : null;
+				if (!selectorText || !selectorTest.test(selectorText)) return;
+				Object.each(Element.Styles, function(value, style){
+					if (!rule.style[style] || Element.ShortStyles[style]) return;
+					value = String(rule.style[style]);
+					to[style] = ((/^rgb/).test(value)) ? value.rgbToHex() : value;
+				});
+			});
+		});
+		return Fx.CSS.Cache[selector] = to;
+	}
+
+});
+
+Fx.CSS.Cache = {};
+
+Fx.CSS.Parsers = {
+
+	Color: {
+		parse: function(value){
+			if (value.match(/^#[0-9a-f]{3,6}$/i)) return value.hexToRgb(true);
+			return ((value = value.match(/(\d+),\s*(\d+),\s*(\d+)/))) ? [value[1], value[2], value[3]] : false;
+		},
+		compute: function(from, to, delta){
+			return from.map(function(value, i){
+				return Math.round(Fx.compute(from[i], to[i], delta));
+			});
+		},
+		serve: function(value){
+			return value.map(Number);
+		}
+	},
+
+	Number: {
+		parse: parseFloat,
+		compute: Fx.compute,
+		serve: function(value, unit){
+			return (unit) ? value + unit : value;
+		}
+	},
+
+	String: {
+		parse: Function.from(false),
+		compute: function(zero, one){
+			return one;
+		},
+		serve: function(zero){
+			return zero;
+		}
+	}
+
+};
+
+//<1.2compat>
+
+Fx.CSS.Parsers = new Hash(Fx.CSS.Parsers);
+
+//</1.2compat>
+
+/*
+---
+
+name: Fx.Tween
+
+description: Formerly Fx.Style, effect to transition any CSS property for an element.
+
+license: MIT-style license.
+
+requires: Fx.CSS
+
+provides: [Fx.Tween, Element.fade, Element.highlight]
+
+...
+*/
+
+Fx.Tween = new Class({
+
+	Extends: Fx.CSS,
+
+	initialize: function(element, options){
+		this.element = this.subject = document.id(element);
+		this.parent(options);
+	},
+
+	set: function(property, now){
+		if (arguments.length == 1){
+			now = property;
+			property = this.property || this.options.property;
+		}
+		this.render(this.element, property, now, this.options.unit);
+		return this;
+	},
+
+	start: function(property, from, to){
+		if (!this.check(property, from, to)) return this;
+		var args = Array.flatten(arguments);
+		this.property = this.options.property || args.shift();
+		var parsed = this.prepare(this.element, this.property, args);
+		return this.parent(parsed.from, parsed.to);
+	}
+
+});
+
+Element.Properties.tween = {
+
+	set: function(options){
+		this.get('tween').cancel().setOptions(options);
+		return this;
+	},
+
+	get: function(){
+		var tween = this.retrieve('tween');
+		if (!tween){
+			tween = new Fx.Tween(this, {link: 'cancel'});
+			this.store('tween', tween);
+		}
+		return tween;
+	}
+
+};
+
+Element.implement({
+
+	tween: function(property, from, to){
+		this.get('tween').start(arguments);
+		return this;
+	},
+
+	fade: function(how){
+		var fade = this.get('tween'), o = 'opacity', toggle;
+		how = [how, 'toggle'].pick();
+		switch (how){
+			case 'in': fade.start(o, 1); break;
+			case 'out': fade.start(o, 0); break;
+			case 'show': fade.set(o, 1); break;
+			case 'hide': fade.set(o, 0); break;
+			case 'toggle':
+				var flag = this.retrieve('fade:flag', this.get('opacity') == 1);
+				fade.start(o, (flag) ? 0 : 1);
+				this.store('fade:flag', !flag);
+				toggle = true;
+			break;
+			default: fade.start(o, arguments);
+		}
+		if (!toggle) this.eliminate('fade:flag');
+		return this;
+	},
+
+	highlight: function(start, end){
+		if (!end){
+			end = this.retrieve('highlight:original', this.getStyle('background-color'));
+			end = (end == 'transparent') ? '#fff' : end;
+		}
+		var tween = this.get('tween');
+		tween.start('background-color', start || '#ffff88', end).chain(function(){
+			this.setStyle('background-color', this.retrieve('highlight:original'));
+			tween.callChain();
+		}.bind(this));
+		return this;
+	}
+
+});
+
+/*
+---
+ 
+script: Animation.js
+ 
+description: Animated ways to show/hide widget
+ 
+license: Public domain (http://unlicense.org).
+ 
+requires:
+  - LSD
+  - Core/Fx.Tween
+ 
+provides: 
+  - LSD.Trait.Animation
+ 
+...
+*/
+
+
+LSD.Trait.Animation = new Class({
+  options: {
+    animation: {}
+  },
+  
+  getAnimation: function() {
+    if (!this.animation) {
+      this.animation = this.getAnimatedElement().set('tween', this.options.animation).get('tween');
+      if (this.options.animation.value) this.animation.set(this.options.animation.value);
+    }
+    return this.animation;
+  },
+  
+  show: function() {
+    var parent = this.parent;
+    this.getAnimation().start('opacity', 1).chain(function() {
+      LSD.Widget.prototype.show.apply(this, arguments);
+    }.bind(this))
+  },
+  
+  hide: function(how) {
+    var parent = this;
+    this.getAnimation().start('opacity', 0).chain(function() {
+      LSD.Widget.prototype.hide.apply(this, arguments);
+    }.bind(this))
+  },
+  
+  remove: function() {
+    return this.getAnimation().start('opacity', 0).chain(this.dispose.bind(this));
+  },
+  
+  dispose: function() {
+    return this.getAnimatedElement().dispose()
+  },
+  
+  getAnimatedElement: function() {
+    return this.element;
+  }
+  
+});
+
+LSD.Trait.Animation.Instant = new Class({
+  show: function() {
+    this.getAnimatedElement().setStyle('visibility', 'visible')
+  },
+  
+  hide: function() {
+    this.getAnimatedElement().setStyle('visibility', 'hidden')
+  },
+  
+  getAnimatedElement: function() {
+    return this.element;
+  }
+})
 /*
 ---
  
@@ -12937,6 +13935,2032 @@ Element.Properties.widget = {
 
 
 
+
+/*
+---
+
+name: Request
+
+description: Powerful all purpose Request Class. Uses XMLHTTPRequest.
+
+license: MIT-style license.
+
+requires: [Object, Element, Chain, Events, Options, Browser]
+
+provides: Request
+
+...
+*/
+
+(function(){
+
+var progressSupport = ('onprogress' in new Browser.Request);
+
+var Request = this.Request = new Class({
+
+	Implements: [Chain, Events, Options],
+
+	options: {/*
+		onRequest: function(){},
+		onLoadstart: function(event, xhr){},
+		onProgress: function(event, xhr){},
+		onComplete: function(){},
+		onCancel: function(){},
+		onSuccess: function(responseText, responseXML){},
+		onFailure: function(xhr){},
+		onException: function(headerName, value){},
+		onTimeout: function(){},
+		user: '',
+		password: '',*/
+		url: '',
+		data: '',
+		headers: {
+			'X-Requested-With': 'XMLHttpRequest',
+			'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
+		},
+		async: true,
+		format: false,
+		method: 'post',
+		link: 'ignore',
+		isSuccess: null,
+		emulation: true,
+		urlEncoded: true,
+		encoding: 'utf-8',
+		evalScripts: false,
+		evalResponse: false,
+		timeout: 0,
+		noCache: false
+	},
+
+	initialize: function(options){
+		this.xhr = new Browser.Request();
+		this.setOptions(options);
+		this.headers = this.options.headers;
+	},
+
+	onStateChange: function(){
+		var xhr = this.xhr;
+		if (xhr.readyState != 4 || !this.running) return;
+		this.running = false;
+		this.status = 0;
+		Function.attempt(function(){
+			var status = xhr.status;
+			this.status = (status == 1223) ? 204 : status;
+		}.bind(this));
+		xhr.onreadystatechange = function(){};
+		clearTimeout(this.timer);
+		
+		this.response = {text: this.xhr.responseText || '', xml: this.xhr.responseXML};
+		if (this.options.isSuccess.call(this, this.status))
+			this.success(this.response.text, this.response.xml);
+		else
+			this.failure();
+	},
+
+	isSuccess: function(){
+		var status = this.status;
+		return (status >= 200 && status < 300);
+	},
+
+	isRunning: function(){
+		return !!this.running;
+	},
+
+	processScripts: function(text){
+		if (this.options.evalResponse || (/(ecma|java)script/).test(this.getHeader('Content-type'))) return Browser.exec(text);
+		return text.stripScripts(this.options.evalScripts);
+	},
+
+	success: function(text, xml){
+		this.onSuccess(this.processScripts(text), xml);
+	},
+
+	onSuccess: function(){
+		this.fireEvent('complete', arguments).fireEvent('success', arguments).callChain();
+	},
+
+	failure: function(){
+		this.onFailure();
+	},
+
+	onFailure: function(){
+		this.fireEvent('complete').fireEvent('failure', this.xhr);
+	},
+	
+	loadstart: function(event){
+		this.fireEvent('loadstart', [event, this.xhr]);
+	},
+	
+	progress: function(event){
+		this.fireEvent('progress', [event, this.xhr]);
+	},
+	
+	timeout: function(){
+		this.fireEvent('timeout', this.xhr);
+	},
+
+	setHeader: function(name, value){
+		this.headers[name] = value;
+		return this;
+	},
+
+	getHeader: function(name){
+		return Function.attempt(function(){
+			return this.xhr.getResponseHeader(name);
+		}.bind(this));
+	},
+
+	check: function(){
+		if (!this.running) return true;
+		switch (this.options.link){
+			case 'cancel': this.cancel(); return true;
+			case 'chain': this.chain(this.caller.pass(arguments, this)); return false;
+		}
+		return false;
+	},
+	
+	send: function(options){
+		if (!this.check(options)) return this;
+
+		this.options.isSuccess = this.options.isSuccess || this.isSuccess;
+		this.running = true;
+
+		var type = typeOf(options);
+		if (type == 'string' || type == 'element') options = {data: options};
+
+		var old = this.options;
+		options = Object.append({data: old.data, url: old.url, method: old.method}, options);
+		var data = options.data, url = String(options.url), method = options.method.toLowerCase();
+
+		switch (typeOf(data)){
+			case 'element': data = document.id(data).toQueryString(); break;
+			case 'object': case 'hash': data = Object.toQueryString(data);
+		}
+
+		if (this.options.format){
+			var format = 'format=' + this.options.format;
+			data = (data) ? format + '&' + data : format;
+		}
+
+		if (this.options.emulation && !['get', 'post'].contains(method)){
+			var _method = '_method=' + method;
+			data = (data) ? _method + '&' + data : _method;
+			method = 'post';
+		}
+
+		if (this.options.urlEncoded && ['post', 'put'].contains(method)){
+			var encoding = (this.options.encoding) ? '; charset=' + this.options.encoding : '';
+			this.headers['Content-type'] = 'application/x-www-form-urlencoded' + encoding;
+		}
+
+		if (!url) url = document.location.pathname;
+		
+		var trimPosition = url.lastIndexOf('/');
+		if (trimPosition > -1 && (trimPosition = url.indexOf('#')) > -1) url = url.substr(0, trimPosition);
+
+		if (this.options.noCache)
+			url += (url.contains('?') ? '&' : '?') + String.uniqueID();
+
+		if (data && method == 'get'){
+			url += (url.contains('?') ? '&' : '?') + data;
+			data = null;
+		}
+
+		var xhr = this.xhr;
+		if (progressSupport){
+			xhr.onloadstart = this.loadstart.bind(this);
+			xhr.onprogress = this.progress.bind(this);
+		}
+
+		xhr.open(method.toUpperCase(), url, this.options.async, this.options.user, this.options.password);
+		if (this.options.user && 'withCredentials' in xhr) xhr.withCredentials = true;
+		
+		xhr.onreadystatechange = this.onStateChange.bind(this);
+
+		Object.each(this.headers, function(value, key){
+			try {
+				xhr.setRequestHeader(key, value);
+			} catch (e){
+				this.fireEvent('exception', [key, value]);
+			}
+		}, this);
+
+		this.fireEvent('request');
+		xhr.send(data);
+		if (!this.options.async) this.onStateChange();
+		if (this.options.timeout) this.timer = this.timeout.delay(this.options.timeout, this);
+		return this;
+	},
+
+	cancel: function(){
+		if (!this.running) return this;
+		this.running = false;
+		var xhr = this.xhr;
+		xhr.abort();
+		clearTimeout(this.timer);
+		xhr.onreadystatechange = xhr.onprogress = xhr.onloadstart = function(){};
+		this.xhr = new Browser.Request();
+		this.fireEvent('cancel');
+		return this;
+	}
+
+});
+
+var methods = {};
+['get', 'post', 'put', 'delete', 'GET', 'POST', 'PUT', 'DELETE'].each(function(method){
+	methods[method] = function(data){
+		var object = {
+			method: method
+		};
+		if (data != null) object.data = data;
+		return this.send(object);
+	};
+});
+
+Request.implement(methods);
+
+Element.Properties.send = {
+
+	set: function(options){
+		var send = this.get('send').cancel();
+		send.setOptions(options);
+		return this;
+	},
+
+	get: function(){
+		var send = this.retrieve('send');
+		if (!send){
+			send = new Request({
+				data: this, link: 'cancel', method: this.get('method') || 'post', url: this.get('action')
+			});
+			this.store('send', send);
+		}
+		return send;
+	}
+
+};
+
+Element.implement({
+
+	send: function(url){
+		var sender = this.get('send');
+		sender.send({data: this, url: url || sender.options.url});
+		return this;
+	}
+
+});
+
+})();
+/*
+---
+ 
+script: Sheet.js
+ 
+description: Code to extract style rule definitions from the stylesheet
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Node
+  - Core/Element
+  - Core/Request
+  - Sheet/Sheet
+  - Sheet/SheetParser.Value
+  - Sheet/SheetParser.Property
+  - Sheet/SheetParser.Styles
+  
+provides:
+  - LSD.Sheet
+ 
+...
+*/
+
+(function() {
+  
+LSD.Sheet = new Class({
+  Extends: LSD.Node,
+  
+  options: {
+    compile: false,
+    combine: true //combine rules
+  },
+  
+  initialize: function(element, callback) {
+    this.parent.apply(this, arguments);
+    this.rules = []
+    this.callback = callback;
+    if (this.element) this.fetch();
+    else if (callback) callback(this);
+    LSD.Document.addStylesheet(this);
+  },
+  
+  define: function(selectors, style) {
+    LSD.Sheet.Rule.fromSelectors(selectors, style).each(this.addRule.bind(this))
+  },
+  
+  addRule: function(rule) {
+    this.rules.push(rule)
+  },
+  
+  fetch: function(href) {
+    if (!href && this.element) href = this.element.get('href');
+    if (!href) return;
+    new Request({
+      url: href,
+      onSuccess: this.apply.bind(this)
+    }).get();
+  },
+  
+  apply: function(sheet) {
+    if (typeof sheet == 'string') sheet = this.parse(sheet);
+    if (this.options.compile) this.compile(sheet);
+    for (var selector in sheet) this.define(selector, sheet[selector]);
+    if (this.callback) this.callback(this)
+  },
+  
+  parse: function(text) {
+    var sheet = new Sheet(text);
+    var rules = sheet.cssRules;
+    var CSS = SheetParser.Styles, Paint = LSD.Styles;
+    var parsed = {};
+    for (var i = 0, rule; rule = rules[i++];) {      
+      var selector = LSD.Sheet.convertSelector(rule.selectorText)
+      if (!selector.length || LSD.Sheet.isElementSelector(selector)) continue;
+      if (!parsed[selector]) parsed[selector] = {};
+      var styles = parsed[selector];
+      for (var style = rule.style, j = 0, name; name = style[j++];) {
+        var property = name.replace('-lsd-', '').camelCase();
+        var value = SheetParser.Value.translate(style[name]);
+        var definition = Paint[property] || CSS[property];
+        if (!definition) continue;
+        if (definition.type != 'simple') {
+          var result = definition[value.push ? 'apply' : 'call'](this, value);
+          if (result === false) value = false;
+          else if (result !== true) {
+            for (prop in result) styles[prop] = Value.compile(result[prop]);
+            continue
+          }
+        }
+        styles[property] = Value.compile(value);
+      }
+    };
+    return parsed;
+  },
+  
+  attach: function(node) {
+    this.rules.each(function(rule) {
+      rule.attach(node)
+    });
+    LSD.start();
+  },
+  
+  detach: function(node) {
+    this.rules.each(function(rule) {
+      rule.detach(node)
+    });
+  },
+  
+  /* Compile LSD stylesheet to CSS when possible 
+     to speed up setting of regular properties
+     
+     Will create stylesheet node and apply the css
+     unless *lightly* parameter was given. 
+     
+     Unused now, because we decompile css instead */
+  compile: function(lightly) {
+    var bits = [];
+    this.rules.each(function(rule) {
+      if (!rule.implied) return;
+      bits.push(rule.getCSSSelector() + " {")
+      for (var property in rule.implied) {  
+        var value = rule.implied[property];
+        if (typeof value == 'number') {
+          if (property != 'zIndex') value += 'px';
+        } else if (value.map) {
+          value = value.map(function(bit) { return bit + 'px'}).join(' ');
+        }
+        bits.push(property.hyphenate() + ': ' + value + ';')
+      }
+      bits.push("}")
+    })
+    var text = bits.join("\n");
+    if (lightly) return text;
+    
+    if (window.createStyleSheet) {
+      var style = window.createStyleSheet("");
+      style.cssText = text;
+    } else {
+      var style = new Element('style', {type: 'text/css', media: 'screen'}).adopt(document.newTextNode(text)).inject(document.body);
+    }
+  }
+});
+
+Object.append(LSD.Sheet, {
+  isElementSelector: function(selector) {
+    return selector.match(/svg|v\\?:|:(?:before|after)|\.container/);
+  },
+  convertSelector: function(selector) {
+    return selector.replace(/\.id-/g , '#').replace(/\.is-/g, ':').replace(/\.lsd#/g, '#').
+                    replace(/\.lsd\./g, '').replace(/html\sbody\s/g, '');
+  },
+  isElementStyle: function(cc) {
+    return SheetParser.Styles[cc] && !LSD.Styles[cc] && (cc != 'height' && cc != 'width')
+  },
+  isRawValue: function(value) {
+    return (value.indexOf('hsb') > -1) || (value.indexOf('ART') > -1) || (value.indexOf('LSD') > -1) || 
+           (value.charAt(0) == '"') || (value == 'false') || (value == parseInt(value)) || (value == parseFloat(value))
+  }
+});
+
+LSD.Sheet.Rule = function(selector, style) {
+  this.selector = selector;
+  this.index = LSD.Sheet.Rule.index ++;
+  this.expressions = selector.expressions[0];
+  this.specificity = this.getSpecificity();
+  for (property in style) {
+    var cc = property.camelCase();
+    var type = (LSD.Sheet.Rule.separate && LSD.Sheet.isElementStyle(cc)) ? 'implied' : 'style';
+    if (!this[type]) this[type] = {}; 
+    this[type][cc] = style[property];
+  }
+}
+LSD.Sheet.Rule.index = 0;
+
+LSD.Sheet.Rule.separate = true;
+
+Object.append(LSD.Sheet.Rule.prototype, {  
+  attach: function(node) {
+    if (!this.watcher) this.watcher = this.watch.bind(this);
+    node.watch(this.selector, this.watcher)
+  },
+  
+  detach: function(node) {
+    node.unwatch(this.selector, this.watcher);
+  },
+  
+  watch: function(node, state) {
+    //console.log(node, state, this.selector.raw, this.style)
+    node[state ? 'addRule' : 'removeRule'](this)
+  },
+  
+  getCSSSelector: function() {
+    return this.expressions.map(function(parsed){
+      var classes = ['', 'lsd'];
+      if (parsed.tag) classes.push(parsed.tag);
+      if (parsed.id) classes.push('id-' + parsed.id);
+      if (parsed.pseudos) {
+        parsed.pseudos.each(function(pseudo) {
+          classes.push(pseudo.key);
+        });
+      };
+      return classes.join('.');
+    }).join(' ');
+  },
+  
+  getSpecificity: function(selector) {
+    specificity = 0;
+    this.expressions.each(function(chunk){
+      if (chunk.tag && chunk.tag != '*') specificity++;
+      if (chunk.id) specificity += 100;
+      for (var i in chunk.attributes) specificity++;
+      specificity += (chunk.pseudos || []).length;
+      specificity += (chunk.classes || []).length * 10;
+    });
+    return specificity;
+  }
+});
+
+var Value = LSD.Sheet.Value = {
+  px: function(value) {
+    return value;
+  },
+  deg: function(value) {
+    return value;
+  },
+  em: function(value) {
+    return function() {
+      return value * (this.baseline || 16)
+    }
+  },
+  "%": function(value) {
+    return function(property) {
+      var resolved = Value['%'].resolve(property);
+      if (resolved.call) resolved = resolved.call(this);
+      return resolved / 100 * value;
+    }
+  },
+  url: function(value) {
+    return value
+  },
+  src: function(value) {
+    return value
+  },
+  rgb: function() {
+    return window.rgb.apply(window, arguments)
+  },
+  rgba: function(value) {
+    return window.rgb.apply(window, arguments)
+  },
+  hsb: function() {
+    return window.hsb.apply(window, arguments)
+  },
+  hex: function(value) {
+    return new Color(value)
+  },
+  calc: function(value) {
+    var bits = value.map(function(bit, i) {
+      if (bit.call) {
+        return "value[" + i + "].call(this, property)"
+      } else {
+        return bit;
+      }
+    })
+    eval("var compiled = function(property) { return " + bits.join(" ") + "}");
+    return compiled
+  },
+  min: function() {
+    return Math.min.apply(Math, arguments)
+  },
+  max: function() {
+    return Math.max.apply(Math, arguments)
+  }
+};
+
+
+var resolved = {};
+var dimensions = {
+  height: /[hH]eight|[tT]op|[bB]ottom|[a-z]Y/,
+  width: /[wW]idth|[lL]eft|[rR]ight|[a-z]X/
+}
+Value['%'].resolve = function(property) {
+  var result = resolved[property];
+  if (result != null) return result;
+  for (var side in dimensions) if (property.match(dimensions[side])) {
+    result = function() { if (this.parentNode) return this.parentNode.getStyle(side); return 0;}
+    break;
+  }
+  return (resolved[property] = (result || 1));
+};
+
+Value.compiled = {};
+Value.compile = function(value, context) {
+  if (!value || value.call || typeof value == 'number') return value;
+  if (!context) context = Value;
+  if (value.push) {
+    for (var i = 0, j = value.length, result = [], bit; i < j; bit = value[i++]) result[i] = Value.compile(value[i], context);
+    return result;
+  }
+  if (value.unit)  return Object.append(context[value.unit](value.number), value);
+  if (value.charAt) {
+    if (context.hex && value.charAt(0) == "#" && value.match(/#[a-z0-9]{3,6}/)) return context.hex(value);
+  } else for (var name in value) {
+    if (context[name]) {
+      return context[name](Value.compile(value[name]), context);
+    } else {
+      value[name] = Value.compile(value[name]);
+    }
+    break;
+  }
+  return value;
+}
+
+LSD.Sheet.Rule.fromSelectors = function(selectors, style) { //temp solution, split by comma
+  return selectors.split(/\s*,\s*/).map(function(selector){
+    return new LSD.Sheet.Rule(Slick.parse(selector), style);
+  });
+};
+
+var Property = SheetParser.Property;
+LSD.Sheet.defineStyleFamily = function(name, properties, layer) {
+  if (!layer) layer = name;
+  var result = {styles: {}, keys: []};
+  var prefix = result.prefix;
+  if (prefix === false || layer == name) prefix = name;
+  else if (!prefix) prefix = name + layer.capitalize();
+  var length = 0;
+  for (var property in properties) length++
+  var simple = (length == 1);
+    console.log(properties)
+  Object.each(properties, function(value, property) {
+    if (property == layer) {
+      if (simple) var style = prefix
+      else return;
+    } else var style = prefix + property.capitalize()
+    result.styles[style] = Property.compile(value, properties);
+    result.keys.push(style);
+  });
+  var shorthand = properties[layer];
+  if (shorthand && !simple) {
+    var style = (layer == name) ? name : name + layer.capitalize();
+    if (length) {
+      for (var j = 0, k = 0, l = 0, prop; prop = shorthand[j]; j++) {
+        if (!prop.push) { 
+          if (properties[prop]) {
+            shorthand[j] = prefix + prop.capitalize();
+            k++
+          }
+        } else for (var m = 0, sub; sub = prop[m]; m++) {
+          if (properties[sub]) {
+            prop[m] = prefix + sub.capitalize();
+            l++;
+          }
+        }
+      }
+    }
+    if (l > 0 && (k > 0 || j == 1)) shorthand = [shorthand];
+    result.styles[style] = Property.compile(shorthand, result.styles);
+    result.shorthand = style;
+  }
+  return result;
+}
+
+})();
+
+/*
+---
+ 
+script: Layer.js
+ 
+description: Adds a piece of SVG that can be drawn with widget styles
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Sheet
+  - LSD.Module.Styles
+  - Sheet/SheetParser.Styles
+ 
+provides: 
+  - LSD.Layer
+  - LSD.Layer.Shaped
+ 
+...
+*/
+
+(function() {
+  
+LSD.Layer = function(name, styles, painters) {
+  this.name = name;
+  this.styles = styles;
+  this.painters = painters;
+}
+
+LSD.Layer.prototype = {
+  render: function(widget, commands) {
+    var canvas = widget.getCanvas();
+    var shape = commands.shape;
+    if (shape == 'none') return;
+    if (!shape) shape = widget.getStyle('shape') || 'rectangle';
+    var layer = widget.shapes[this.name];
+    if (shape.glyph) {
+      var glyph = ART.Glyphs[shape.glyph];
+      if (!glyph) return;    
+      var path = new ART.Path(glyph);
+      var box = path.measure();
+      if (!layer) layer = new ART.Shape(path, box.width, box.height);
+      if (commands.size && !Object.equals(previous ? previous.size : box, commands.size))
+        layer.resizeTo(commands.size.width, commands.size.height)
+        
+    } else if (!shape.indexOf){
+      for (var name in shape) {
+        var values = Array.from(shape[name]);
+        shape = name;
+      }
+    }
+    if (!layer) {
+      var path = ART.Shape[shape.capitalize()];
+      if (!path) return;
+      var layer = new path;
+      layer.render(commands)
+    } else {
+      var previous = layer.commands;
+      if (layer.draw && layer.render) layer.render(commands)
+    }
+    layer.commands = commands;
+    widget.shapes[this.name] = layer;
+    for (command in commands) {
+      var value = commands[command];
+      if (layer[command] && command != 'move') {
+        if (!value || !previous || !Object.equals(previous[command], value)) layer[command][value && value.push ? 'apply' : 'call'](layer, value);
+      }
+    }
+    var translate = commands.translate = {x: 0, y: 0}
+    if (commands.inside) {
+      translate.x += commands.inside.left
+      translate.y += commands.inside.top;
+    };
+    //if (commands.outside) {
+    //  top += commands.outside.top;
+    //  left += commands.outside.left
+    //};
+    if (commands.move) {
+      translate.x += commands.move.x;
+      translate.y += commands.move.y;
+    }
+    if (!previous || !Object.equals(previous.translate, translate)) layer.moveTo(translate.x, translate.y)
+  },
+  
+  draw: function(widget, context, previous) {
+    context = Object.append({size: widget.size, style: widget.style.current}, context || {});
+    if (context.style.cornerRadiusTopLeft !== null) {
+      context.radius = widget.getStyle('cornerRadius')
+    }
+    var inherited = {}, overwritten = {};
+    for (var painter, i = 0; painter = this.painters[i++];) {
+      var commands = painter.paint.apply(context, painter.keys.map(function(prop) { return widget.getStyle(prop)}));
+      for (var name in commands) {
+        var value = commands[name];
+        if (Inherit[name]) {;
+          inherited[name] = merge(value, context[name])
+        } else {
+          if (!Accumulate[name]) overwritten[name] = context[name]
+          context[name] = (Accumulate[name] || Merge[name]) ? merge(value, context[name]) : value;
+        }
+      }
+      //for (var command in value) this[command](command[value]);
+    }    
+    this.render(widget, context);
+    return Object.append(context, overwritten, inherited);;
+  }
+}
+
+var merge = function(value, old) {
+  if (typeof value == "object") {
+    if (value.push) {
+      for (var j = 0, k = value.length; j < k; j++) {
+        var item = value[j] || 0;
+        if (old) old[j] = (old[j] || 0) + item;
+        else old = [item]
+      }
+      return old;
+    } else if (!value.indexOf) {
+      for (var prop in value) {
+        var item = value[prop] || 0;
+        if (!old) old = {}
+        old[prop] = (old[prop] || 0) + item;
+      }
+      return old;
+    }
+  }  
+  return value;
+}
+
+var Accumulate = LSD.Layer.accumulated = new FastArray('translate', 'radius');
+var Inherit = LSD.Layer.inherited = new FastArray('inside', 'outside')
+var Merge = LSD.Layer.merged = new FastArray('size')
+
+var Property = SheetParser.Property;
+var Styles = LSD.Styles;
+var Map = LSD.Layer.Map = {};
+var Cache = LSD.Layer.Cache = {};
+
+//LSD.Layer.getProperty = function(property, properties)
+ 
+LSD.Layer.generate = function(name, layers) {
+  if (arguments.length > 2) layers = Array.prototype.splice.call(arguments, 1);
+  var painters = [];
+  var styles = LSD.Layer.prepare(name, layers, function(painter, definition) {
+    painters.push(Object.append(painter, definition))
+  })
+  return new LSD.Layer(name, styles, painters);
+};
+
+LSD.Layer.prepare = function(name, layers, callback) {
+  var styles = {};
+  for (var i = 0, layer; layer = layers[i++];) {
+    var definition = LSD.Layer[layer.capitalize()];
+    if (!definition || !definition.properties) continue;
+    var result = LSD.Sheet.defineStyleFamily(name, Object.clone(definition.properties), layer);
+    if (!result) continue;
+    if (callback) callback(result, definition);
+    if (definition.onCompile) definition.onCompile(name);
+    Object.append(styles, result.styles);
+  }
+  for (var property in styles) {
+    Styles[property] = styles[property];
+    Map[property] = name;
+  }
+  return styles;
+}
+
+LSD.Layer.get = function(name) {
+  var key = name//Array.flatten(arguments).join('');
+  if (Cache[key]) return Cache[key];
+  else return (Cache[key] = LSD.Layer.generate.apply(LSD.Layer, arguments))
+}
+
+
+})();
+/*
+---
+ 
+script: Layers.js
+ 
+description: Make widget use layers for all the SVG
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Layer
+  - LSD.Module.Styles
+
+provides: 
+  - LSD.Trait.Layers
+ 
+...
+*/
+
+
+(function() {
+
+LSD.Trait.Layers = new Class({
+  options: {
+    layers: {}
+  },
+  
+  initialize: function() {
+    this.offset = {};
+    this.layers = {};
+    this.shapes = {};
+    this.parent.apply(this, arguments);
+  },
+  
+  attach: Macro.onion(function() {
+    this.style.layers = {};
+    for (var name in this.options.layers) this.addLayer(name, this.options.layers[name]);
+    //console.log(this.style.layers)
+  }),
+
+  addLayer: function(name, value) {
+    var slots = this.style.layers;
+    var layer = this.layers[name] = LSD.Layer.get(name, Array.from(value));
+    for (var i = 0, painter; painter = layer.painters[i++];) {
+      for (var group = painter.keys, j = 0, property; property = group[j++];) {
+        if (!slots[property]) slots[property] = [];
+        slots[property].push(name);
+      }
+    }
+  },
+  
+  renderLayers: function(dirty) {
+    var updated = new FastArray, style = this.style, layers = style.layers, offset = this.offset;
+    for (var property in dirty) if (layers[property]) updated.push.apply(updated, layers[property]);
+    
+    
+    
+    
+    var result = {};
+    for (var name in this.layers) {
+      if (!updated[name]) continue;
+      var layer = this.layers[name];
+      var sizes = Object.append({box: this.size}, {size: Object.append({}, this.size)});
+      result = layer.draw(this, Object.append(result.inside ? {inside: result.inside, outside: result.outside} : {}, sizes))
+    }
+    var inside  = offset.inside  = Object.append({left: 0, right: 0, top: 0, bottom: 0}, result.inside);
+    var outside = offset.outside = Object.append({left: 0, right: 0, top: 0, bottom: 0}, result.outside);
+    offset.shape = /*this.shape.getOffset ? this.shape.getOffset(style.current) : */{left: 0, right: 0, top: 0, bottom: 0};
+    
+    for (var name in this.shapes) {
+      var layer = this.shapes[name];
+      if (!layer) continue;
+      if (!layer.injected) {
+        for (var layers = Object.keys(this.layers), i = layers.indexOf(layer.name), key, next; key = layers[++i];) {
+          if ((next = this.layers[key]) && next.injected && next.shape) {
+            layer.inject(next.shape, 'before');
+            break;
+          }
+        }
+        if (!layer.injected) layer.inject(this.getCanvas());
+        layer.injected = true;
+      }
+    }
+  },
+  
+  repaint: function() {
+    var style = this.style, last = style.last, old = style.size, paint = style.paint, changed = style.changed;
+    this.parent.apply(this, arguments);
+    this.setSize(this.getStyles('height', 'width'));
+    var size = this.size;
+    if (size && (!old || (old.width != size.width || old.height != size.height))) {
+      this.fireEvent('resize', [size, old]);
+      changed = paint;
+    }
+    if (Object.getLength(changed) > 0) this.renderLayers(changed);
+    style.changed = {};
+    style.last = Object.append({}, paint);
+    style.size = Object.append({}, size);
+    this.renderOffsets();
+  },
+  
+  renderStyles: function() {
+    this.parent.apply(this, arguments);
+    var style = this.style, current = style.current;
+    Object.append(this.offset, {
+      padding: {left: current.paddingLeft || 0, right: current.paddingRight || 0, top: current.paddingTop || 0, bottom: current.paddingBottom || 0},
+      margin: {left: current.marginLeft || 0, right: current.marginRight || 0, top: current.marginTop || 0, bottom: current.marginBottom || 0}
+    });
+  },
+  
+  renderOffsets: function() {
+    var element = this.element,
+        current = this.style.current, 
+        offset  = this.offset,         // Offset that is provided by:
+        inside  = offset.inside,       // layers, inside the widget
+        outside = offset.outside,      // layers, outside of the widget
+        shape   = offset.shape,        // shape
+        padding = offset.padding,      // padding style declarations
+        margin  = offset.margin,       // margin style declarations
+        inner   = {},                  // all inside offsets above, converted to padding
+        outer   = {};                  // all outside offsets above, converted to margin
+        
+    for (var property in inside) {
+      var cc = property.capitalize();
+      if (offset.inner) var last = offset.inner[property];
+      inner[property] = padding[property] + inside[property] + shape[property] + outside[property];
+      if (last != null ? last != inner[property] : inner[property]) element.style['padding' + cc] = inner[property] + 'px';
+      if (offset.outer) last = offset.outer[property];
+      outer[property] = margin[property] - outside[property];
+      if (last != null ? last != outer[property] : outer[property]) element.style['margin' + cc] = outer[property] + 'px';
+    }
+    if (inside) Object.append(offset, {inner: inner, outer: outer});
+  }
+});
+
+})();
+
+/*
+---
+ 
+script: Shape.js
+ 
+description: Base layer that provides shape
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Layer
+  - ART/ART.Shape
+ 
+provides: 
+  - LSD.Layer.Shape
+ 
+...
+*/
+
+LSD.Layer.Styles = {}
+LSD.Layer.Shape = {
+  properties: {
+    shape:      ['url', 'shape', 'glyph']
+  },
+  
+  paint: function(shape) {
+    return {
+      shape: shape
+    }
+  },
+  
+  onCompile: function(name) {
+    for (var shape in ART.Shape) {
+      var klass = ART.Shape[shape];
+      if (!klass || !klass.prototype || !klass.prototype.properties) continue;
+      var result = LSD.Sheet.defineStyleFamily(shape.toLowerCase(), klass.prototype.properties);
+      console.log(shape.toLowerCase(), klass.prototype.properties, result)
+      if (result) Object.append(LSD.Styles, result.styles);
+    }
+  }
+}
+
+Object.append(SheetParser.Property.Type, {
+  shape: function(value) {
+    if (value.indexOf) var name = value
+    else for (var key in value) { name = key; break};
+    return !!ART.Shape[name.capitalize()]
+  },
+  
+  glyph: function(value) {
+    return value.glyph
+  }
+});
+
+LSD.Styles.shape = SheetParser.Property.compile(LSD.Layer.Shape.properties.shape)
+/*
+---
+ 
+script: Position.js
+ 
+description: Positions layer in the box
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Layer
+ 
+provides: 
+  - LSD.Layer.Position
+ 
+...
+*/
+
+LSD.Layer.Position = {
+  properties: {
+    position: [['x', 'y']],
+    x:        ['length', 'percentage', 'left', 'right', 'center'],
+    y:        ['length', 'percentage', 'top', 'bottom', 'center']
+  },
+  
+  
+  paint: function(x, y) {
+    if (!x && !y) return;
+    return {
+      move: LSD.Position.calculate(this.box, this.size, x || 'center', y || 'center')
+    }
+  }
+}
+
+LSD.Position = {};
+LSD.Position.calculate = function(box, size, x, y) {
+  var position = {x: 0, y: 0};
+  
+  switch (x) {
+    case "left":
+      position.x = 0;
+    case "right":
+      position.x = box.width - size.width;
+    case "center":
+      position.x = (box.width - size.width) / 2;
+  }
+  switch (y) {
+    case "top":
+      position.y = 0;
+    case "bottom":
+      position.y = box.height - size.height;
+    case "center":
+      position.y = (box.height- size.height) / 2;
+  }
+  return position;
+}
+/*
+---
+ 
+script: Color.js
+ 
+description: Fills shape with color
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+- LSD.Layer
+ 
+provides: [LSD.Layer.Color, LSD.Layer.Fill]
+ 
+...
+*/
+
+LSD.Layer.Color = {
+  properties: {
+    color: ['color', 'gradient', 'none']
+  },
+  
+  paint: function(color) {
+    if (color) var radial = color['radial-gradient'], gradient = color['gradient'] || color ['linear-gradient'];
+    if (gradient) {
+      return {fillLinear: [gradient]}
+    } else if (!radial) {
+      return {fill: (!color || color == 'none') ? null : color} 
+    }
+  }
+};
+
+LSD.Layer.Fill = {
+  properties: {
+    color: ['color']
+  },
+  
+  prefix: 'fill',
+  
+  paint: LSD.Layer.Color.paint
+};
+/*
+---
+ 
+script: Stroke.js
+ 
+description: Fills shape with color and strokes with a stroke
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Layer
+  - LSD.Layer.Color
+ 
+provides: 
+  - LSD.Layer.Stroke
+ 
+...
+*/
+
+LSD.Layer.Stroke = {
+  
+  properties: {
+    stroke:    ['width', ['cap', 'join', 'dash'], 'color'], 
+    color:     ['gradient', 'color'],
+    width:     ['length'],
+    cap:       ['butt', 'round', 'square'],
+    join:      ['butt', 'round', 'square'],
+    dash:      ['tokens']
+  },
+  
+  paint: function(color, width, cap, join, dash) {
+    if (!width) width = 0;
+    var gradient = color && (color['gradient'] || color['linear-gradient']);
+    var result = {    
+      dash: dash,
+      size: {
+        width: width,
+        height: width
+      },
+      move: {
+        x: width / 2,
+        y: width / 2
+      },
+      inside: {
+        left: width,
+        top: width,
+        right: width,
+        bottom: width
+      },
+      stroke: [!gradient && color || null, width, cap, join]
+    };
+    if (this.radius != null) {
+      var radius = result.radius = []
+          for (var i = 0; i < 4; i++) radius[i] = (this.radius[i] > 0) ? width / 1.5 : 0;
+    }
+    if (gradient) result.strokeLinear = [gradient]
+    return result;
+  }
+}
+/*
+---
+ 
+script: Scale.js
+ 
+description: Adds a way to set scale level to the layer
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Layer
+ 
+provides: 
+  - LSD.Layer.Scale
+ 
+...
+*/
+
+LSD.Layer.Scale = {
+  properties: {
+    scale: [['x', 'y'], 'collection'],
+    x:     ['number', 'percentage'],
+    y:     ['number', 'percentage']
+  },
+  
+  paint: function(x, y) {
+    if (x != null || y != null) return {
+      size: {
+        width: - this.size.width * (1 - x),
+        height: - this.size.height * (1 - y)
+      }
+    }
+  }
+}
+/*
+---
+ 
+script: Size.js
+ 
+description: Base layer that provides shape
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Layer
+ 
+provides: 
+  - LSD.Layer.Size
+ 
+...
+*/
+
+LSD.Layer.Size = {
+  properties: {
+    size:       [['height', 'width'], 'collection'],
+    height:     ['length', 'percentage'],
+    width:      ['length', 'percentage']
+  },
+  
+  prefix: false,
+  
+  paint: function(height, width) {
+    if (height !== null && width !== null) return {
+      size: {
+        height: this.size.height ? (height - this.size.height) : height,
+        width: this.size.width ? (width - this.size.width) : width
+      }
+    }
+  }
+}
+/*
+---
+ 
+script: Radius.js
+ 
+description: Rounds shapes corners
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Layer
+ 
+provides: 
+  - LSD.Layer.Radius
+ 
+...
+*/
+
+LSD.Layer.Radius = {
+  properties: {
+    radius:      [['topLeft', 'bottomLeft', 'topRight', 'bottomRight'], 'collection'],
+    topLeft:     ['percentage', 'length'],
+    bottomLeft:  ['percentage', 'length'],
+    topRight:    ['percentage', 'length'],
+    bottomRight: ['percentage', 'length'],
+  },
+  
+  paint: function() {
+    return {
+      radius: Array.from(arguments).map(function(r) { return r || 0})
+    }
+  }
+}
+
+LSD.Layer.prepare('corner', ['radius'], false);
+/*
+---
+ 
+script: Offset.js
+ 
+description: Positions layer around the canvas
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+- LSD.Layer
+ 
+provides: [LSD.Layer.Offset]
+ 
+...
+*/
+
+LSD.Layer.Offset = {
+  properties: {  
+    offset:    [['top', 'right', 'bottom', 'left']],
+    top:       ['length', 'percentage'],
+    left:      ['length', 'percentage'],
+    bottom:    ['length', 'percentage'],
+    right:     ['length', 'percentage'],
+  },
+
+  paint: function(top, right, bottom, left) {
+    return {
+      move: {
+        x: left == null && right != null ? (this.size.width - (right || 0)) : (left || 0), 
+        y: top == null && bottom != null ? (this.size.height - (bottom || 0)) : (top || 0)
+      }
+    }
+  }
+};
+/*
+---
+ 
+script: BorderRadius.js
+ 
+description: Set border radius for all the browsers
+ 
+license: Public domain (http://unlicense.org).
+ 
+requires:
+- Core/Element
+ 
+provides: [Element.Properties.borderRadius]
+ 
+...
+*/
+
+
+(function() {
+  if (Browser.safari || Browser.chrome) 
+    var properties = ['webkitBorderTopLeftRadius', 'webkitBorderTopRightRadius', 'webkitBorderBottomRightRadius', 'webkitBorderBottomLeftRadius'];
+  else if (Browser.firefox)
+    var properties = ['MozBorderRadiusTopleft', 'MozBorderRadiusTopright', 'MozBorderRadiusBottomright', 'MozBorderRadiusBottomleft']
+  else
+    var properties = ['borderRadiusTopLeft', 'borderRadiusTopRight', 'borderRadiusBottomRight', 'borderRadiusBottomLeft']
+  
+  Element.Properties.borderRadius = {
+
+  	set: function(radius){
+	    if (radius.each) radius.each(function(value, i) {
+	      this.style[properties[i]] = value + 'px';
+	    }, this);
+  	},
+
+  	get: function(){
+	  
+    }
+
+  };
+
+})();
+/*
+---
+ 
+script: Shadow.js
+ 
+description: Drops outer shadow with offsets. Like a box shadow!
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+- LSD.Layer
+- Ext/Element.Properties.boxShadow
+- Ext/Element.Properties.borderRadius
+ 
+provides: [LSD.Layer.Shadow, LSD.Layer.Shadow.Layer]
+ 
+...
+*/
+
+                              //only gecko & webkit nightlies                                       AppleWebKit/534.1+ (KHTML, ... plus means nightly
+Browser.Features.SVGFilters = Browser.Engine.name == 'gecko' || (Browser.Engine.webkit && navigator.userAgent.indexOf("+ (KHTML") > -1) 
+
+LSD.Layer.Shadow = {
+  
+  properties: {
+    shadow:    ['blur', ['offsetX', 'offsetY'], 'color'],
+    blur:      ['length', 'number'],
+    offsetX:   ['length', 'number'],
+    offsetY:   ['length', 'number'],
+    color:     ['color']
+  },
+  
+  paint: function(color, blur, x, y, stroke, method) {
+    //if (!method) {
+    //  if (this.method) method = method
+    //  if (blur < 4) method = 'onion';
+    //  else if (Browser.Features.boxShadow && this.base.name == 'rectangle') method = 'native';
+    //  else if (Browser.Features.SVGFilters) method = 'blur';
+    //  else method = 'onion'
+    //}
+    //if (this.method && method != this.method) this.eject();
+    //return this.setMethod(method).paint.apply(this, arguments);
+  }
+}
+
+/*
+---
+ 
+script: Shadow.Onion.js
+ 
+description: Draws shadow with layers stack upon each others
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+- LSD.Layer.Shadow
+ 
+provides: [LSD.Layer.Shadow.Onion]
+ 
+...
+*/
+
+LSD.Layer.Shadow.Onion = new Class({
+  //Extends: LSD.Layer.Shadow,
+  
+  paint: function(color, blur, x, y, stroke) {
+    var fill = new Color(color);
+    fill.base = fill.alpha;
+    //var node = this.element.parentNode;
+    var layers = Math.max(blur, 1);
+    for (var i = 0; i < layers; i++) {
+      if (blur == 0) {
+        fill.alpha = Math.min(fill.base * 2, 1)
+      } else {
+        fill.alpha = fill.base / 2 * (i == blur ? .29 : (.2 - blur * 0.017) + Math.sqrt(i / 100));
+      }
+      var rectangle = this.layers[i];
+      if (!rectangle) rectangle = this.layers[i] = LSD.Layer.Shadow.Layer.getInstance(this);
+      rectangle.base = this.base;
+      rectangle.shadow = this;
+      rectangle.produce(stroke / 2 + blur / 2 - i);
+      rectangle.fill(fill);
+    }
+    var length = this.layers.length;
+    for (var i = layers; i < length; i++) if (this.layers[i]) LSD.Layer.Shadow.Layer.release(this.layers[i]);
+    this.layers.splice(layers, length);
+    return {
+      move: {
+        x: x * 1.5, //multiplying by 1.5 is unreliable. I need a better algorithm altogether
+        y: y * 1.5
+      },
+      outside: {
+        left: Math.max(blur - x, 0),
+        top: Math.max(blur - y, 0),
+        right: Math.max(blur + x, 0),
+        bottom: Math.max(blur + y, 0)
+      }
+    }
+  },
+
+  inject: function(node) {
+    this.parent.apply(this, arguments);
+    this.update.apply(this, arguments);
+  },
+  
+  update: function() {
+    for (var i = 0, j = this.layers.length; i < j; i++) if (this.layers[i]) this.layers[i].inject.apply(this.layers[i], arguments);
+  },
+  
+  eject: function() {
+    for (var i = 0, j = this.layers.length; i < j; i++) {
+      var layer = this.layers[i];
+      if (!layer) continue;
+      LSD.Layer.Shadow.Layer.release(layer)
+      if (layer.shape.element.parentNode) layer.shape.element.parentNode.removeChild(layer.shape.element);
+    }
+  },
+
+  translate: function(x, y) {
+    this.parent.apply(this, arguments);
+    for (var i = 0, j = this.layers.length; i < j; i++) 
+      if (this.layers[i]) this.layers[i].translate(x + i + j / 2, y + i + j / 2)
+  }
+});
+
+LSD.Layer.Shadow.Layer = new Class({
+  Extends: LSD.Layer,
+  
+  
+  inject: function(container){
+    this.eject();
+    if (container instanceof ART.SVG.Group) container.children.push(this);
+    this.container = container;
+    var first = container.element.firstChild;
+    if (first) container.element.insertBefore(this.shape.element, first);
+    else container.element.appendChild(this.shape.element);
+    return this;
+  }
+});
+LSD.Layer.Shadow.Layer.stack = [];
+LSD.Layer.Shadow.Layer.getInstance = function() {
+  return LSD.Layer.Shadow.Layer.stack.pop() || (new LSD.Layer.Shadow.Layer);
+};
+LSD.Layer.Shadow.Layer.release = function(layer) {
+  var shape = layer.shape;
+  if (shape) shape.element.parentNode.removeChild(shape.element);
+  LSD.Layer.Shadow.Layer.stack.push(layer);
+};
+
+/*
+---
+ 
+script: Shadow.Blur.js
+ 
+description: SVG Filter powered shadow
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+- LSD.Layer.Shadow
+ 
+provides: [LSD.Layer.Shadow.Blur]
+ 
+...
+*/
+
+LSD.Layer.Shadow.Blur = new Class({
+  //Extends: LSD.Layer.Shadow,
+
+  paint: function(color, blur, x, y, stroke) {
+    this.produce(stroke);
+    this.shape.fill.apply(this.shape, color ? $splat(color) : null);
+    if (blur > 0) this.shape.blur(blur);
+    else this.shape.unblur();
+    return {
+      move: {
+        x: x + blur, 
+        y: y + blur
+      },
+      outside: {
+        left: Math.max(blur - x, 0),
+        top: Math.max(blur - y, 0),
+        right: Math.max(blur + x, 0),
+        bottom: Math.max(blur + y, 0)
+      }
+    }
+  }
+})
+/*
+---
+ 
+script: InnerShadow.js
+ 
+description: Drops inner shadow 
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Layer.Shadow
+ 
+provides: 
+  - LSD.Layer.Shadow.Inset
+ 
+...
+*/
+
+LSD.Layer.InnerShadow = new Class({
+  //Extends: LSD.Layer.Shadow,
+  
+  properties: {
+    required: ['innerShadowColor'],
+    numerical: ['innerShadowBlur', 'innerShadowOffsetX', 'innerShadowOffsetY']
+  },
+
+  paint: function(color, blur, x, y) {
+    var fill = new Color(color);
+    fill.base = fill.alpha;
+    var transition = function(p){
+      return 1 - Math.sin((1 - p) * Math.PI / 2);
+    };
+    var offset = Math.max(Math.abs(x), Math.abs(y));
+    blur += offset;
+    for (var i = 0; i < blur; i++) {
+      if (blur == 0) {
+        fill.alpha = Math.min(fill.base * 2, 1)
+      } else {
+        fill.alpha = fill.base * transition((blur - i) / blur)
+      }
+      var layer = this.layers[i];
+      if (!layer) layer = this.layers[i] = LSD.Layer.InnerShadow.Layer.getInstance(this);
+      layer.layer = this;
+      layer.base = this.base;
+      layer.blur = blur
+      layer.dy = y - x
+      layer.y = Math.max(Math.min(layer.dy, 0) + i, 0);
+      layer.dx = x - y;
+      layer.x = Math.max(Math.min(layer.dx, 0) + i, 0);
+      layer.produce([
+        Math.min(((layer.x > 0) ? ((layer.dx - i < 0) ? 1 : 0.5) * - layer.x  - 0.25 : 0), 0),
+        Math.min(((layer.y > 0) ? (layer.dy + i < 0 ? 1 : 0.5) * - layer.y  - 0.25: 0), 0)
+      ]);
+      layer.stroke(fill, 1);
+    }
+    var length = this.layers.length;
+    for (var i = blur; i < length; i++) if (this.layers[i]) LSD.Layer.InnerShadow.Layer.release(this.layers[i]);
+    this.layers.splice(blur, length);
+  },
+  
+  translate: function(x, y) {
+    this.parent.apply(this, arguments);
+    for (var i = 0, j = this.layers.length; i < j; i++) {
+      var layer = this.layers[i];
+      if (layer) layer.translate(x + layer.x, y + layer.y);
+    }
+  },
+  
+  eject: function() {
+    for (var i = 0, j = this.layers.length; i < j; i++) {
+      var layer = this.layers[i];
+      if (!layer) continue;
+      LSD.Layer.InnerShadow.Layer.release(layer)
+      if (layer.shape.element.parentNode) layer.shape.element.parentNode.removeChild(layer.shape.element);
+    }
+  },
+
+  inject: function(node) {
+    this.parent.apply(this, arguments);
+    this.update.apply(this, arguments);
+  },
+  
+  update: function() {
+    for (var i = 0, j = this.layers.length; i < j; i++) if (this.layers[i]) this.layers[i].inject.apply(this.layers[i], arguments);
+  }
+});
+LSD.Layer.InnerShadow.Layer = new Class({
+  Extends: LSD.Layer
+});
+LSD.Layer.InnerShadow.Layer.stack = [];
+LSD.Layer.InnerShadow.Layer.getInstance = function() {
+  return LSD.Layer.InnerShadow.Layer.stack.pop() || (new LSD.Layer.InnerShadow.Layer);
+}
+LSD.Layer.InnerShadow.Layer.release = function(layer) {
+  layer.element.parentNode.removeChild(layer.element);
+  LSD.Layer.InnerShadow.Layer.stack.push(layer);
+};
+
+/*
+---
+ 
+script: Shadow.Native.js
+ 
+description: CSS powered shadow
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+- LSD.Layer.Shadow
+ 
+provides: [LSD.Layer.Shadow.Native]
+ 
+...
+*/
+
+LSD.Layer.Shadow.Native = new Class({
+  //Extends: LSD.Layer,
+
+  paint: function(color, blur, x, y, stroke) {
+    var widget = this.base.widget;
+    var element = widget.toElement();
+    element.set('borderRadius', widget.getStyle('cornerRadius'));
+    element.set('boxShadow', {color: color, blur: blur, x: x, y: y})
+  },
+  
+  eject: function() {
+    var widget = this.base.widget;
+    var element = widget.element;
+    element.set('boxShadow', false)
+  }
+})
+/*
+---
+ 
+script: Attributes.js
+ 
+description: A mixin that adds support for setting attributes, adding and removing classes and pseudos
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD
+  - Core/Slick.Parser
+ 
+provides: 
+  - LSD.Module.Attributes
+ 
+...
+*/
+
+LSD.Module.Attributes = new Class({
+  
+  initialize: function() {
+    var classes = (this.classes || []).concat(this.options.classes || []);
+    var pseudos = (this.pseudos || []).concat(this.options.pseudos || []);
+    this.classes = new FastArray
+    this.pseudos = new FastArray
+    this.attributes = {}
+    this.parent.apply(this, arguments);
+    if (this.options.attributes) for (var name in this.options.attributes) if (!LSD.Attributes.Ignore[name]) this.attributes[name] = this.options.attributes[name]
+    pseudos.each(function(value) {
+      this.setStateTo(value, true);
+    }, this);
+    for (var attribute in this.attributes) this.setAttribute(attribute, this.attributes[attribute]);
+    classes.each(this.addClass.bind(this));
+  },
+  
+  getAttribute: function(attribute) {
+    switch (attribute) {
+      case "id": return this.options.id || this.identifier;
+      case "class": return this.classes.join(' ');
+      default:   return this.attributes[attribute]
+    }
+  },
+  
+  removeAttribute: function(attribute) {
+    delete this.attributes[attribute];
+    if (this.element) this.element.removeProperty(attribute);
+  },
+
+  setAttribute: function(attribute, value) {
+    if (LSD.Attributes.Ignore[attribute]) return;
+    if (LSD.Attributes.Numeric[attribute]) value = value.toInt();
+    else {
+      var logic = LSD.Attributes.Setter[attribute];
+      if (logic) logic.call(this, value)
+    }
+    if (value === attribute) value = true;
+    if (typeof value != 'string') value = value.toString()  //Slick compat
+    this.attributes[attribute] = value;
+    if (attribute != 'slick:uniqueid')
+    if (this.element) this.element.setProperty(attribute, value);
+  },
+
+  addPseudo: function(pseudo){
+    this.pseudos.include(pseudo);
+  },
+
+  removePseudo: function(pseudo){
+    this.pseudos.erase(pseudo);
+  },
+
+  addClass: function(name) {
+    this.classes.include(name);
+    if (this.element) this.element.addClass(name);
+  },
+
+  removeClass: function(name) {
+    this.classes.erase(name);
+    if (this.element) this.element.removeClass(name);
+  },
+  
+  getAttributeNode: function(attribute) {
+    return {
+      nodeName: attribute,
+      nodeValue: (attribute in this.options.states) || (attribute in this.pseudos) 
+                  ? this.pseudos[attribute] 
+                  : this.getAttribute(attribute)
+    }
+  }
+});
+
+
+LSD.Attributes.Setter = {
+  'class': function(value) {
+    value.split(' ').each(this.addClass.bind(this));
+  },
+  'style': function(value) {
+    value.split(/\s*;\s*/).each(function(definition) {
+      var bits = definition.split(/\s*:\s*/)
+      if (!bits[1]) return;
+      bits[0] = bits[0].camelCase();
+      var integer = bits[1].toInt();
+      if (bits[1].indexOf('px') > -1 || (integer == bits[1])) bits[1] = integer
+      //this.setStyle.apply(this, bits);
+    }, this);
+  },
+  'disabled': function(value) {
+    if (value == false) this.enable()
+    else this.disable();
+  }
+}
+/*
+---
+
+name: Events.Pseudos
+
+description: Adds the functionallity to add pseudo events
+
+license: MIT-style license
+
+authors:
+  - Arian Stolwijk
+
+requires: [Core/Class.Extras, Core/Slick.Parser, More/MooTools.More]
+provides: [Events.Pseudos]
+
+...
+*/
+
+Events.Pseudos = function(pseudos, addEvent, removeEvent){
+
+	var storeKey = 'monitorEvents:';
+
+	var getStorage = function(object){
+				
+		return {
+			store: object.store ? function(key, value){
+				object.store(storeKey + key, value);
+			} : function(key, value){
+				(object.$monitorEvents || (object.$monitorEvents = {}))[key] = value;
+			},
+			retrieve: object.retrieve ? function(key, dflt){
+				return object.retrieve(storeKey + key, dflt);
+			} : function(key, dflt){
+				if (!object.$monitorEvents) return dflt;
+				return object.$monitorEvents[key] || dflt;
+			}
+		};
+	};
+
+	
+	var splitType = function(type){
+		if (type.indexOf(':') == -1) return null;
+		
+		var parsed = Slick.parse(type).expressions[0][0],
+			parsedPseudos = parsed.pseudos;
+		
+		return (pseudos && pseudos[parsedPseudos[0].key]) ? {
+			event: parsed.tag,
+			value: parsedPseudos[0].value,
+			pseudo: parsedPseudos[0].key,
+			original: type
+		} : null;
+	};
+
+	
+	return {
+		
+		addEvent: function(type, fn, internal){
+			var split = splitType(type);
+			if (!split) return addEvent.call(this, type, fn, internal);
+			
+			var storage = getStorage(this);
+			var events = storage.retrieve(type, []);
+					
+			var self = this;
+			var monitor = function(){
+				pseudos[split.pseudo].call(self, split, fn, arguments);
+			};
+			
+			events.include({event: fn, monitor: monitor});
+			storage.store(type, events);
+			
+			return addEvent.call(this, split.event, monitor, internal);
+		},
+		
+		removeEvent: function(type, fn){
+			var split = splitType(type);
+			if (!split) return removeEvent.call(this, type, fn);
+
+			var storage = getStorage(this);
+			var events = storage.retrieve(type);
+
+			if (!events) return this;
+			
+			events.each(function(monitor, i){
+				if (!fn || monitor.event == fn) removeEvent.call(this, split.event, monitor.monitor);
+				delete events[i];
+			}, this);				
+
+			storage.store(type, events);
+			return this;
+		}
+		
+	};
+	
+};
+
+(function(){
+
+	var pseudos = {
+		
+		once: function(split, fn, args){
+			fn.apply(this, args)
+			this.removeEvent(split.original, fn);
+		}
+		
+	};
+	
+	Events.definePseudo = function(key, fn){
+		pseudos[key] = fn;
+	};
+	
+	Events.implement(Events.Pseudos(pseudos, Events.prototype.addEvent, Events.prototype.removeEvent)); 
+
+})();
+
+/*
+---
+
+name: Element.Pseudos
+
+description: Adds the functionallity to add pseudo events for Elements
+
+license: MIT-style license
+
+authors:
+  - Arian Stolwijk
+
+requires: [Core/Element.Event, Events.Pseudos]
+provides: [Element.Pseudos]
+
+...
+*/
+
+(function(){
+
+	var keysStoreKey = '$moo:keys-pressed',
+		keysKeyupStoreKey = '$moo:keys-keyup';
+
+	var pseudos = {
+		
+		once: function(split, fn, args){
+			fn.apply(this, args);
+			this.removeEvent(split.original, fn);
+		},
+		
+		
+		keys: function(split, fn, args){
+			if (split.event != 'keydown') return;
+			
+			var event = args[0],
+				keys = split.value.split('+'),
+				pressed = this.retrieve(keysStoreKey, []);
+			
+			pressed.include(event.key);
+			
+			if (keys.every(function(key){
+				return pressed.contains(key);
+			})) fn.apply(this, args);
+			
+			this.store(keysStoreKey, pressed);
+			
+			
+			if (!this.retrieve(keysKeyupStoreKey)){
+				var keyup = function(){
+					this.store(keysStoreKey, []);
+				};
+				this.store(keysKeyupStoreKey, keyup).addEvent('keyup', keyup);
+			}
+			
+		}
+		
+	};
+	
+	Event.definePseudo = function(key, fn){
+		pseudos[key] = fn;
+	};
+	
+	Element.implement(Events.Pseudos(pseudos, Element.prototype.addEvent, Element.prototype.removeEvent)); 
+
+})();
+
+/*
+---
+
+script: Element.Delegation.js
+
+name: Element.Delegation
+
+description: Extends the Element native object to include the delegate method for more efficient event management.
+
+credits:
+  - "Event checking based on the work of Daniel Steigerwald. License: MIT-style license. Copyright: Copyright (c) 2008 Daniel Steigerwald, daniel.steigerwald.cz"
+
+license: MIT-style license
+
+authors:
+  - Aaron Newton
+  - Daniel Steigerwald
+
+requires: [/MooTools.More, /Element.Pseudos]
+provides: [Element.Delegation]
+
+...
+*/
+
+Event.definePseudo('relay', function(split, fn, args){
+	var event = args[0];
+	for (var target = event.target; target && target != this; target = target.parentNode){
+		if (Slick.match(target, split.value)){
+			var finalTarget = document.id(target);
+			if (finalTarget) fn.apply(finalTarget, [event, finalTarget]);
+			return;
+		}
+	}
+	
+});
 
 /*
 ---
@@ -13517,6 +16541,136 @@ LSD.Module.Events.Targets.expected = function() {
 })();
 /*
 ---
+
+script: Proxies.js
+
+description: Dont adopt children, pass them to some other widget
+
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+  - LSD.Module.Expectations
+
+provides: 
+  - LSD.Trait.Proxies
+
+...
+*/
+
+LSD.Trait.Proxies = new Class({
+  
+  options: {
+    proxies: {}
+  },
+  
+  getProxies: Macro.getter('proxies', function() {
+    var options = this.options.proxies;
+    var proxies = [];
+    for (var name in options) proxies.push(options[name]);
+    return proxies.sort(function(a, b) {
+      return (b.priority || 0) - (a.priority || 0)
+    })
+  }),
+  
+  proxyChild: function(child, proxy) {
+    if (typeof proxy == 'string') proxy = this.options.proxies[proxy];
+    if (!proxy.condition.call(this, child)) return false;
+    var reinject = function(target) {
+      if (proxy.rewrite === false) {
+        this.appendChild(child, function() {
+          target.adopt(child);
+        });
+      } else {
+        child.inject(target);
+      }
+    };
+    var container = proxy.container;
+    if (container.call) {
+      reinject.call(this, container.call(this));
+    } else {
+      this.use(container, reinject.bind(this))
+    }
+    return true;
+  },
+  
+  canAppendChild: function(child) {
+    for (var i = 0, proxies = this.getProxies(), proxy; proxy = proxies[i++];) if (this.proxyChild(child, proxy)) return false;
+    return true;
+  }
+  
+});
+/*
+---
+ 
+script: Command.js
+ 
+description: A command getter that watches attributes to redefine command
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires: 
+  - LSD.Module.Expectations
+  - LSD.Command.Command
+  - LSD.Command.Radio
+  - LSD.Command.Checkbox
+  
+provides: 
+  - LSD.Module.Command
+ 
+...
+*/
+
+/*
+  Usually widget generate a command on its own. 
+  
+  The default type is 'command', but there are possible values of 
+  'radio' and 'checkbox'.
+  
+  Type type can be changed via *options.command.type* 
+  (equals to 'command-type' attribute).
+  
+  You can specify a command id in *command* attribute
+  to link a widget to already initialized command.
+*/
+
+LSD.Module.Command = new Class({
+  options: {
+    command: {},
+    expectations: {
+      '[radiogroup]': ['getCommand', true],
+      '[command]': ['getCommand', true],
+    }
+  },
+
+  getCommand: function(force) {
+    if (!force && this.command) return this.command;
+    if (!this.attributes.command || !this.document.commands) {
+      var options = this.options.command || {};
+      var type = options.type || 'command', command;
+      options = Object.append({id: this.options.id, name: this.attributes.name}, options);
+      if (this.attributes.radiogroup) {
+        options.radiogroup = this.attributes.radiogroup;
+        type = 'radio'
+      };
+      if (!command) command = new LSD.Command[type.capitalize()](this.document, options);
+    } else command = this.document.commands[this.attributes.command];
+    command.attach(this);
+    if (force && this.command) this.command.detach(this);
+    return this.command = command;
+  },
+  
+  click: function() {
+    this.fireEvent('click', arguments);
+    return this.getCommand().click();
+  }
+  
+});
+/*
+---
  
 script: Actions.js
  
@@ -13597,2184 +16751,6 @@ LSD.addEvent('before', function() {
     })
   });
 })
-/*
----
- 
-script: Command.js
- 
-description: A command getter that watches attributes to redefine command
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires: 
-  - LSD.Module.Expectations
-  - LSD.Command.Command
-  - LSD.Command.Radio
-  - LSD.Command.Checkbox
-  
-provides: 
-  - LSD.Module.Command
- 
-...
-*/
-
-/*
-  Usually widget generate a command on its own. 
-  
-  The default type is 'command', but there are possible values of 
-  'radio' and 'checkbox'.
-  
-  Type type can be changed via *options.command.type* 
-  (equals to 'command-type' attribute).
-  
-  You can specify a command id in *command* attribute
-  to link a widget to already initialized command.
-*/
-
-LSD.Module.Command = new Class({
-  options: {
-    command: {},
-    expectations: {
-      '[radiogroup]': ['getCommand', true],
-      '[command]': ['getCommand', true],
-    }
-  },
-
-  getCommand: function(force) {
-    if (!force && this.command) return this.command;
-    if (!this.attributes.command || !this.document.commands) {
-      var options = this.options.command || {};
-      var type = options.type || 'command', command;
-      options = Object.append({id: this.options.id, name: this.attributes.name}, options);
-      if (this.attributes.radiogroup) {
-        options.radiogroup = this.attributes.radiogroup;
-        type = 'radio'
-      };
-      if (!command) command = new LSD.Command[type.capitalize()](this.document, options);
-    } else command = this.document.commands[this.attributes.command];
-    command.attach(this);
-    if (force && this.command) this.command.detach(this);
-    return this.command = command;
-  },
-  
-  click: function() {
-    this.fireEvent('click', arguments);
-    return this.getCommand().click();
-  }
-  
-});
-/*
----
-
-script: Proxies.js
-
-description: Dont adopt children, pass them to some other widget
-
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Module.Expectations
-
-provides: 
-  - LSD.Trait.Proxies
-
-...
-*/
-
-LSD.Trait.Proxies = new Class({
-  
-  options: {
-    proxies: {}
-  },
-  
-  getProxies: Macro.getter('proxies', function() {
-    var options = this.options.proxies;
-    var proxies = [];
-    for (var name in options) proxies.push(options[name]);
-    return proxies.sort(function(a, b) {
-      return (b.priority || 0) - (a.priority || 0)
-    })
-  }),
-  
-  proxyChild: function(child, proxy) {
-    if (typeof proxy == 'string') proxy = this.options.proxies[proxy];
-    if (!proxy.condition.call(this, child)) return false;
-    var reinject = function(target) {
-      if (proxy.rewrite === false) {
-        this.appendChild(child, function() {
-          target.adopt(child);
-        });
-      } else {
-        child.inject(target);
-      }
-    };
-    var container = proxy.container;
-    if (container.call) {
-      reinject.call(this, container.call(this));
-    } else {
-      this.use(container, reinject.bind(this))
-    }
-    return true;
-  },
-  
-  canAppendChild: function(child) {
-    for (var i = 0, proxies = this.getProxies(), proxy; proxy = proxies[i++];) if (this.proxyChild(child, proxy)) return false;
-    return true;
-  }
-  
-});
-/*
----
- 
-script: Resizable.js
- 
-description: Document that redraws children when window gets resized.
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires: 
-  - LSD.Document
-  - LSD.Module.Layout
-  - LSD.Module.Events
-  - LSD.Module.Attributes
- 
-provides:
-  - LSD.Document.Resizable
- 
-...
-*/
-
-LSD.Document.Resizable = new Class({
-	Includes: [
-    LSD.Document,
-    LSD.Module.Layout,
-    LSD.Module.Events,
-    LSD.Module.Attributes
-	],
-	
-	options: {
-  	events: {
-  	  window: {
-  	    resize: 'onResize'
-  	  }
-  	},
-  	root: true
-  },
-
-	initialize: function() {
-	  this.style = {
-	    current: {}
-	  };
-	  this.parent.apply(this, arguments);
-	  this.attach();
-	  this.onResize();
-	},
-	
-	onResize: function() {
-	  Object.append(this.style.current, document.getCoordinates());
-	  this.render()
-	},
-	
-	render: function() {
-		this.childNodes.each(function(child){
-		  child.refresh();
-		});
-	}
-});
-/*
----
- 
-script: Item.js
- 
-description: Methods to get and set microdata closely to html5 spsec
- 
-license: MIT-style license.
- 
-requires:
-- Core/Element
- 
-provides: [Element.prototype.getItems, Element.Properties.item, Element.Microdata]
- 
-...
-*/
-
-[Document, Element].invoke('implement', {
-  getItems: function(tokens) {
-    var selector = '[itemscope]:not([itemprop])';
-    if (tokens) selector += tokens.split(' ').map(function(type) {
-      return '[itemtype~=' + type + ']'
-    }).join('');
-    return this.getElements(selector).each(function(element) {
-      return element.get('item');
-    }).get('item')
-  }
-});
-
-(function() {
-  var push = function(properties, property, value) {
-    var old = properties[property];
-    if (old) { //multiple values, convert to array
-      if (!old.push) properties[property] = [old];
-      properties[property].push(value)
-    } else {
-      properties[property] = value;
-    }
-  }
-
-Element.Properties.properties = {
-  get: function() {
-    var properties = {};
-    var property = this.getProperty('itemprop');
-    if (property) {
-      var value = this.get('itemvalue');
-      if (value) push(properties, property, value)
-    }
-    
-    this.getChildren().each(function(child) {
-      var values = child.get('properties');
-      for (var property in values) push(properties, property, values[property]);
-    });
-    
-    var reference = this.getProperty('itemref');
-    if (reference) {
-      var selector = reference.split(' ').map(function(id) { return '#' + id}).join(', ');
-      $$(selector).each(function(reference) {
-        var values = reference.get('properties');
-        for (var property in values) push(properties, property, values[property]);
-      })
-    }
-    
-    return properties;
-  },
-  
-  set: function(value) {
-    this.getChildren().each(function(child) {
-      var property = child.getProperty('itemprop');
-      if (property) child.set('itemvalue', value[property]);
-      else child.set('properties', value)
-    });
-  }
-};
-
-})();
-
-Element.Properties.item = {
-  get: function() {
-    if (!this.getProperty('itemscope')) return;
-    return this.get('properties');
-  },
-  
-  set: function(value) {
-    if (!this.getProperty('itemscope')) return;
-    return this.set('properties', value);
-  }
-};
-
-(function() {
-
-var resolve = function(url) {
-  if (!url) return '';
-  var img = document.createElement('img');
-  img.setAttribute('src', url);
-  return img.src;
-}
-
-Element.Properties.itemvalue = {
-  get: function() {
-    var property = this.getProperty('itemprop');
-    if (!property) return;
-    var item = this.get('item');
-    if (item) return item;
-    switch (this.get('tag')) {
-      case 'meta':
-        return this.get('content') || '';
-      case 'input':
-      case 'select':
-      case 'textarea':
-        return this.get('value');
-      case 'audio':
-      case 'embed':
-      case 'iframe':
-      case 'img':
-      case 'source':
-      case 'video':
-        return resolve(this.get('src'));
-      case 'a':
-      case 'area':
-      case 'link':
-        return resolve(this.get('href'));
-      case 'object':
-        return resolve(this.get('data'));
-      case 'time':
-        var datetime = this.get('datetime');
-        if (!(datetime === undefined)) return datetime;
-      default:
-        return this.getProperty('itemvalue') || this.get('text');
-    }        
-  },
-
-  set: function(value) {
-    var property = this.getProperty('itemprop');
-    var scope = this.getProperty('itemscope');
-    if (property === undefined) return;
-    else if (scope && Object.type(value[scope])) return this.set('item', value[scope]);
-    
-    switch (this.get('tag')) {
-      case 'meta':
-        return this.set('content', value);
-      case 'audio':
-      case 'embed':
-      case 'iframe':
-      case 'img':
-      case 'source':
-      case 'video':
-        return this.set('src', value);
-      case 'a':
-      case 'area':
-      case 'link':
-        return this.set('href', value);
-      case 'object':
-        return this.set('data', value);
-      case 'time':
-        var datetime = this.get('datetime');
-        if (!(datetime === undefined)) this.set('datetime', value)
-      default:
-        return this.set('html', value);
-    }
-  }
-}
-
-})();
-/*
----
- 
-script: List.js
- 
-description: Trait that makes it simple to work with a list of item (and select one of them)
- 
-license: Public domain (http://unlicense.org).
- 
-requires:
-  - LSD
-  - Core/Element
-  - Ext/Element.Properties.item
- 
-provides: 
-  - LSD.Trait.List
- 
-...
-*/
-
-
-LSD.Trait.List = new Class({  
-  options: {
-    list: {
-      endless: true,
-      force: false
-    },
-    proxies: {
-      container: {
-        condition: function(widget) {
-          return !!widget.setList
-        }
-      }
-    },
-    shortcuts: {
-      previous: 'previous',
-      next: 'next'
-    }
-  },
-  
-  list: [],
-  items: [],
-  
-  attach: Macro.onion(function() {  
-    var items = this.items.length ? this.items : this.options.list.items;
-    if (items) {
-      this.setItems(items);
-    }
-  }),
-  
-  selectItem: function(item) {
-    if (item && !item.render) item = this.findItemByValue(item);
-    if (!item && this.options.list.force) return false;
-    var selected = this.selectedItem;
-    this.setSelectedItem.apply(this, arguments); 
-    if ((selected != item) && selected && selected.unselect) selected.unselect();
-    item.select();
-    return item;
-  },
-  
-  unselectItem: function(item) {
-    if (this.selectedItem) {
-      if (this.selectedItem.unselect) this.selectedItem.unselect();
-      delete this.selectedItem;
-    }
-  },
-  
-  setSelectedItem: function(item) {
-    this.selectedItem = item;
-    this.fireEvent('set', [item, this.getItemIndex()]);
-  },
-  
-  buildItem: Macro.defaults(function(value) {
-    return new Element('div', {
-      'class': 'lsd option', 
-      'html': value.toString(), 
-      'events': {
-        click: function() {
-          this.selectItem(value);
-        }.bind(this)
-      }
-    });
-  }),
-  
-  setItems: function(items) {
-    this.items = [];
-    this.list = [];
-    items.each(this.addItem.bind(this));
-    if (this.options.list.force) this.selectItem(items[0]);
-    return this;
-  },
-  
-  addItem: function(item) {
-    if (item.setList) var data = item.getValue(), widget = item, item = data;
-    if (!this.items.contains(item)) {
-      this.items.push(item);
-      if (widget) {
-        widget.listWidget = this;
-        this.list.push(widget);
-      }
-      return true;
-    }
-    return false;
-  },
-  
-  makeItems: function() {
-    var item, i = this.list.length;
-    while (item = this.items[i++]) this.makeItem(item);
-  },
-	
-  makeItem: function(item) {
-    var widget = this.buildItem.apply(this, arguments);
-    widget.item = widget.value = item;
-    if (widget.setContent) widget.setContent(item)
-    else widget.set('html', item.toString());
-    return widget;
-  },
-  
-  getItems: function() {
-    return this.items;
-  },
-  
-  hasItems: function() {
-    return this.getItems() && (this.getItems().length > 0)
-  },
-  
-  getSelectedItem: function() {
-    return this.selectedItem;
-  },
-  
-  getItemIndex: function(item) {
-    return this.getItems().indexOf(item || this.selectedItem);
-  },
-  
-  findItemByValue: function(value) {
-    for (var i = 0, j = this.list.length; i < j; i++) {
-      if (this.list[i].value == value) return this.list[i];
-    }
-    return null;
-  },
-  
-  getItemValue: function(item) {
-    for (var i = 0, j = this.list.length; i < j; i++) {
-      if (this.list[i] == item) return this.items[i];
-    }
-    return null;
-  },
-  
-  getActiveItem: function() {
-    var active = (this.chosenItem || this.selectedItem);
-    return active ? active.value : null;
-  },
-
-  next: function(e) {
-    this.makeItems();
-    var next = this.getItems()[this.getItemIndex(this.getActiveItem()) + 1];
-    if (!next && this.options.list.endless) next = this.getItems()[0];
-    if (this.selectItem(next, true, !!e)) {
-      if (e && e.stop) e.stop();
-      return !!this.fireEvent('next', [next]);
-    }
-    return false;
-  },
-
-  previous: function(e) {
-    this.makeItems();
-    var previous = this.getItems()[this.getItemIndex(this.getActiveItem()) - 1];
-    if (!previous && this.options.list.endless) previous = this.getItems().getLast();
-    if (this.selectItem(previous, true)) {
-      if (e && e.stop) e.stop();
-      return !!this.fireEvent('previous', [previous]);
-    }
-    return false;
-  }
-  
-});
-/*
----
- 
-script: Choice.js
- 
-description: Trait that completes List. Allows one item to be chosen and one selected (think navigating to a menu item to select)
- 
-license: Public domain (http://unlicense.org).
- 
-requires:
-  - LSD.Trait.List
- 
-provides: 
-  - LSD.Trait.Choice
- 
-...
-*/
-
-
-LSD.Trait.Choice = new Class({
-  
-  selectItem: function(item, temp) {
-    if (temp !== true) return this.parent.apply(this, arguments)
-    if (item && !item.render) item = this.findItemByValue(item);
-    if (!item && this.options.list.force) return false;
-    
-    var chosen = this.chosenItem;
-    this.setSelectedItem.apply(this, arguments);
-    if (item.choose() && chosen) chosen.forget();
-    return item;
-  },
-  
-  forgetChosenItem: function() {
-    if (this.chosenItem) this.chosenItem.forget();
-    delete this.chosenItem;
-  },
-  
-  setSelectedItem: function(item, temp) {
-    if (!temp) return this.parent.apply(this, arguments);
-    this.chosenItem = item;
-    this.fireEvent('choose', [item, this.getItemIndex()]);
-    return item;
-  },
-  
-  selectChosenItem: function() {
-    return this.selectItem(this.chosenItem)
-  },
-  
-  getSelectedOptionPosition: function() {
-    var height = 0;
-    if (!this.selectedItem) return height;
-    for (var i = 0, j = this.list.length; i < j; i++) {
-      if (this.list[i] == this.selectedItem) break;
-      height += this.list[i].getLayoutHeight();
-    }
-    return height
-  }
-});
-/*
----
- 
-script: BorderRadius.js
- 
-description: Set border radius for all the browsers
- 
-license: Public domain (http://unlicense.org).
- 
-requires:
-- Core/Element
- 
-provides: [Element.Properties.borderRadius]
- 
-...
-*/
-
-
-(function() {
-  if (Browser.safari || Browser.chrome) 
-    var properties = ['webkitBorderTopLeftRadius', 'webkitBorderTopRightRadius', 'webkitBorderBottomRightRadius', 'webkitBorderBottomLeftRadius'];
-  else if (Browser.firefox)
-    var properties = ['MozBorderRadiusTopleft', 'MozBorderRadiusTopright', 'MozBorderRadiusBottomright', 'MozBorderRadiusBottomleft']
-  else
-    var properties = ['borderRadiusTopLeft', 'borderRadiusTopRight', 'borderRadiusBottomRight', 'borderRadiusBottomLeft']
-  
-  Element.Properties.borderRadius = {
-
-  	set: function(radius){
-	    if (radius.each) radius.each(function(value, i) {
-	      this.style[properties[i]] = value + 'px';
-	    }, this);
-  	},
-
-  	get: function(){
-	  
-    }
-
-  };
-
-})();
-/*
----
-
-name: Request
-
-description: Powerful all purpose Request Class. Uses XMLHTTPRequest.
-
-license: MIT-style license.
-
-requires: [Object, Element, Chain, Events, Options, Browser]
-
-provides: Request
-
-...
-*/
-
-(function(){
-
-var progressSupport = ('onprogress' in new Browser.Request);
-
-var Request = this.Request = new Class({
-
-	Implements: [Chain, Events, Options],
-
-	options: {/*
-		onRequest: function(){},
-		onLoadstart: function(event, xhr){},
-		onProgress: function(event, xhr){},
-		onComplete: function(){},
-		onCancel: function(){},
-		onSuccess: function(responseText, responseXML){},
-		onFailure: function(xhr){},
-		onException: function(headerName, value){},
-		onTimeout: function(){},
-		user: '',
-		password: '',*/
-		url: '',
-		data: '',
-		headers: {
-			'X-Requested-With': 'XMLHttpRequest',
-			'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
-		},
-		async: true,
-		format: false,
-		method: 'post',
-		link: 'ignore',
-		isSuccess: null,
-		emulation: true,
-		urlEncoded: true,
-		encoding: 'utf-8',
-		evalScripts: false,
-		evalResponse: false,
-		timeout: 0,
-		noCache: false
-	},
-
-	initialize: function(options){
-		this.xhr = new Browser.Request();
-		this.setOptions(options);
-		this.headers = this.options.headers;
-	},
-
-	onStateChange: function(){
-		var xhr = this.xhr;
-		if (xhr.readyState != 4 || !this.running) return;
-		this.running = false;
-		this.status = 0;
-		Function.attempt(function(){
-			var status = xhr.status;
-			this.status = (status == 1223) ? 204 : status;
-		}.bind(this));
-		xhr.onreadystatechange = function(){};
-		clearTimeout(this.timer);
-		
-		this.response = {text: this.xhr.responseText || '', xml: this.xhr.responseXML};
-		if (this.options.isSuccess.call(this, this.status))
-			this.success(this.response.text, this.response.xml);
-		else
-			this.failure();
-	},
-
-	isSuccess: function(){
-		var status = this.status;
-		return (status >= 200 && status < 300);
-	},
-
-	isRunning: function(){
-		return !!this.running;
-	},
-
-	processScripts: function(text){
-		if (this.options.evalResponse || (/(ecma|java)script/).test(this.getHeader('Content-type'))) return Browser.exec(text);
-		return text.stripScripts(this.options.evalScripts);
-	},
-
-	success: function(text, xml){
-		this.onSuccess(this.processScripts(text), xml);
-	},
-
-	onSuccess: function(){
-		this.fireEvent('complete', arguments).fireEvent('success', arguments).callChain();
-	},
-
-	failure: function(){
-		this.onFailure();
-	},
-
-	onFailure: function(){
-		this.fireEvent('complete').fireEvent('failure', this.xhr);
-	},
-	
-	loadstart: function(event){
-		this.fireEvent('loadstart', [event, this.xhr]);
-	},
-	
-	progress: function(event){
-		this.fireEvent('progress', [event, this.xhr]);
-	},
-	
-	timeout: function(){
-		this.fireEvent('timeout', this.xhr);
-	},
-
-	setHeader: function(name, value){
-		this.headers[name] = value;
-		return this;
-	},
-
-	getHeader: function(name){
-		return Function.attempt(function(){
-			return this.xhr.getResponseHeader(name);
-		}.bind(this));
-	},
-
-	check: function(){
-		if (!this.running) return true;
-		switch (this.options.link){
-			case 'cancel': this.cancel(); return true;
-			case 'chain': this.chain(this.caller.pass(arguments, this)); return false;
-		}
-		return false;
-	},
-	
-	send: function(options){
-		if (!this.check(options)) return this;
-
-		this.options.isSuccess = this.options.isSuccess || this.isSuccess;
-		this.running = true;
-
-		var type = typeOf(options);
-		if (type == 'string' || type == 'element') options = {data: options};
-
-		var old = this.options;
-		options = Object.append({data: old.data, url: old.url, method: old.method}, options);
-		var data = options.data, url = String(options.url), method = options.method.toLowerCase();
-
-		switch (typeOf(data)){
-			case 'element': data = document.id(data).toQueryString(); break;
-			case 'object': case 'hash': data = Object.toQueryString(data);
-		}
-
-		if (this.options.format){
-			var format = 'format=' + this.options.format;
-			data = (data) ? format + '&' + data : format;
-		}
-
-		if (this.options.emulation && !['get', 'post'].contains(method)){
-			var _method = '_method=' + method;
-			data = (data) ? _method + '&' + data : _method;
-			method = 'post';
-		}
-
-		if (this.options.urlEncoded && ['post', 'put'].contains(method)){
-			var encoding = (this.options.encoding) ? '; charset=' + this.options.encoding : '';
-			this.headers['Content-type'] = 'application/x-www-form-urlencoded' + encoding;
-		}
-
-		if (!url) url = document.location.pathname;
-		
-		var trimPosition = url.lastIndexOf('/');
-		if (trimPosition > -1 && (trimPosition = url.indexOf('#')) > -1) url = url.substr(0, trimPosition);
-
-		if (this.options.noCache)
-			url += (url.contains('?') ? '&' : '?') + String.uniqueID();
-
-		if (data && method == 'get'){
-			url += (url.contains('?') ? '&' : '?') + data;
-			data = null;
-		}
-
-		var xhr = this.xhr;
-		if (progressSupport){
-			xhr.onloadstart = this.loadstart.bind(this);
-			xhr.onprogress = this.progress.bind(this);
-		}
-
-		xhr.open(method.toUpperCase(), url, this.options.async, this.options.user, this.options.password);
-		if (this.options.user && 'withCredentials' in xhr) xhr.withCredentials = true;
-		
-		xhr.onreadystatechange = this.onStateChange.bind(this);
-
-		Object.each(this.headers, function(value, key){
-			try {
-				xhr.setRequestHeader(key, value);
-			} catch (e){
-				this.fireEvent('exception', [key, value]);
-			}
-		}, this);
-
-		this.fireEvent('request');
-		xhr.send(data);
-		if (!this.options.async) this.onStateChange();
-		if (this.options.timeout) this.timer = this.timeout.delay(this.options.timeout, this);
-		return this;
-	},
-
-	cancel: function(){
-		if (!this.running) return this;
-		this.running = false;
-		var xhr = this.xhr;
-		xhr.abort();
-		clearTimeout(this.timer);
-		xhr.onreadystatechange = xhr.onprogress = xhr.onloadstart = function(){};
-		this.xhr = new Browser.Request();
-		this.fireEvent('cancel');
-		return this;
-	}
-
-});
-
-var methods = {};
-['get', 'post', 'put', 'delete', 'GET', 'POST', 'PUT', 'DELETE'].each(function(method){
-	methods[method] = function(data){
-		var object = {
-			method: method
-		};
-		if (data != null) object.data = data;
-		return this.send(object);
-	};
-});
-
-Request.implement(methods);
-
-Element.Properties.send = {
-
-	set: function(options){
-		var send = this.get('send').cancel();
-		send.setOptions(options);
-		return this;
-	},
-
-	get: function(){
-		var send = this.retrieve('send');
-		if (!send){
-			send = new Request({
-				data: this, link: 'cancel', method: this.get('method') || 'post', url: this.get('action')
-			});
-			this.store('send', send);
-		}
-		return send;
-	}
-
-};
-
-Element.implement({
-
-	send: function(url){
-		var sender = this.get('send');
-		sender.send({data: this, url: url || sender.options.url});
-		return this;
-	}
-
-});
-
-})();
-/*
----
-name : sg-regex-tools
-description : A few super-handy tools for messing around with RegExp
-
-authors   : Thomas Aylott
-copyright : © 2010 Thomas Aylott
-license   : MIT
-
-provides : [combineRegExp]
-...
-*/
-;(function(exports){
-
-exports.combineRegExp = function(regex, group){
-	if (regex.source) regex = [regex]
-	
-	var names = [], i, source = '', this_source
-	
-	for (i = 0; i < regex.length; ++i){ if (!regex[i]) continue
-		this_source = regex[i].source || ''+regex[i]
-		if (this_source == '|') source += '|'
-		else {
-			source += (group?'(':'') + this_source.replace(/\s/g,'') + (group?')':'')
-			if (group) names.push(group)
-		}
-		if (regex[i].names)	names = names.concat(regex[i].names)
-	}
-	try {
-		regex = new RegExp(source,'gm')
-	}
-	catch (e){
-		throw new SyntaxError('Invalid Syntax: ' + source +'; '+ e)
-	}
-	// [key] → 1
-	for (i = -1; i < names.length; ++i) names[names[i]] = i + 1
-	// [1] → key
-	regex.names = names
-	return regex
-}
-
-}(typeof exports != 'undefined' ? exports : this))
-
-/*
----
-name    : SheetParser.CSS
-
-authors   : Thomas Aylott
-copyright : © 2010 Thomas Aylott
-license   : MIT
-
-provides : SheetParser.CSS
-requires : combineRegExp
-...
-*/
-;(function(exports){
-	
-
-/*<depend>*/
-var UNDEF = {undefined:1}
-if (!exports.SheetParser) exports.SheetParser = {}
-
-/*<CommonJS>*/
-var combineRegExp = UNDEF[typeof require]
-	?	exports.combineRegExp
-	:	require('./sg-regex-tools').combineRegExp
-var SheetParser = exports.SheetParser
-/*</CommonJS>*/
-
-/*<debug>*/;if (UNDEF[typeof combineRegExp]) throw new Error('Missing required function: "combineRegExp"');/*</debug>*/
-/*</depend>*/
-
-
-var CSS = SheetParser.CSS = {version: '1.0.2 dev'}
-
-CSS.trim = trim
-function trim(str){
-	// http://blog.stevenlevithan.com/archives/faster-trim-javascript
-	var	str = (''+str).replace(/^\s\s*/, ''),
-		ws = /\s/,
-		i = str.length;
-	while (ws.test(str.charAt(--i)));
-	return str.slice(0, i + 1);
-}
-
-CSS.camelCase = function(string){
-	return ('' + string).replace(camelCaseSearch, camelCaseReplace)
-}
-var camelCaseSearch = /-\D/g
-function camelCaseReplace(match){
-	return match.charAt(1).toUpperCase()
-}
-
-CSS.parse = function(cssText){
-	var	found
-	,	rule
-	,	rules = {length:0}
-	,	keyIndex = -1
-	,	regex = this.parser
-	,	names = CSS.parser.names
-	,	i,r,l
-	,	ruleCount
-	
-	rules.cssText = cssText = trim(cssText)
-	
-	// strip comments
-	cssText = cssText.replace(CSS.comment, '');
-	
-	regex.lastIndex = 0
-	while ((found = regex.exec(cssText))){
-		// avoid an infinite loop on zero-length keys
-		if (regex.lastIndex == found.index) ++ regex.lastIndex
-		
-		// key:value
-		if (found[names._key]){
-			rules[rules.length ++] = found[names._key]
-			rules[found[names._key]] = found[names._value]
-			rules[CSS.camelCase(found[names._key])] = found[names._value]
-			continue
-		}
-		
-		rules[rules.length++] = rule = {}
-		for (i = 0, l = names.length; i < l; ++i){
-			if (!(names[i-1] && found[i])) continue
-			rule[names[i-1]] = trim(found[i])
-		}
-	}
-	
-	var atKey, atRule, atList, atI
-	for (i = 0, l = rules.length; i < l; ++i){
-		if (!rules[i]) continue
-		
-		if (rules[i]._style_cssText){
-			rules[i].style = CSS.parse(rules[i]._style_cssText)
-			delete rules[i]._style_cssText
-		}
-		
-		// _atKey/_atValue
-		if (atKey = rules[i]._atKey){
-			atKey = CSS.camelCase(atKey)
-			atRule = {length:0}
-			rules[i][atKey] = atRule
-			atRule["_source"] =
-			atRule[atKey + "Text"] = rules[i]._atValue
-			atList = ('' + rules[i]._atValue).split(/,\s*/)
-			for (atI = 0; atI < atList.length; ++atI){
-				atRule[atRule.length ++] = atList[atI]
-			}
-			rules[i].length = 1
-			rules[i][0] = atKey
-			delete rules[i]._atKey
-			delete rules[i]._atValue
-		}
-		
-		if (rules[i].style)
-		for (ruleCount = -1, r = -1, rule; rule = rules[i].style[++r];){
-			if (typeof rule == 'string') continue
-			rules[i][r] = (rules[i].cssRules || (rules[i].cssRules = {}))[++ ruleCount]  = rule
-			rules[i].cssRules.length = ruleCount + 1
-			rules[i].rules = rules[i].cssRules
-		}
-	}
-	
-	return rules
-}
-
-var x = combineRegExp
-var OR = '|'
-
-;(CSS.at = x(/\s*@([-a-zA-Z0-9]+)\s+(([\w-]+)?[^;{]*)/))
-.names=[         '_atKey',           '_atValue', 'name']
-
-CSS.atRule = x([CSS.at, ';'])
-
-;(CSS.keyValue_key = x(/([-a-zA-Z0-9]+)/))
-.names=[                '_key']
-
-;(CSS.keyValue_value_end = x(/(?:;|(?=\})|$)/))
-
-;(CSS.notString = x(/[^"']+/))
-;(CSS.stringSingle = x(/"(?:[^"]|\\")*"/))
-;(CSS.stringDouble = x(/'(?:[^']|\\')*'/))
-;(CSS.string = x(['(?:',CSS.stringSingle ,OR, CSS.stringDouble,')']))
-;(CSS.propertyValue = x([/[^;}]+/, CSS.keyValue_value_end]))
-
-var rRound = "(?:[^()]|\\((?:[^()]|\\((?:[^()]|\\((?:[^()]|\\([^()]*\\))*\\))*\\))*\\))"
-
-;(CSS.keyValue_value = x(
-[
-	x(['((?:'
-	,	CSS.stringSingle
-	,	OR
-	,	CSS.stringDouble
-	,	OR
-	,	"\\("+rRound+"*\\)"
-	,	OR
-	,	/[^;}()]/ // not a keyValue_value terminator
-	,	')*)'
-	])
-,	CSS.keyValue_value_end
-])).names = ['_value']
-
-;(CSS.keyValue = x([CSS.keyValue_key ,/\s*:\s*/, CSS.keyValue_value]))
-
-;(CSS.comment = x(/\/\*\s*((?:[^*]|\*(?!\/))*)\s*\*\//))
-.names=[                   'comment']
-
-;(CSS.selector = x(['(',/\s*(\d+%)\s*/,OR,'(?:',/[^{}'"()]|\([^)]*\)|\[[^\]]*\]/,')+',')']))
-.names=[    'selectorText','keyText']
-
-var rCurly = "(?:[^{}]|\\{(?:[^{}]|\\{(?:[^{}]|\\{(?:[^{}]|\\{[^{}]*\\})*\\})*\\})*\\})"
-var rCurlyRound = "(?:[^{}()]+|\\{(?:[^{}()]+|\\{(?:[^{}()]+|\\{(?:[^{}()]+|\\{[^{}()]*\\})*\\})*\\})*\\})"
-
-;(CSS.block = x("\\{\\s*((?:"+"\\("+rRound+"*\\)|"+rCurly+")*)\\s*\\}"))
-.names=[              '_style_cssText']
-
-CSS.selectorBlock = x([CSS.selector, CSS.block])
-
-CSS.atBlock = x([CSS.at, CSS.block])
-
-CSS.parser = x
-(
-	[	x(CSS.comment)
-	,	OR
-	,	x(CSS.atBlock)
-	,	OR
-	,	x(CSS.atRule)
-	,	OR
-	,	x(CSS.selectorBlock)
-	,	OR
-	,	x(CSS.keyValue)
-	]
-,	'cssText'
-);
-
-
-})(typeof exports != 'undefined' ? exports : this);
-
-/*
----
-name    : SheetParser.Value
-
-authors   : Yaroslaff Fedin
-
-license   : MIT
-
-requires : SheetParser.CSS
-
-provides : SheetParser.Value
-...
-*/
-
-
-(function(exports) {
-  /*<CommonJS>*/
-  var combineRegExp = (typeof require == 'undefined')
-    ?  exports.combineRegExp
-    :  require('./sg-regex-tools').combineRegExp
-  var SheetParser = exports.SheetParser
-  /*</CommonJS>*/
-  
-  var Value = SheetParser.Value = {version: '1.0.2 dev'};
-  
-  Value.translate = function(value) {
-    var found, result = [], matched = [], scope = result, func, text;
-    var regex = Value.tokenize;
-    var names = regex.names;
-    while (found = regex.exec(value)) matched.push(found);
-    for (var i = 0; found = matched[i++];) {
-      if (func = found[names['function']]) {
-        var obj = {};
-        var translated = obj[found[names['function']]] = Value.translate(found[names._arguments]);
-        for (var j = 0, bit; bit = translated[j]; j++) if (bit && bit.length == 1) translated[j] = bit[0];
-        scope.push(obj);
-      } else if (found[names.comma]) {
-        if (!result[0].push) result = [result];
-        result.push(scope = []);
-      } else if (found[names.whitespace]) {
-        var length = scope.length;
-        if (length && (scope == result) && !scope[length - 1].push) scope = scope[length - 1] = [scope[length - 1]];
-        
-      } else if (text = (found[names.dstring] || found[names.sstring])) {
-        scope.push(text)
-      } else if (text = found[names.token]) {
-        if (!text.match(Value.hex)) {
-          var match = Value.length.exec(text);
-          Value.length.lastIndex = 0;
-          if (match) {
-            var number = parseFloat(match[1]);
-            text = match[2] ? {number: number, unit: match[2]} : number;
-          } else if (!text.match(Value.keyword)) return false;
-        }
-        scope.push(text);
-      }
-    }
-    return result.length == 1 ? result[0] : result;
-  }
-  
-  var x = combineRegExp
-  var OR = '|'
-  var rRound = "(?:[^()]|\\((?:[^()]|\\((?:[^()]|\\((?:[^()]|\\([^()]*\\))*\\))*\\))*\\))";
-
-  ;(Value.stringDouble = x(/"((?:[^"]|\\")*)"/)).names = ['dstring']
-  ;(Value.stringSingle = x(/'((?:[^']|\\')*)'/)).names = ['sstring']
-  ;(Value.string = x([Value.stringSingle, OR, Value.stringDouble]))
-  ;(Value.keyword = x(/[-a-zA-Z0-9]+/, "keyword"))
-  ;(Value.token = x(/[^$,\s\/)]+/, "token"))
-  
-  ;(Value['function'] = x("([-a-zA-Z0-9]+)\\((" + rRound + "*)\\)"))
-  .names = [               'function',       '_arguments']
-  
-  ;(Value.integer = x(/-?\d+/))
-  ;(Value.float = x(/-?\d+\.\d*/))
-  ;(Value.number = x(['(', Value.float,  OR, Value.integer, ')']))
-  .names = [           'number']
-
-  ;(Value.unit = x(/em|px|pt|%|fr/, 'unit'))
-  ;(Value.length = x(['^', Value.number, Value.unit, "?$"]))
-  ;(Value.direction = x(/top|left|bottom|right|center/, 'direction'))
-  ;(Value.position = x([Value.length, OR, Value.direction]))
-
-  ;(Value.hex = x(/#[0-9a-z]+/, 'hex'))
-
-  ;(Value.comma = x(/\s*,\s*/, 'comma'))
-  ;(Value.whitespace = x(/\s+/, 'whitespace'))
-  ;(Value.slash = x(/\//, 'slash'))
-
-
-  Value.tokenize = x
-  (
-    [ x(Value['function']),
-    , OR
-    , x(Value.comma)
-    , OR
-    , x(Value.whitespace)
-    , OR
-    , x(Value.slash)
-    , OR
-    , x(Value.string)
-    , OR
-    , x(Value.token)
-    ]
-  )
-  
-})(typeof exports != 'undefined' ? exports : this);
-/*
----
-name    : Sheet
-
-authors   : Thomas Aylott
-copyright : © 2010 Thomas Aylott
-license   : MIT
-
-provides : Sheet
-requires : SheetParser.CSS
-...
-*/
-;(function(exports){
-
-
-/*<depend>*/
-var UNDEF = {undefined:1}
-
-/*<CommonJS>*/
-var SheetParser = UNDEF[typeof require]
-	?	exports.SheetParser
-	:	require('./SheetParser.CSS').SheetParser
-
-exports.Sheet = Sheet
-/*</CommonJS>*/
-
-/*<debug>*/;if (!(!UNDEF[typeof SheetParser] && SheetParser.CSS)) throw new Error('Missing required function: "SheetParser.CSS"');/*</debug>*/
-/*</depend>*/
-
-
-Sheet.version = '1.0.2 dev'
-
-function Sheet(cssText){
-	if (this instanceof Sheet) this.initialize(cssText)
-	else return Sheet.from(cssText)
-}
-
-Sheet.from = function(cssText){
-	return new Sheet(cssText)
-}
-
-Sheet.prototype = {
-	
-	parser: SheetParser.CSS,
-	
-	initialize: function(cssText){
-		this.cssText = cssText || ''
-		this.style = this.rules = this.cssRules = this.parser.parse(this.cssText)
-		var self = this
-	},
-	
-	update: function(){
-		var cssText = '',
-			i = -1,
-			rule,
-			rules = this.style || this.rules || this.cssRules
-		
-		while ((rule = rules[++i])){
-			if (typeof rule == 'object'){
-				// cssRule
-				if (this.update) rule.cssText = this.update.call(rule)
-				cssText += rule.cssText = rule.selectorText + '{' + rule.cssText + '}'
-			} else {
-				// style key/value
-				cssText += rule + ':'
-				cssText += rules[rule] + ';'
-			}
-		}
-		
-		if (rules.selectorText)
-			return rules.cssText = rules.selectorText + '{' + cssText + '}'
-		return rules.cssText = cssText
-	}
-	
-}
-
-Sheet.prototype.toString = Sheet.prototype.update
-
-
-}(typeof exports != 'undefined' ? exports : this));
-
-/*
----
-name    : SheetParser.Property
-
-authors   : Yaroslaff Fedin
-
-license   : MIT
-
-requires : SheetParser.CSS
-
-provides : SheetParser.Property
-...
-*/
-
-
-(function(exports) {
-  /*<CommonJS>*/
-  var combineRegExp = (typeof require == 'undefined')
-    ?  exports.combineRegExp
-    :  require('./sg-regex-tools').combineRegExp
-  var SheetParser = exports.SheetParser
-  /*</CommonJS>*/
-  
-  var Property = SheetParser.Property = {version: '0.2 dev'};
-  
-  /*
-    Finds optional groups in expressions and builds keyword
-    indecies for them. Keyword index is an object that has
-    keywords as keys and values as property names.
-    
-    Index only holds keywords that can be uniquely identified
-    as one of the properties in group.
-  */
-  
-  Property.index = function(properties, context) {
-    var index = {};
-    for (var i = 0, property; property = properties[i]; i++) {
-      if (property.push) {
-        var group = index[i] = {};
-        for (var j = 0, prop; prop = property[j]; j++) {
-          var keys = context[prop].keywords;
-          if (keys) for (var key in keys) {
-            if (group[key] == null) group[key] = prop;
-            else group[key] = false;
-          }
-        }
-        for (var keyword in group) if (!group[keyword]) delete group[keyword];
-      }
-    }
-    return index;
-  };
-  
-  /*
-    Simple value 
-  */
-
-  Property.simple = function(types, keywords) {
-    return function(value) {
-      if (keywords && keywords[value]) return true;
-      if (types) for (var i = 0, type; type = types[i++];) if (Type[type](value)) return true;
-      return false;
-    }
-  };
-  
-  /*
-    Links list of inambigous arguments with corresponding properties keeping
-    the order.
-  */
-  
-  Property.shorthand = function(properties, keywords, context) {
-    var index, r = 0;
-    for (var i = 0, property; property = properties[i++];) if (!property.push) r++;
-    return function() {
-      var result = [], used = {}, start = 0, group, k = 0, l = arguments.length;
-      for (var i = 0, argument; argument = arguments[i]; i++) {
-        var property = properties[k];
-        if (!property) return false;
-        if ((group = (property.push && property))) property = properties[k + 1];
-        if (property) {
-          if (context[property](argument)) k++
-          else property = false
-        }
-        if (group) {
-          if (!property) {
-            if (!index) index = Property.index(properties, context)
-            if (property = index[k][argument])
-              if (used[property]) return false;
-              else used[property] = 1;
-          }
-          if ((property && !used[property]) || (i == l - 1)) {
-            if (i - start > group.length) return false;
-            for (var j = start; j < (i + +!property); j++) 
-              if (!result[j])
-                for (var m = 0, optional; optional = group[m++];) {
-                  if (!used[optional] && context[optional](arguments[j])) {
-                    result[j] = optional;
-                    used[optional] = true
-                    break;
-                  }
-                }
-            start = i;
-            k++;
-          }
-        }
-        if (result[i] == null) result[i] = property;
-      }
-      if (i < r) return false
-      for (var i = 0, j = arguments.length, object = {}; i < j; i++) {
-        var value = result[i];
-        if (!value) return false;
-        object[value] = arguments[i];
-      }
-      return object;
-    };
-  }
-
-  /*
-    A shorthand that operates on collection of properties. When given values
-    are not enough (less than properties in collection), the value sequence
-    is repeated until all properties are filled.     
-  */
-
-  Property.collection = function(properties, keywords, context) {
-    var first = context[properties[0]];
-    if (first.type != 'simple') 
-      return function(arg) {
-        var args = (!arg || !arg.push) ? [Array.prototype.slice.call(arguments)] : arguments;
-        var length = args.length;
-        var result = {};
-        for (var i = 0, property; property = properties[i]; i++) {
-          var values = context[property].apply(1, args[i] || args[i % 2] || args[0]);
-          if (!values) return false;
-          for (var prop in values) result[prop] = values[prop];
-        }
-        return result;
-      }
-    else
-      return function() {
-        var length = arguments.length;
-        var result = {};
-        for (var i = 0, property; property = properties[i]; i++) {
-          var values = arguments[i] || arguments[i % 2] || arguments[0];
-          if (!context[property].call(1, values)) return false;
-          result[property] = values;
-        }
-        return result;
-      }
-  };
-  
-  /* 
-    Multiple value property accepts arrays as arguments
-    as well as regular stuff
-  */
-  
-  Property.multiple = function(arg) {
-    //if (arg.push)
-  }
-  
-  Property.compile = function(definition, context) {
-    var properties, keywords, types;
-    for (var i = 0, bit; bit = definition[i++];) {
-      if (bit.push) properties = bit;
-      else if (bit.indexOf) {
-        if (!Type[bit]) {
-          if (!keywords) keywords = {};
-          keywords[bit] = 1;
-        } else types ? types.push(bit) : (types = [bit]);
-      } else options = bit;
-    }
-    var type = properties ? (keywords && keywords.collection ? "collection" : "shorthand") : 'simple'
-    var property = Property[type](properties || types, keywords, context);
-    if (keywords) property.keywords = keywords;
-    if (properties) {
-      var props = [];
-      for (var i = 0, prop; prop = properties[i++];) prop.push ? props.push.apply(props, prop) : props.push(prop);
-      property.properties = props;
-    }
-    property.type = type;
-    return property;
-  };
-  
-  
-  var Type = Property.Type = {
-    length: function(obj) {
-      return typeof obj == 'number' || (!obj.indexOf && ('number' in obj) && obj.unit && (obj.unit != '%'))
-    },
-  
-    color: function(obj) {
-      return obj.indexOf ? obj.match(/^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/) : (obj.isColor || obj.rgba || obj.rgb || obj.hsb)
-    },
-    
-    number: function(obj) {
-      return typeof obj == 'number'
-    },
-    
-    integer: function(obj) {
-      return obj % 1 == 0 && ((0 + obj).toString() == obj)
-    },
-  
-    keyword: function(keywords) {
-      var storage;
-      for (var i = 0, keyword; keyword = keywords[i++];) storage[keyword] = 1;
-      return function(keyword) {
-        return !!storage[keyword]
-      }
-    },
-    
-    strings: function(obj) {
-      return !!obj.indexOf
-    },
-    
-    url: function(obj) {
-      return !obj.indexOf && ("url" in obj);
-    },
-    
-    position: function(obj) {        
-      var positions = Type.position.positions;
-      if (!positions) positions = Type.position.positions = {left: 1, top: 1, bottom: 1, right: 1, center: 1}
-      return positions[obj]
-    },
-    
-    percentage: function(obj) {
-      return obj.unit == '%'
-    }
-  };
-  
-})(typeof exports != 'undefined' ? exports : this);
-/*
----
-name    : SheetParser.Styles
-
-authors   : Yaroslaff Fedin
-
-license   : MIT
-
-requires : SheetParser.Property
-
-provides : SheetParser.Styles
-...
-*/
-
-(function() {
-   
-var SheetParser = (typeof exports == 'undefined') ? window.SheetParser : exports.SheetParser;
-var CSS = SheetParser.Properties = {
-  background:           [[['backgroundColor', 'backgroundImage', 'backgroundRepeat', 
-                          'backgroundAttachment', 'backgroundPositionX', 'backgroundPositionY']], 'multiple'],
-  backgroundColor:      ['color', 'transparent', 'inherit'],
-  backgroundImage:      ['url', 'none', 'inherit'],
-  backgroundRepeat:     ['repeat', 'no-repeat', 'repeat-x', 'repeat-y', 'inherit', 'space', 'round'],
-  backgroundAttachment: ['fixed', 'scroll', 'inherit', 'local', 'fixed'],
-  backgroundPosition:   [['backgroundPositionX', 'backgroundPositionY']],
-  backgroundPositionX:  ['percentage', 'center', 'left', 'right', 'length', 'inherit'],
-  backgroundPositionY:  ['percentage', 'center', 'top', 'bottom', 'length', 'inherit'],
-   
-  textShadow:           [['textShadowBlur', 'textShadowOffsetX', 'textShadowOffsetY', 'textShadowColor'], 'multiple'],
-  textShadowBlur:       ['length'],
-  textShadowOffsetX:    ['length'],
-  textShadowOffsetY:    ['length'],
-  textShadowColor:      ['color'],
-                        
-  boxShadow:            [['boxShadowBlur', 'boxShadowOffsetX', 'boxShadowOffsetY', 'boxShadowColor'], 'multiple'],
-  boxShadowBlur:        ['length'],
-  boxShadowOffsetX:     ['length'],
-  boxShadowOffsetY:     ['length'],
-  boxShadowColor:       ['color'], 
-  
-  outline:              ['outlineWidth', 'outlineStyle', 'outlineColor'],
-  outlineWidth:         ['length'],
-  outlineStyle:         ['dotted', 'dashed', 'solid', 'double', 'groove', 'reidge', 'inset', 'outset'],
-  outlineColor:         ['color'],
-                        
-  font:                 [[
-                          ['fontStyle', 'fontVariant', 'fontWeight'], 
-                          'fontSize', 
-                          ['lineHeight'], 
-                          'fontFamily'
-                        ]],
-  fontStyle:            ['normal', 'italic', 'oblique', 'inherit'],
-  fontVariant:          ['normal', 'small-caps', 'inherit'],
-  fontWeight:           ['normal', 'number', 'bold', 'inherit'],
-  fontFamily:           ['strings', 'inherit'],
-  fontSize:             ['length', 'percentage', 'inherit', 
-                         'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large', 'smaller', 'larger'],
-                        
-  color:                ['color'],
-  letterSpacing:        ['normal', 'length', 'inherit'],
-  textDecoration:       ['none', 'capitalize', 'uppercase', 'lowercase'],
-  textAlign:            ['left', 'right', 'center', 'justify'],
-  textIdent:            ['length', 'percentage'],                 
-  lineHeight:           ['normal', 'length', 'number', 'percentage'],
-  
-  height:               ['length', 'auto'],
-  maxHeight:            ['length', 'auto'],
-  minHeight:            ['length', 'auto'],
-  width:                ['length', 'auto'],
-  maxWidth:             ['length', 'auto'],
-  minWidth:             ['length', 'auto'],
-                        
-  display:              ['inline', 'block', 'list-item', 'run-in', 'inline-block', 'table', 'inline-table', 'none', 
-                         'table-row-group', 'table-header-group', 'table-footer-group', 'table-row', 
-                         'table-column-group', 'table-column', 'table-cell', 'table-caption'],
-  visibility:           ['visible', 'hidden'],
-  float:                ['none', 'left', 'right'],
-  clear:                ['none', 'left', 'right', 'both', 'inherit'],
-  overflow:             ['visible', 'hidden', 'scroll', 'auto'],
-  position:             ['static', 'relative', 'absolute', 'fixed'],
-  top:                  ['length', 'auto'],
-  left:                 ['length', 'auto'],
-  right:                ['length', 'auto'],
-  bottom:               ['length', 'auto'],
-  zIndex:               ['integer'],
-  cursor:               ['auto', 'crosshair', 'default', 'hand', 'move', 'e-resize', 'ne-resize', 'nw-resize', 
-                         'n-resize', 'se-resize', 'sw-resize', 's-resize', 'w-resize', 'text', 'wait', 'help'],
-};
-
-var expanded = ['borderWidth', 'borderColor', 'borderStyle', 'padding', 'margin', 'border'];
-for (var side, sides = ['Top', 'Right', 'Bottom', 'Left'], i = 0; side = sides[i++];) {
-  CSS['border' + side]           = [['border' + side + 'Width', 'border' + side + 'Style', 'border' + side + 'Color']];
-  
-  CSS['border' + side + 'Width'] = ['length', 'thin', 'thick', 'medium'];
-  CSS['border' + side + 'Style'] = ['none', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset', 'inherit', 'none'];
-  CSS['border' + side + 'Color'] = ['color'];
-  
-  CSS['margin' + side]           = ['length', 'percentage', 'auto'];
-  CSS['padding' + side]          = ['length', 'percentage', 'auto'];
-
-  for (var j = 0, prop; prop = expanded[j++];) {
-    if (!CSS[prop]) CSS[prop] = [[]];
-    CSS[prop][0].push(prop.replace(/^([a-z]*)/, '$1' + side));
-    if (i == 4) CSS[prop].push('collection')
-  }
-
-  if (i % 2 == 0) 
-    for (var j = 1, adj; adj = sides[j+=2];) 
-      CSS['borderRadius' + side + adj] = ['length', 'none'];
-};
-
-var Styles = SheetParser.Styles = {}
-for (var property in CSS) Styles[property] = SheetParser.Property.compile(CSS[property], Styles);
-
-})();
-/*
----
- 
-script: Sheet.js
- 
-description: Code to extract style rule definitions from the stylesheet
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Node
-  - Core/Element
-  - Core/Request
-  - Sheet/Sheet
-  - Sheet/SheetParser.Value
-  - Sheet/SheetParser.Property
-  - Sheet/SheetParser.Styles
-  
-provides:
-  - LSD.Sheet
- 
-...
-*/
-
-LSD.Sheet = new Class({
-  Extends: LSD.Node,
-  
-  options: {
-    compile: false,
-    combine: true //combine rules
-  },
-  
-  initialize: function(element, callback) {
-    this.parent.apply(this, arguments);
-    this.rules = []
-    this.callback = callback;
-    if (this.element) this.fetch();
-    else if (callback) callback(this);
-    LSD.Document.addStylesheet(this);
-  },
-  
-  define: function(selectors, style) {
-    LSD.Sheet.Rule.fromSelectors(selectors, style).each(this.addRule.bind(this))
-  },
-  
-  addRule: function(rule) {
-    this.rules.push(rule)
-  },
-  
-  fetch: function(href) {
-    if (!href && this.element) href = this.element.get('href');
-    if (!href) return;
-    new Request({
-      url: href,
-      onSuccess: this.apply.bind(this)
-    }).get();
-  },
-  
-  apply: function(sheet) {
-    if (typeof sheet == 'string') sheet = this.parse(sheet);
-    if (this.options.compile) this.compile(sheet);
-    for (var selector in sheet) this.define(selector, sheet[selector]);
-    if (this.callback) this.callback(this)
-  },
-  
-  parse: function(text) {
-    var sheet = new Sheet(text);
-    var rules = sheet.cssRules;
-    var CSS = SheetParser.Styles, Paint = LSD.Styles;
-    var parsed = {};
-    for (var i = 0, rule; rule = rules[i++];) {      
-      var selector = LSD.Sheet.convertSelector(rule.selectorText)
-      if (!selector.length || LSD.Sheet.isElementSelector(selector)) continue;
-      if (!parsed[selector]) parsed[selector] = {};
-      var styles = parsed[selector];
-      for (var style = rule.style, j = 0, name; name = style[j++];) {
-        var property = name.replace('-lsd-', '').camelCase();
-        var value = Value.compile(SheetParser.Value.translate(style[name]))
-        var definition = Paint[property] || CSS[property];
-        console.log(Paint, property, definition, Paint[property], CSS[property], Paint)
-        if (!definition) continue;
-        if (definition.type != 'simple') {
-          var result = definition[value.push ? 'apply' : 'call'](this, value);
-          if (result === false) continue
-          if (result !== true) for (prop in result) styles[prop] = result[prop];
-        }
-        styles[property] = value;
-      }
-    };
-    return parsed;
-  },
-  
-  attach: function(node) {
-    this.rules.each(function(rule) {
-      rule.attach(node)
-    });
-    LSD.start();
-  },
-  
-  detach: function(node) {
-    this.rules.each(function(rule) {
-      rule.detach(node)
-    });
-  },
-  
-  /* Compile LSD stylesheet to CSS when possible 
-     to speed up setting of regular properties
-     
-     Will create stylesheet node and apply the css
-     unless *lightly* parameter was given. 
-     
-     Unused now, because we decompile css instead */
-  compile: function(lightly) {
-    var bits = [];
-    this.rules.each(function(rule) {
-      if (!rule.implied) return;
-      bits.push(rule.getCSSSelector() + " {")
-      for (var property in rule.implied) {  
-        var value = rule.implied[property];
-        if (typeof value == 'number') {
-          if (property != 'zIndex') value += 'px';
-        } else if (value.map) {
-          value = value.map(function(bit) { return bit + 'px'}).join(' ');
-        }
-        bits.push(property.hyphenate() + ': ' + value + ';')
-      }
-      bits.push("}")
-    })
-    var text = bits.join("\n");
-    if (lightly) return text;
-    
-    if (window.createStyleSheet) {
-      var style = window.createStyleSheet("");
-      style.cssText = text;
-    } else {
-      var style = new Element('style', {type: 'text/css', media: 'screen'}).adopt(document.newTextNode(text)).inject(document.body);
-    }
-  }
-});
-
-Object.append(LSD.Sheet, {
-  isElementSelector: function(selector) {
-    return selector.match(/svg|v\\?:|:(?:before|after)|\.container/);
-  },
-  convertSelector: function(selector) {
-    return selector.replace(/\.id-/g , '#').replace(/\.is-/g, ':').replace(/\.lsd#/g, '#').
-                    replace(/\.lsd\./g, '').replace(/^html body /g, '');
-  },
-  isElementStyle: function(cc) {
-    return false//LSD.Styles.Element[cc] && !LSD.Styles.Ignore[cc];
-  },
-  isRawValue: function(value) {
-    return (value.indexOf('hsb') > -1) || (value.indexOf('ART') > -1) || (value.indexOf('LSD') > -1) || 
-           (value.charAt(0) == '"') || (value == 'false') || (value == parseInt(value)) || (value == parseFloat(value))
-  }
-});
-
-LSD.Sheet.Rule = function(selector, style) {
-  this.selector = selector;
-  this.index = LSD.Sheet.Rule.index ++;
-  this.expressions = selector.expressions[0];
-  this.specificity = this.getSpecificity();
-  for (property in style) {
-    var cc = property.camelCase();
-    var type = (LSD.Sheet.Rule.separate && LSD.Sheet.isElementStyle(cc)) ? 'implied' : 'style';
-    if (!this[type]) this[type] = {}; 
-    this[type][cc] = style[property];
-  }
-}
-LSD.Sheet.Rule.index = 0;
-
-LSD.Sheet.Rule.separate = true;
-
-Object.append(LSD.Sheet.Rule.prototype, {  
-  attach: function(node) {
-    if (!this.watcher) this.watcher = this.watch.bind(this);
-    node.watch(this.selector, this.watcher)
-  },
-  
-  detach: function(node) {
-    node.unwatch(this.selector, this.watcher);
-  },
-  
-  watch: function(node, state) {
-    //console.log(node, state, this.selector.raw, this.style)
-    node[state ? 'addRule' : 'removeRule'](this)
-  },
-  
-  getCSSSelector: function() {
-    return this.expressions.map(function(parsed){
-      var classes = ['', 'lsd'];
-      if (parsed.tag) classes.push(parsed.tag);
-      if (parsed.id) classes.push('id-' + parsed.id);
-      if (parsed.pseudos) {
-        parsed.pseudos.each(function(pseudo) {
-          classes.push(pseudo.key);
-        });
-      };
-      return classes.join('.');
-    }).join(' ');
-  },
-  
-  getSpecificity: function(selector) {
-    specificity = 0;
-    this.expressions.each(function(chunk){
-      if (chunk.tag && chunk.tag != '*') specificity++;
-      if (chunk.id) specificity += 100;
-      for (var i in chunk.attributes) specificity++;
-      specificity += (chunk.pseudos || []).length;
-      specificity += (chunk.classes || []).length * 10;
-    });
-    return specificity;
-  }
-});
-
-var Value = LSD.Sheet.Value = {
-  px: function(value) {
-    return value;
-  },
-  deg: function(value) {
-    return value;
-  },
-  em: function(value) {
-    return function() {
-      return value * (this.baseline || 16)
-    }
-  },
-  "%": function(value) {
-    return function() {
-      return value * (this.baseline || 16)
-    }
-  },
-  url: function(value) {
-    return value
-  },
-  src: function(value) {
-    return value
-  },
-  rgb: function() {
-    return window.rgb.apply(window, arguments)
-  },
-  rgba: function(value) {
-    return window.rgb.apply(window, arguments)
-  },
-  hsb: function() {
-    return window.hsb.apply(window, arguments)
-  },
-  hex: function(value) {
-    return new Color(value)
-  }
-};
-
-Value.compiled = {};
-Value.compile = function(value, context) {
-  if (!value || value.call || typeof value == 'number') return value;
-  if (!context) context = Value;
-  if (value.push) {
-    for (var i = 0, j = value.length, result = [], bit; i < j; bit = value[i++]) result[i] = Value.compile(value[i], context);
-    return result;
-  }
-  if (value.unit)  {
-    var parser = context[value.unit](value.number);
-    parser.unit = value.unit;
-    parser.number = value.number;
-  }
-  if (value.charAt) {
-    if (context.hex && value.charAt(0) == "#" && value.match(/#[a-z0-9]{3,6}/)) return context.hex(value);
-  } else for (var name in value) {
-    if (context[name]) {
-      return context[name](Value.compile(value[name]), context);
-    } else {
-      value[name] = Value.compile(value[name]);
-    }
-    break;
-  }
-  return value;
-}
-
-LSD.Sheet.Rule.fromSelectors = function(selectors, style) { //temp solution, split by comma
-  return selectors.split(/\s*,\s*/).map(function(selector){
-    return new LSD.Sheet.Rule(Slick.parse(selector), style);
-  });
-};
-/*
----
- 
-script: Styles.js
- 
-description: Set, get and render different kind of styles on widget
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD
-  - LSD.Expression
-  - Core/Element.Style
-  - Ext/FastArray
-  - Sheet/SheetParser.Styles
-
-provides: 
-  - LSD.Module.Styles
-
-...
-*/
-
-(function() {
-  
-var CSS = SheetParser.Styles, Paint = LSD.Styles;
-var setStyle = function(element, property, value, type) {
-  if (property == 'strokeWidth') console.log(property, value, type)
-  if (value === false) {
-    if (element && this.element) delete this.element.style[property];
-    delete this.style[element ? 'element' : 'paint'][property], this.style.current[property];
-    if (type) delete this.style[type][property];
-  } else {
-    if (element) this.element.style[property] = (typeof value == 'number') ? value + 'px' : value;
-    this.style[element ? 'element' : 'paint'][property] = this.style.current[property] = value;
-    if (type) this.style[type][property] = value;
-  }
-}
-
-LSD.Module.Styles = new Class({
-  
-  options: {
-    styles: {}
-  },
-
-  initialize: function() {
-    this.style = {
-      current: {},    //styles that widget currently has
-      found: {},      //styles that were found in stylesheets
-      given: {},      //styles that were manually assigned
-
-      changed: {},    //styles that came from stylesheet since last render
-      calculated: {}, //styles that are calculated in runtime
-      computed: {},   //styles that are already getStyled
-      expressed: {},  //styles that are expressed through function
-      implied: {},    //styles that are assigned by environment
-
-      element: {},    //styles that are currently assigned to element
-      paint: {}       //styles that are currently used to paint
-    };
-    this.rules = [];
-    this.parent.apply(this, arguments);
-    Object.append(this.style.current, this.options.styles);
-    for (var property in this.style.current) this.setStyle(property, this.style.current[property])
-  },
-
-  setStyle: function(property, value) {
-    var paint, css;
-    if (!(paint = Paint[property]) && !(css = CSS[property])) return false;
-    var length = arguments.length;
-    if (length > 2) {
-      if (arguments[length - 1] in this.style) var type = arguments[--length];
-      if (length > 2) value = Array.prototype.splice.call(arguments, 1, length);
-    }
-    if (value.call) {
-      this.style.expressed[property] = value;
-      this.style.computed[property] = value = value.call(this);
-    }
-    var result = (css || paint)[value.push ? 'apply' : 'call'](this, value);
-    if (property == 'stroke') console.info(value, result, $t = this, this.element);
-    //if (property == 'glyphPosition') alert([property, JSON.stringify(result)])
-    if (result === true || result === false) setStyle.call(this, css, property, value, type);
-    else for (var prop in result) setStyle.call(this, css, prop, result[prop], type);
-    return result;
-  },
-
-  setStyles: function(style, type) {
-    for (var key in style) this.setStyle(key, style[key], type)
-  },
-
-  getStyle: function(property) {
-    if (this.style.computed[property]) return this.style.computed[property];
-    var value;
-    var definition = Paint[property] || CSS[property];
-    if (!definition) return;
-    if (definition.properties) return definition.properties.map(this.getStyle.bind(this));
-    var expression = this.style.expressed[property];    
-    if (expression) {
-      value = this.style.current[property] = this.calculateStyle(property, expression);
-    } else {  
-      value = this.style.current[property];
-      if (property == 'height') {
-        if (typeof value !== 'number') value = this.getClientHeight();
-      } else if (property == 'width') {
-        if (typeof value !== 'number') value = this.getClientWidth();
-      } else {
-        if (value == "inherit") value = this.inheritStyle(property);
-        if (value == "auto") value = this.calculateStyle(property);
-      }
-    }
-    this.style.computed[property] = value;
-    return value;
-  },
-
-  getStyles: function(properties) {
-    var result = {};
-    for (var i = 0, property, args = arguments; property = args[i++];) result[property] = this.getStyle(property);
-    return result;
-  },
-  
-  renderStyles: function(style) {
-    var style = this.style, 
-        current = style.current,
-        paint = style.paint, 
-        element = style.element,  
-        found = style.found,
-        implied = style.implied,
-        calculated = style.calculated,
-        given = Object.append(style.given, given),
-        changed = style.changed;
-    this.setStyles(given, 'given')
-    for (var property in found) if ((property in changed) && !(property in given)) this.setStyle(property, found[property]);
-    Object.append(style.current, style.implied);
-    for (var property in element)  {
-      if (!(property in given) && !(property in found) && !(property in calculated) && !(property in implied)) {
-        this.element.style[property] = '';
-        delete element[property]
-      }
-    }
-    for (var property in current)  {
-      if (!(property in given) && !(property in found) && !(property in calculated) && !(property in implied)) {
-        delete current[property];
-        delete paint[property];
-      }
-    }
-  },
-  
-  combineRules: function(rule) {
-    var rules = this.rules, style = this.style, found = style.found = {}, implied = style.implied = {}, changed = style.changed;
-    for (var j = rules.length, other; other = rules[--j];) {
-      var setting = other.style, implying = other.implied, self = (rule == other);
-      if (setting) for (var property in setting) if (!(property in found)) {
-        if (self) changed[property] = setting[property];
-        found[property] = setting[property];
-      }
-      if (implying) for (var property in implying) if (!(property in implied)) implied[property] = implying[property];
-    }
-  },
-  
-  addRule: function(rule) {
-    var rules = this.rules;
-    if (rules.indexOf(rule) > -1) return
-    for (var i = 0, other;  other = rules[i++];) {
-      if ((other.specificity > rule.specificity) || ((other.specificity == rule.specificity) && (other.index > rule.index))) break;
-    }
-    rules.splice(--i, 0, rule);
-    this.combineRules(rule);
-  },
-  
-  removeRule: function(rule) {
-    var rules = this.rules, index = rules.indexOf(rule)
-    if (index == -1) return
-    rules.splice(index, 1);
-    this.combineRules();
-    var style = this.style, found = style.found, changed = style.changed, setting = rule.style;
-    if (setting) for (var property in setting) if (!Object.equals(found[property], setting[property])) changed[property] = found[property];
- },
-  
-  inheritStyle: function(property) {
-    var node = this;
-    var style = node.style.current[property];
-    while ((style == 'inherit' || !style) && (node = node.parentNode)) style = node.style.current[property];
-    return style;
-  },
-  
-  calculateStyle: function(property, expression) {
-    if (this.style.calculated[property]) return this.style.calculated[property];
-    var value;
-    if (expression) {
-      value = expression.call(this);
-    } else {
-      switch (property) {
-        case "height":
-          value = this.getClientHeight();
-        case "width":
-          value = this.inheritStyle(property);
-          if (value == "auto") value = this.getClientWidth();
-        case "height": case "width":  
-          //if dimension size is zero, then the widget is not in DOM yet
-          //so we wait until the root widget is injected, and then try to repeat
-          if (value == 0 && (this.redraws == 0)) this.halt();
-      }
-    }
-    this.style.calculated[property] = value;
-    return value;
-  },
-  
-  update: Macro.onion(function() {
-    this.style.calculated = {};
-    this.style.computed = {};
-  })
-});
-
-
-})();
-
-
-LSD.calculate = LSD.Module.Styles.calculate = function() {
-  return LSD.Expression.get.apply(LSD.Expression, arguments)
-}
 /*
 ---
  
@@ -16018,1089 +16994,6 @@ LSD.Widget.Label = new Class({
 /*
 ---
  
-script: Body.js
- 
-description: Lightweight document body wrapper
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires: 
-  - LSD/LSD.Document.Resizable
-  - LSD/LSD.Widget
-  - LSD/LSD.Module.Expectations
-  
-provides:
-  - LSD.Widget.Body
-
-...
-*/
-
-LSD.Widget.Body = new Class({
-  Includes: [LSD.Document.Resizable, LSD.Module.Expectations]
-});
-/*
----
- 
-script: Layer.js
- 
-description: Adds a piece of SVG that can be drawn with widget styles
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - ART.Shape
-  - LSD.Module.Styles
-  - Sheet/SheetParser.Styles
- 
-provides: 
-  - LSD.Layer
-  - LSD.Layer.Shaped
- 
-...
-*/
-
-(function() {
-  
-LSD.Layer = function(name, styles, painters) {
-  this.name = name;
-  this.styles = styles;
-  this.painters = painters;
-}
-
-LSD.Layer.prototype = {
-  render: function(widget, commands) {
-    var canvas = widget.getCanvas();
-    var shape = commands.shape;
-    if (shape == 'none') return;
-    if (!shape) shape = widget.getStyle('shape') || 'rectangle'
-    if (shape.glyph) {
-      var glyph = ART.Glyphs[shape.glyph];
-      if (!glyph) return;    
-      var path = new ART.Path(glyph);
-      var box = path.measure();
-      var layer = new ART.Shape(path, box.width, box.height);
-      if (commands.size && (commands.size.height != box.width || commands.size.width != box.width)) layer.resizeTo(commands.size.width, commands.size.height)
-    } else if (!shape.indexOf){
-      for (var name in shape) {
-        var values = Array.from(shape[name]);
-        shape = name;
-      }
-    }
-    if (!layer) {
-      var path = ART.Shape[shape.capitalize()];
-      if (!path) return;
-      var layer = new path;
-      console.log('rendering', shape, commands.size.width)
-      layer.render(commands)
-    }
-    for (command in commands) {
-      var value = commands[command];
-      if (value && layer[command] && command != 'translate') layer[command][value && value.push ? 'apply' : 'call'](layer, value);
-    }
-  
-    var top = 0, left = 0;
-    if (commands.inside) {
-      top += commands.inside.top;
-      left += commands.inside.left
-    };
-    //if (commands.outside) {
-    //  top += commands.outside.top;
-    //  left += commands.outside.left
-    //};
-    if (commands.translate) {
-      top += commands.translate.x;
-      left += commands.translate.y;
-    }
-    layer.translate(left, top)
-    //if (commands.translate )
-    
-    layer.inject(canvas)
-  },
-  
-  draw: function(widget, context, previous) {
-    context = Object.append({size: widget.size, style: widget.style.current}, context || {});
-    if (context.style.cornerRadiusTopLeft !== null) {
-      context.radius = widget.getStyle('cornerRadius')
-    }
-    var inherited = {}, overwritten = {};
-    for (var painter, i = 0; painter = this.painters[i++];) {
-      var commands = painter.paint.apply(context, painter.keys.map(function(prop) { return widget.getStyle(prop)}));
-      for (var name in commands) {
-        var value = commands[name];
-        if (Inherit[name]) {;
-          inherited[name] = merge(value, context[name])
-        } else {
-          if (!Accumulate[name]) overwritten[name] = context[name]
-          context[name] = (Accumulate[name] || Merge[name]) ? merge(value, context[name]) : value;
-        }
-      }
-      //for (var command in value) this[command](command[value]);
-    }    
-    this.render(widget, context)   
-    if (widget.options.id == 'back') console.log(Object.append(context, overwritten, inherited));
-    return Object.append(context, overwritten, inherited);;
-  }
-}
-
-var merge = function(value, old) {
-  if (typeof value == "object") {
-    if (value.push) {
-      for (var j = 0, k = value.length; j < k; j++) {
-        var item = value[j] || 0;
-        if (old) old[j] = (old[j] || 0) + item;
-        else old = [item]
-      }
-      return old;
-    } else if (!value.indexOf) {
-      for (var prop in value) {
-        var item = value[prop] || 0;
-        if (!old) old = {}
-        old[prop] = (old[prop] || 0) + item;
-      }
-      return old;
-    }
-  }  
-  return value;
-}
-
-var Accumulate = LSD.Layer.accumulated = new FastArray('translate', 'radius');
-var Inherit = LSD.Layer.inherited = new FastArray('inside', 'outside')
-var Merge = LSD.Layer.merged = new FastArray('size')
-
-var Property = SheetParser.Property;
-var Styles = LSD.Styles;
-var Map = LSD.Layer.Map = {};
-var Cache = LSD.Layer.Cache = {};
-
-//LSD.Layer.getProperty = function(property, properties)
- 
-LSD.Layer.generate = function(name, layers) {
-  if (arguments.length > 2) layers = Array.prototype.splice.call(arguments, 1);
-  var painters = [];
-  var styles = LSD.Layer.prepare(name, layers, function(painter) {
-    painters.push(painter)
-  })
-  return new LSD.Layer(name, styles, painters);
-};
-
-LSD.Layer.prepare = function(name, layers, callback) {
-  var properties = [], styles = {};
-  for (var i = 0, layer; layer = layers[i++];) {
-    var definition = LSD.Layer[layer.capitalize()];
-    if (!definition ) continue;
-    var properties = definition.properties && Object.clone(definition.properties);
-    if (!properties) continue;
-    definition = Object.append({styles: {}, keys: []}, definition);
-    var prefix = definition.prefix;
-    if (prefix === false || layer == name) prefix = name;
-    else if (!prefix) prefix = name + layer.capitalize();
-    var length = 0;
-    for (var property in properties) length++
-    var simple = (length == 1);
-    Object.each(properties, function(value, property) {
-      if (property == layer) {
-        if (simple) var style = prefix
-        else return;
-      } else var style = prefix + property.capitalize()
-      if (style == 'stroke') console.error(123, '!!!!!!!!!!!!!!!!!!!!', [].concat(properties), layer, property, value, prefix)
-      definition.styles[style] = styles[style] = Property.compile(value, properties);
-      definition.keys.push(style);
-    });
-    var shorthand = properties[layer];
-    if (shorthand && !simple) {
-      var style = (layer == name) ? name : name + layer.capitalize();
-      if (length) {
-        for (var j = 0, k = 0, l = 0, prop; prop = shorthand[j]; j++) {
-          if (!prop.push) { 
-            if (properties[prop]) {
-              shorthand[j] = prefix + prop.capitalize();
-              k++
-            }
-          } else for (var m = 0, sub; sub = prop[m]; m++) {
-            if (properties[sub]) {
-              prop[m] = prefix + sub.capitalize();
-              l++;
-            }
-          }
-        }
-      }
-      definition.styles[style] = styles[style] = Property.compile((l > 0 && k > 0) ? [shorthand] : shorthand, styles);
-      definition.shorthand = style;
-    }
-    if (definition.onCompile) definition.onCompile(name);
-    if (callback) callback(definition);
-  }
-  for (var property in styles) {
-    Styles[property] = styles[property];
-    Map[property] = name;
-  }
-  return styles;
-}
-
-LSD.Layer.get = function(name) {
-  var key = name//Array.flatten(arguments).join('');
-  if (Cache[key]) return Cache[key];
-  else return (Cache[key] = LSD.Layer.generate.apply(LSD.Layer, arguments))
-}
-
-
-})();
-/*
----
- 
-script: Shape.js
- 
-description: Base layer that provides shape
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Layer
-  - ART.Shape
- 
-provides: 
-  - LSD.Layer.Shape
- 
-...
-*/
-
-LSD.Layer.Styles = {}
-LSD.Layer.Shape = {
-  properties: {
-    shape:      ['url', 'shape', 'glyph']
-  },
-  
-  paint: function(shape) {
-    return {
-      shape: shape
-    }
-  },
-  
-  onCompile: function(name) {
-    for (var shape in ART.Shape) {
-      var klass = ART.Shape[shape];
-      if (!klass || !klass.prototype || !klass.prototype.properties) continue;
-      var properties = klass.prototype.properties;
-      LSD.Layer.Styles[name + shape] = properties.map(function(prop) { return name + prop.capitalize()});
-    }
-  }
-}
-
-Object.append(SheetParser.Property.Type, {
-  shape: function(value) {
-    if (value.indexOf) var name = value
-    else for (var key in value) { name = key; break};
-    return !!ART.Shape[name.capitalize()]
-  },
-  
-  glyph: function(value) {
-    return value.glyph
-  }
-});
-/*
----
- 
-script: Position.js
- 
-description: Positions layer in the box
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Layer
- 
-provides: 
-  - LSD.Layer.Position
- 
-...
-*/
-
-LSD.Layer.Position = {
-  properties: {
-    position: [['x', 'y']],
-    x:        ['length', 'percentage', 'left', 'right', 'center'],
-    y:        ['length', 'percentage', 'top', 'bottom', 'center']
-  },
-  
-  
-  paint: function(x, y) {
-    if (!x && !y) return;
-    return {
-      translate: LSD.Position.calculate(this.box, this.size, x || 'middle', y || 'middle')
-    }
-  }
-}
-
-LSD.Position = {};
-LSD.Position.calculate = function(box, size, x, y) {
-  var position = {x: 0, y: 0};
-  switch (x) {
-    case "left":
-      position.x = 0;
-    case "right":
-      position.x = box.width - size.width;
-    case "center":
-      position.x = box.width - size.width / 2;
-  }
-  switch (y) {
-    case "top":
-      position.y = 0;
-    case "bottom":
-      position.y = box.height - size.height;
-    case "center":
-      position.y = box.height - size.height / 2;
-  }
-  return position;
-}
-/*
----
- 
-script: Shadow.js
- 
-description: Drops outer shadow with offsets. Like a box shadow!
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD.Layer
-- Ext/Element.Properties.boxShadow
-- Ext/Element.Properties.borderRadius
- 
-provides: [LSD.Layer.Shadow, LSD.Layer.Shadow.Layer]
- 
-...
-*/
-
-                              //only gecko & webkit nightlies                                       AppleWebKit/534.1+ (KHTML, ... plus means nightly
-Browser.Features.SVGFilters = Browser.Engine.name == 'gecko' || (Browser.Engine.webkit && navigator.userAgent.indexOf("+ (KHTML") > -1) 
-
-LSD.Layer.Shadow = {
-  
-  properties: {
-    shadow:    ['blur', ['offsetX', 'offsetY'], 'color'],
-    blur:      ['length', 'number'],
-    offsetX:   ['length', 'number'],
-    offsetY:   ['length', 'number'],
-    color:     ['color']
-  },
-  
-  paint: function(color, blur, x, y, stroke, method) {
-    //if (!method) {
-    //  if (this.method) method = method
-    //  if (blur < 4) method = 'onion';
-    //  else if (Browser.Features.boxShadow && this.base.name == 'rectangle') method = 'native';
-    //  else if (Browser.Features.SVGFilters) method = 'blur';
-    //  else method = 'onion'
-    //}
-    //if (this.method && method != this.method) this.eject();
-    //return this.setMethod(method).paint.apply(this, arguments);
-  }
-}
-
-/*
----
- 
-script: Shadow.Onion.js
- 
-description: Draws shadow with layers stack upon each others
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD.Layer.Shadow
- 
-provides: [LSD.Layer.Shadow.Onion]
- 
-...
-*/
-
-LSD.Layer.Shadow.Onion = new Class({
-  //Extends: LSD.Layer.Shadow,
-  
-  paint: function(color, blur, x, y, stroke) {
-    var fill = new Color(color);
-    fill.base = fill.alpha;
-    //var node = this.element.parentNode;
-    var layers = Math.max(blur, 1);
-    for (var i = 0; i < layers; i++) {
-      if (blur == 0) {
-        fill.alpha = Math.min(fill.base * 2, 1)
-      } else {
-        fill.alpha = fill.base / 2 * (i == blur ? .29 : (.2 - blur * 0.017) + Math.sqrt(i / 100));
-      }
-      var rectangle = this.layers[i];
-      if (!rectangle) rectangle = this.layers[i] = LSD.Layer.Shadow.Layer.getInstance(this);
-      rectangle.base = this.base;
-      rectangle.shadow = this;
-      rectangle.produce(stroke / 2 + blur / 2 - i);
-      rectangle.fill(fill);
-    }
-    var length = this.layers.length;
-    for (var i = layers; i < length; i++) if (this.layers[i]) LSD.Layer.Shadow.Layer.release(this.layers[i]);
-    this.layers.splice(layers, length);
-    return {
-      translate: {
-        x: x * 1.5, //multiplying by 1.5 is unreliable. I need a better algorithm altogether
-        y: y * 1.5
-      },
-      outside: {
-        left: Math.max(blur - x, 0),
-        top: Math.max(blur - y, 0),
-        right: Math.max(blur + x, 0),
-        bottom: Math.max(blur + y, 0)
-      }
-    }
-  },
-
-  inject: function(node) {
-    this.parent.apply(this, arguments);
-    this.update.apply(this, arguments);
-  },
-  
-  update: function() {
-    for (var i = 0, j = this.layers.length; i < j; i++) if (this.layers[i]) this.layers[i].inject.apply(this.layers[i], arguments);
-  },
-  
-  eject: function() {
-    for (var i = 0, j = this.layers.length; i < j; i++) {
-      var layer = this.layers[i];
-      if (!layer) continue;
-      LSD.Layer.Shadow.Layer.release(layer)
-      if (layer.shape.element.parentNode) layer.shape.element.parentNode.removeChild(layer.shape.element);
-    }
-  },
-
-  translate: function(x, y) {
-    this.parent.apply(this, arguments);
-    for (var i = 0, j = this.layers.length; i < j; i++) 
-      if (this.layers[i]) this.layers[i].translate(x + i + j / 2, y + i + j / 2)
-  }
-});
-
-LSD.Layer.Shadow.Layer = new Class({
-  Extends: LSD.Layer,
-  
-  
-  inject: function(container){
-    this.eject();
-    if (container instanceof ART.SVG.Group) container.children.push(this);
-    this.container = container;
-    var first = container.element.firstChild;
-    if (first) container.element.insertBefore(this.shape.element, first);
-    else container.element.appendChild(this.shape.element);
-    return this;
-  }
-});
-LSD.Layer.Shadow.Layer.stack = [];
-LSD.Layer.Shadow.Layer.getInstance = function() {
-  return LSD.Layer.Shadow.Layer.stack.pop() || (new LSD.Layer.Shadow.Layer);
-};
-LSD.Layer.Shadow.Layer.release = function(layer) {
-  var shape = layer.shape;
-  if (shape) shape.element.parentNode.removeChild(shape.element);
-  LSD.Layer.Shadow.Layer.stack.push(layer);
-};
-
-/*
----
- 
-script: Shadow.Blur.js
- 
-description: SVG Filter powered shadow
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD.Layer.Shadow
- 
-provides: [LSD.Layer.Shadow.Blur]
- 
-...
-*/
-
-LSD.Layer.Shadow.Blur = new Class({
-  //Extends: LSD.Layer.Shadow,
-
-  paint: function(color, blur, x, y, stroke) {
-    this.produce(stroke);
-    this.shape.fill.apply(this.shape, color ? $splat(color) : null);
-    if (blur > 0) this.shape.blur(blur);
-    else this.shape.unblur();
-    return {
-      translate: {
-        x: x + blur, 
-        y: y + blur
-      },
-      outside: {
-        left: Math.max(blur - x, 0),
-        top: Math.max(blur - y, 0),
-        right: Math.max(blur + x, 0),
-        bottom: Math.max(blur + y, 0)
-      }
-    }
-  }
-})
-/*
----
- 
-script: InnerShadow.js
- 
-description: Drops inner shadow 
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Layer.Shadow
- 
-provides: 
-  - LSD.Layer.Shadow.Inset
- 
-...
-*/
-
-LSD.Layer.InnerShadow = new Class({
-  //Extends: LSD.Layer.Shadow,
-  
-  properties: {
-    required: ['innerShadowColor'],
-    numerical: ['innerShadowBlur', 'innerShadowOffsetX', 'innerShadowOffsetY']
-  },
-
-  paint: function(color, blur, x, y) {
-    var fill = new Color(color);
-    fill.base = fill.alpha;
-    var transition = function(p){
-      return 1 - Math.sin((1 - p) * Math.PI / 2);
-    };
-    var offset = Math.max(Math.abs(x), Math.abs(y));
-    blur += offset;
-    for (var i = 0; i < blur; i++) {
-      if (blur == 0) {
-        fill.alpha = Math.min(fill.base * 2, 1)
-      } else {
-        fill.alpha = fill.base * transition((blur - i) / blur)
-      }
-      var layer = this.layers[i];
-      if (!layer) layer = this.layers[i] = LSD.Layer.InnerShadow.Layer.getInstance(this);
-      layer.layer = this;
-      layer.base = this.base;
-      layer.blur = blur
-      layer.dy = y - x
-      layer.y = Math.max(Math.min(layer.dy, 0) + i, 0);
-      layer.dx = x - y;
-      layer.x = Math.max(Math.min(layer.dx, 0) + i, 0);
-      layer.produce([
-        Math.min(((layer.x > 0) ? ((layer.dx - i < 0) ? 1 : 0.5) * - layer.x  - 0.25 : 0), 0),
-        Math.min(((layer.y > 0) ? (layer.dy + i < 0 ? 1 : 0.5) * - layer.y  - 0.25: 0), 0)
-      ]);
-      layer.stroke(fill, 1);
-    }
-    var length = this.layers.length;
-    for (var i = blur; i < length; i++) if (this.layers[i]) LSD.Layer.InnerShadow.Layer.release(this.layers[i]);
-    this.layers.splice(blur, length);
-  },
-  
-  translate: function(x, y) {
-    this.parent.apply(this, arguments);
-    for (var i = 0, j = this.layers.length; i < j; i++) {
-      var layer = this.layers[i];
-      if (layer) layer.translate(x + layer.x, y + layer.y);
-    }
-  },
-  
-  eject: function() {
-    for (var i = 0, j = this.layers.length; i < j; i++) {
-      var layer = this.layers[i];
-      if (!layer) continue;
-      LSD.Layer.InnerShadow.Layer.release(layer)
-      if (layer.shape.element.parentNode) layer.shape.element.parentNode.removeChild(layer.shape.element);
-    }
-  },
-
-  inject: function(node) {
-    this.parent.apply(this, arguments);
-    this.update.apply(this, arguments);
-  },
-  
-  update: function() {
-    for (var i = 0, j = this.layers.length; i < j; i++) if (this.layers[i]) this.layers[i].inject.apply(this.layers[i], arguments);
-  }
-});
-LSD.Layer.InnerShadow.Layer = new Class({
-  Extends: LSD.Layer
-});
-LSD.Layer.InnerShadow.Layer.stack = [];
-LSD.Layer.InnerShadow.Layer.getInstance = function() {
-  return LSD.Layer.InnerShadow.Layer.stack.pop() || (new LSD.Layer.InnerShadow.Layer);
-}
-LSD.Layer.InnerShadow.Layer.release = function(layer) {
-  layer.element.parentNode.removeChild(layer.element);
-  LSD.Layer.InnerShadow.Layer.stack.push(layer);
-};
-
-/*
----
- 
-script: Shadow.Native.js
- 
-description: CSS powered shadow
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD.Layer.Shadow
- 
-provides: [LSD.Layer.Shadow.Native]
- 
-...
-*/
-
-LSD.Layer.Shadow.Native = new Class({
-  //Extends: LSD.Layer,
-
-  paint: function(color, blur, x, y, stroke) {
-    var widget = this.base.widget;
-    var element = widget.toElement();
-    element.set('borderRadius', widget.getStyle('cornerRadius'));
-    element.set('boxShadow', {color: color, blur: blur, x: x, y: y})
-  },
-  
-  eject: function() {
-    var widget = this.base.widget;
-    var element = widget.element;
-    element.set('boxShadow', false)
-  }
-})
-/*
----
- 
-script: Radius.js
- 
-description: Rounds shapes corners
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Layer
- 
-provides: 
-  - LSD.Layer.Radius
- 
-...
-*/
-
-LSD.Layer.Radius = {
-  properties: {
-    radius:      [['topLeft', 'bottomLeft', 'topRight', 'bottomRight'], 'collection'],
-    topLeft:     ['percentage', 'length'],
-    bottomLeft:  ['percentage', 'length'],
-    topRight:    ['percentage', 'length'],
-    bottomRight: ['percentage', 'length'],
-  },
-  
-  paint: function() {
-    return {
-      radius: Array.from(arguments).map(function(r) { return r || 0})
-    }
-  }
-}
-
-
-
-LSD.Layer.prepare('corner', ['radius'], false);
-/*
----
- 
-script: Scale.js
- 
-description: Adds a way to set scale level to the layer
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Layer
- 
-provides: 
-  - LSD.Layer.Scale
- 
-...
-*/
-
-LSD.Layer.Scale = {
-  properties: {
-    scale: [['x', 'y'], 'collection'],
-    x:     ['number', 'percentage'],
-    y:     ['number', 'percentage']
-  },
-  
-  paint: function(x, y) {
-    if (x != null || y != null) return {
-      size: {
-        width: - this.size.width * (1 - x),
-        height: - this.size.height * (1 - y)
-      }
-    }
-  }
-}
-/*
----
- 
-script: Color.js
- 
-description: Fills shape with color
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD.Layer
- 
-provides: [LSD.Layer.Color, LSD.Layer.Fill]
- 
-...
-*/
-
-LSD.Layer.Color = {
-  properties: {
-    color: ['color', 'gradient', 'none']
-  },
-  
-  paint: function(color) {
-    if (color) var radial = color['radial-gradient'], gradient = color['gradient'] || color ['linear-gradient'];
-    return {
-      fill: color && ((color != 'none') && !gradient && !radial) && color,
-      fillLinear: gradient && [gradient],
-      fillRadial: false//radial
-    }
-  }
-};
-
-LSD.Layer.Fill = {
-  properties: {
-    color: ['color']
-  },
-  
-  prefix: 'fill',
-  
-  paint: LSD.Layer.Color.paint
-};
-/*
----
- 
-script: Stroke.js
- 
-description: Fills shape with color and strokes with a stroke
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Layer
-  - LSD.Layer.Color
- 
-provides: 
-  - LSD.Layer.Stroke
- 
-...
-*/
-
-LSD.Layer.Stroke = {
-  
-  properties: {
-    stroke:    ['width', ['cap', 'join', 'dash'], 'color'], 
-    color:     ['gradient', 'color'],
-    width:     ['length'],
-    cap:       ['butt', 'round', 'square'],
-    join:      ['butt', 'round', 'square'],
-    dash:      ['tokens']
-  },
-  
-  paint: function(color, width, cap, join, dash) {
-    if (!width) width = 0;
-    var gradient = color && (color['gradient'] || color['linear-gradient']);
-    var result = {    
-      dash: dash,
-      size: {
-        width: width,
-        height: width
-      },
-      inside: {
-        left: width,
-        top: width,
-        right: width,
-        bottom: width
-      },
-      stroke: [!gradient && color || null, width, cap, join]
-    };
-    if (gradient) result.strokeLinear = [gradient]
-    return result;
-  }
-}
-/*
----
- 
-script: Layers.js
- 
-description: Make widget use layers for all the SVG
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Layer
-  - ART.Shape
-  - LSD.Module.Styles
-
-provides: 
-  - LSD.Trait.Layers
- 
-...
-*/
-
-
-(function() {
-
-LSD.Trait.Layers = new Class({
-  options: {
-    layers: {}
-  },
-  
-  initialize: function() {
-    this.offset = {};
-    this.layers = {};
-    this.parent.apply(this, arguments);
-  },
-  
-  attach: Macro.onion(function() {
-    this.style.layers = {};
-    for (var name in this.options.layers) this.addLayer(name, this.options.layers[name]);
-    //console.log(this.style.layers)
-  }),
-
-  addLayer: function(name, value) {
-    var slots = this.style.layers;
-    var layer = this.layers[name] = LSD.Layer.get(name, Array.from(value));
-    for (var i = 0, painter; painter = layer.painters[i++];) {
-      for (var group = painter.keys, j = 0, property; property = group[j++];) {
-        if (!slots[property]) slots[property] = [];
-        slots[property].push(name);
-      }
-    }
-  },
-  
-  renderLayers: function(dirty) {
-    var updated = new FastArray, style = this.style, layers = style.layers, offset = this.offset;
-    for (var property in dirty) if (layers[property]) updated.push.apply(updated, layers[property]);
-    
-    
-    
-    
-    var result = {};
-    for (var name in this.layers) {
-      if (!updated[name]) continue;
-      var layer = this.layers[name];
-      var sizes = {size: Object.append({box: this.size}, this.size)};
-      result = layer.draw(this, Object.append(result.inside ? {inside: result.inside, outside: result.outside} : {}, sizes))
-      console.log('updated', name, dirty, result.inside, result)
-    }
-    offset.inside = Object.append({left: 0, right: 0, top: 0, bottom: 0}, result.inside);
-    offset.outside = Object.append({left: 0, right: 0, top: 0, bottom: 0}, result.outside);
-    offset.shape = /*this.shape.getOffset ? this.shape.getOffset(style.current) : */{left: 0, right: 0, top: 0, bottom: 0};
-    
-    
-    //console.log(result.inside, 123)
-    //var style = this.style, layers = style.layers, offset = this.offset;
-    //var updated = new FastArray, definitions = this.options.layers;
-    //this.getShape().setStyles(this.getStyles.apply(this, this.getShape().properties));
-    //offset.outside = {left: 0, right: 0, top: 0, bottom: 0};
-    //offset.inside = {left: 0, right: 0, top: 0, bottom: 0};
-    //offset.shape = this.shape.getOffset ? this.shape.getOffset(style.current) : {left: 0, right: 0, top: 0, bottom: 0};
-    //for (var property in dirty) if (layers[property]) updated.push.apply(updated, layers[property]);
-    //var outside = offset.outside, inside = offset.inside;
-    //for (var name in definitions) {
-    //  var value = updated[name] ? LSD.Layer.render(definitions[name], this) : null;
-    //  var layer = this.layers[name];
-    //  if (!layer) continue;
-    //  if (value == null) value = layer.value;
-    //  layer.value = value;
-    //  if (value === false) {
-    //    if (layer.injected) layer.eject();
-    //  } else {
-    //    if (!layer.injected) {
-    //      for (var layers = Object.keys(definitions), i = layers.indexOf(layer.name), key, next; key = layers[++i];) {
-    //        if ((next = this.layers[key]) && next.injected && next.shape) {
-    //          layer.inject(next.shape, 'before');
-    //          break;
-    //        }
-    //      }
-    //      if (!layer.injected) layer.inject(this.getCanvas());
-    //    } else {
-    //      if (layer.update) layer.update(this.getCanvas())
-    //    }
-    //    layer.translate(value.translate.x + outside.left + inside.left, value.translate.y + outside.top + inside.top);
-    //    for (side in value.inside) {  
-    //      outside[side] += value.outside[side];
-    //      inside[side] += value.inside[side]
-    //    }
-    //  }
-    //}
-  },
-  
-  repaint: function() {
-    var style = this.style, last = style.last, old = style.size, paint = style.paint, changed = style.changed;
-    this.parent.apply(this, arguments);
-    this.setSize(this.getStyles('height', 'width'));
-    var size = this.size;
-    if (size && (!old || (old.width != size.width || old.height != size.height))) {
-      this.fireEvent('resize', [size, old]);
-      changed = paint;
-    }
-    if (Object.getLength(changed) > 0) this.renderLayers(changed);
-    style.changed = {};
-    style.last = Object.append({}, paint);
-    style.size = Object.append({}, size);
-    this.renderOffsets();
-  },
-  
-  renderStyles: function() {
-    this.parent.apply(this, arguments);
-    var style = this.style, current = style.current;
-    Object.append(this.offset, {
-      padding: {left: current.paddingLeft || 0, right: current.paddingRight || 0, top: current.paddingTop || 0, bottom: current.paddingBottom || 0},
-      margin: {left: current.marginLeft || 0, right: current.marginRight || 0, top: current.marginTop || 0, bottom: current.marginBottom || 0}
-    });
-  },
-  
-  renderOffsets: function() {
-    var element = this.element,
-        current = this.style.current, 
-        offset  = this.offset,         // Offset that is provided by:
-        inside  = offset.inside,       // layers, inside the widget
-        outside = offset.outside,      // layers, outside of the widget
-        shape   = offset.shape,        // shape
-        padding = offset.padding,      // padding style declarations
-        margin  = offset.margin,       // margin style declarations
-        inner   = {},                  // all inside offsets above, converted to padding
-        outer   = {};                  // all outside offsets above, converted to margin
-        
-    for (var property in inside) {
-      var cc = property.capitalize();
-      if (offset.inner) var last = offset.inner[property];
-      inner[property] = padding[property] + inside[property] + shape[property] + outside[property];
-      if (last != null ? last != inner[property] : inner[property]) element.style['padding' + cc] = inner[property] + 'px';
-      if (offset.outer) last = offset.outer[property];
-      outer[property] = margin[property] - outside[property];
-      if (last != null ? last != outer[property] : outer[property]) element.style['margin' + cc] = outer[property] + 'px';
-    }
-    if (inside) Object.append(offset, {inner: inner, outer: outer});
-  }
-});
-
-})();
-
-/*
----
- 
-script: Offset.js
- 
-description: Positions layer around the canvas
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD.Layer
- 
-provides: [LSD.Layer.Offset]
- 
-...
-*/
-
-LSD.Layer.Offset = {
-  properties: {  
-    offset:    [['top', 'right', 'bottom', 'left']],
-    top:       ['length', 'percentage'],
-    left:      ['length', 'percentage'],
-    bottom:    ['length', 'percentage'],
-    right:     ['length', 'percentage'],
-  },
-
-  paint: function(top, right, bottom, left) {
-    return {
-      translate: {
-        x: left == null && right != null ? (this.size.width - (right || 0)) : (left || 0), 
-        y: top == null && bottom != null ? (this.size.height - (bottom || 0)) : (top || 0)
-      }
-    }
-  }
-};
-/*
----
- 
-script: Size.js
- 
-description: Base layer that provides shape
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-  - LSD.Layer
- 
-provides: 
-  - LSD.Layer.Size
- 
-...
-*/
-
-LSD.Layer.Size = {
-  properties: {
-    size:       [['height', 'width'], 'collection'],
-    height:     ['length', 'percentage'],
-    width:      ['length', 'percentage']
-  },
-  
-  prefix: false,
-  
-  paint: function(height, width) {
-    if (height !== null && width !== null) return {
-      size: {
-        height: this.size.height ? (height - this.size.height) : height,
-        width: this.size.width ? (width - this.size.width) : width
-      }
-    }
-  }
-}
-/*
----
- 
 script: Widget.Paint.js
  
 description: Base class for widgets that use SVG layers in render
@@ -17127,6 +17020,11 @@ requires:
   - LSD.Layer.Scale
   - LSD.Layer.Stroke
   - LSD.Layer.Position
+  - LSD/ART.Shape.Arrow
+  - LSD/ART.Shape.Ellipse
+  - LSD/ART.Shape.Flower
+  - LSD/ART.Shape.Rectangle
+  - LSD/ART.Shape.Star
   
 provides: 
   - LSD.Widget.Paint
@@ -17137,13 +17035,11 @@ provides:
 LSD.Widget.Paint = new Class({
   Includes: [
     LSD.Widget,
-    LSD.Trait.Shape,
     LSD.Trait.Dimensions,
     LSD.Trait.Layers
   ],
   
   options: {
-    //layers: ['shadow', 'stroke', 'background', 'foreground', 'icon', 'glyph']
     layers: {
       shadow:     ['size', 'radius', 'shape', 'shadow'],
       stroke:     [        'radius', 'stroke', 'shape', 'fill'],
@@ -17171,10 +17067,9 @@ LSD.Widget.Paint = new Class({
   lets us use it in other parts of the framework
   (e.g. in stylesheets to validate styles)
 */
-(function(layers) {
+(function(layers, shapes) {
   for (var layer in layers) LSD.Layer.get(layer, layers[layer]);
-})(LSD.Widget.Paint.prototype.options.layers);
-alert(111);
+})(LSD.Widget.Paint.prototype.options.layers, ART.Shape);
 /*
 ---
  
@@ -17845,6 +17740,91 @@ LSD.Widget.Form = new Class({
 /*
 ---
  
+script: Resizable.js
+ 
+description: Document that redraws children when window gets resized.
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires: 
+  - LSD.Document
+  - LSD.Module.Layout
+  - LSD.Module.Events
+  - LSD.Module.Attributes
+ 
+provides:
+  - LSD.Document.Resizable
+ 
+...
+*/
+
+LSD.Document.Resizable = new Class({
+	Includes: [
+    LSD.Document,
+    LSD.Module.Layout,
+    LSD.Module.Events,
+    LSD.Module.Attributes
+	],
+	
+	options: {
+  	events: {
+  	  window: {
+  	    resize: 'onResize'
+  	  }
+  	},
+  	root: true
+  },
+
+	initialize: function() {
+	  this.style = {
+	    current: {}
+	  };
+	  this.parent.apply(this, arguments);
+	  this.attach();
+	  this.onResize();
+	},
+	
+	onResize: function() {
+	  Object.append(this.style.current, document.getCoordinates());
+	  this.render()
+	},
+	
+	render: function() {
+		this.childNodes.each(function(child){
+		  child.refresh();
+		});
+	}
+});
+/*
+---
+ 
+script: Body.js
+ 
+description: Lightweight document body wrapper
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires: 
+  - LSD/LSD.Document.Resizable
+  - LSD/LSD.Widget
+  - LSD/LSD.Module.Expectations
+  
+provides:
+  - LSD.Widget.Body
+
+...
+*/
+
+LSD.Widget.Body = new Class({
+  Includes: [LSD.Document.Resizable, LSD.Module.Expectations]
+});
+/*
+---
+ 
 script: QFocuser.js
  
 description: class for keyboard navigable AJAX widgets for better usability and accessibility
@@ -18242,72 +18222,6 @@ LSD.Mixin.Focus.Propagation = {
 /*
 ---
  
-script: List.js
- 
-description: Menu widget to be used as a list of item
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD.Widget.Menu
-- LSD/LSD.Trait.Item
-- LSD/LSD.Trait.List
-- LSD/LSD.Mixin.Focus
-- LSD/LSD.Trait.Accessibility
-- LSD/LSD.Trait.Proxies
-
-provides:
-- LSD.Widget.Menu.List
-- LSD.Widget.Menu.List.Item
- 
-...
-*/
-LSD.Widget.Menu.List = new Class({
-  Includes: [
-    LSD.Widget.Menu,
-    LSD.Trait.List,
-    LSD.Trait.Accessibility,
-    LSD.Trait.Proxies
-  ],
-  
-  options: {
-    attributes: {
-      type: 'list'
-    },
-    layout: {
-      item: 'menu-list-item'
-    },
-    events: {
-      self: {
-        dominject: 'makeItems'
-      },
-      element: {
-        'mousedown:on(option)': function() {
-          this.listWidget.selectItem(this)
-        }
-      }
-    }
-  }
-});
-    
-
-LSD.Widget.Menu.List.Option = new Class({
-  Includes: [
-    LSD.Widget.Paint,
-    LSD.Trait.Item.Stateful
-  ],
-  
-  options: {
-    tag: 'option'
-  }
-});
-
-LSD.Widget.Menu.List.Button = LSD.Widget.Menu.List.Li = LSD.Widget.Menu.List.Command = LSD.Widget.Menu.List.Option;
-/*
----
- 
 script: Select.js
  
 description: Basic selectbox
@@ -18697,6 +18611,111 @@ LSD.Widget.Input = new Class({
 /*
 ---
  
+script: Checkbox.js
+ 
+description: Boolean checkbox type of input
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+- LSD.Widget.Input
+- LSD/LSD.Mixin.Touchable
+- LSD/LSD.Mixin.Focus
+- LSD/LSD.Trait.Accessibility
+
+provides: [LSD.Widget.Input.Checkbox]
+ 
+...
+*/
+LSD.Widget.Input.Checkbox = new Class({
+  Extends: LSD.Widget.Paint,
+  
+  options: {
+    tag: 'input',
+    shortcuts: {
+      space: 'toggle'
+    },
+    command: {
+      type: 'checkbox'
+    },
+    events: {
+      enabled: {
+        element: {
+          click: 'click'
+        }
+      }
+    },
+    writable: true
+  }
+});
+/*
+---
+ 
+script: Range.js
+ 
+description: Range slider input
+ 
+license: Public domain (http://unlicense.org).
+
+authors: Yaroslaff Fedin
+ 
+requires:
+- LSD.Widget.Input
+- LSD.Widget.Button
+- LSD/LSD.Widget.Paint
+- LSD/LSD.Trait.Slider
+- LSD/LSD.Mixin.Focus
+- LSD/LSD.Trait.Accessibility
+
+provides: [LSD.Widget.Input.Range]
+ 
+...
+*/
+
+LSD.Widget.Input.Range = new Class({
+  Includes: [
+    LSD.Widget.Paint,
+    LSD.Trait.Slider,
+    LSD.Trait.Accessibility
+  ],
+  
+  options: {
+    tag: 'input',
+    shortcuts: {
+      next: 'increment',
+      previous: 'decrement'
+    },
+    layout: {
+      children: {
+        '>thumb[shape=arrow]#thumb': {}
+      }
+    },
+    writable: true
+  },
+  
+  initialize: function() {
+    //delete this.options.events.focus.element.mousedown;
+    this.parent.apply(this, arguments);
+    this.addPseudo(this.options.mode);
+  },
+
+  onSet: function() {
+    this.focus();
+  }
+});
+
+LSD.Widget.Input.Range.Thumb = new Class({
+  Extends: LSD.Widget.Button,
+    
+  options: {
+    tag: 'thumb'
+  }
+});
+/*
+---
+ 
 script: Search.js
  
 description: Search field with a dropdown
@@ -18896,108 +18915,69 @@ LSD.Widget.Input.Radio = new Class({
 /*
 ---
  
-script: Checkbox.js
+script: List.js
  
-description: Boolean checkbox type of input
- 
-license: Public domain (http://unlicense.org).
-
-authors: Yaroslaff Fedin
- 
-requires:
-- LSD.Widget.Input
-- LSD/LSD.Mixin.Touchable
-- LSD/LSD.Mixin.Focus
-- LSD/LSD.Trait.Accessibility
-
-provides: [LSD.Widget.Input.Checkbox]
- 
-...
-*/
-LSD.Widget.Input.Checkbox = new Class({
-  Extends: LSD.Widget.Paint,
-  
-  options: {
-    tag: 'input',
-    shortcuts: {
-      space: 'toggle'
-    },
-    command: {
-      type: 'checkbox'
-    },
-    events: {
-      enabled: {
-        element: {
-          click: 'click'
-        }
-      }
-    },
-    writable: true
-  }
-});
-/*
----
- 
-script: Range.js
- 
-description: Range slider input
+description: Menu widget to be used as a list of item
  
 license: Public domain (http://unlicense.org).
 
 authors: Yaroslaff Fedin
  
 requires:
-- LSD.Widget.Input
-- LSD.Widget.Button
-- LSD/LSD.Widget.Paint
-- LSD/LSD.Trait.Slider
+- LSD.Widget.Menu
+- LSD/LSD.Trait.Item
+- LSD/LSD.Trait.List
 - LSD/LSD.Mixin.Focus
 - LSD/LSD.Trait.Accessibility
+- LSD/LSD.Trait.Proxies
 
-provides: [LSD.Widget.Input.Range]
+provides:
+- LSD.Widget.Menu.List
+- LSD.Widget.Menu.List.Item
  
 ...
 */
-
-LSD.Widget.Input.Range = new Class({
+LSD.Widget.Menu.List = new Class({
   Includes: [
-    LSD.Widget.Paint,
-    LSD.Trait.Slider,
-    LSD.Trait.Accessibility
+    LSD.Widget.Menu,
+    LSD.Trait.List,
+    LSD.Trait.Accessibility,
+    LSD.Trait.Proxies
   ],
   
   options: {
-    tag: 'input',
-    shortcuts: {
-      next: 'increment',
-      previous: 'decrement'
+    attributes: {
+      type: 'list'
     },
     layout: {
-      children: {
-        '>thumb[shape=arrow]#thumb': {}
-      }
+      item: 'menu-list-item'
     },
-    writable: true
-  },
-  
-  initialize: function() {
-    //delete this.options.events.focus.element.mousedown;
-    this.parent.apply(this, arguments);
-    this.addPseudo(this.options.mode);
-  },
-
-  onSet: function() {
-    this.focus();
+    events: {
+      self: {
+        dominject: 'makeItems'
+      },
+      element: {
+        'mousedown:on(option)': function() {
+          this.listWidget.selectItem(this)
+        }
+      }
+    }
   }
 });
-
-LSD.Widget.Input.Range.Thumb = new Class({
-  Extends: LSD.Widget.Button,
     
+
+LSD.Widget.Menu.List.Option = new Class({
+  Includes: [
+    LSD.Widget.Paint,
+    LSD.Trait.Item.Stateful
+  ],
+  
   options: {
-    tag: 'thumb'
+    tag: 'option'
   }
 });
+
+LSD.Widget.Menu.List.Button = LSD.Widget.Menu.List.Li = LSD.Widget.Menu.List.Command = LSD.Widget.Menu.List.Option;
 /*
 ---
  
@@ -19027,11 +19007,6 @@ requires:
   - Widgets/LSD.Widget.Container
   - Widgets/LSD.Widget.Window
   - Widgets/LSD.Widget.Window.Application
-  - LSD/ART.Shape.Arrow
-  - LSD/ART.Shape.Ellipse
-  - LSD/ART.Shape.Flower
-  - LSD/ART.Shape.Rectangle
-  - LSD/ART.Shape.Star
   - LSD/LSD.Module.Container
   - LSD/LSD.Module.Layout
   - LSD/LSD.Mixin.Draggable
